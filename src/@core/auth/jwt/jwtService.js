@@ -86,8 +86,16 @@ export default class JwtService {
     return localStorage.getItem(this.jwtConfig.storageRefreshTokenKeyName)
   }
 
+  getTokenLifetime() {
+	return localStorage.getItem(this.jwtConfig.storageTokenLifetimeKeyName);
+  }
+
   setToken(value) {
     localStorage.setItem(this.jwtConfig.storageTokenKeyName, value)
+  }
+
+  setTokenLifetime(value) {
+	localStorage.setItem(this.jwtConfig.storageTokenLifetimeKeyName, value);
   }
 
   setRefreshToken(value) {

@@ -254,6 +254,7 @@ export default {
       }
     },
     fetchCities: _.debounce((search, loading, vm) => {
+		console.log('search - ', search);
       vm.$api.cities.getCities({ search, limit: 100 }).then((response) => {
         vm.cities = response.data.results;
 

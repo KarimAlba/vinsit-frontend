@@ -37,7 +37,7 @@
 
         <b-dropdown-divider />
 
-        <b-dropdown-item link-class="d-flex align-items-center">
+        <b-dropdown-item link-class="d-flex align-items-center" @click="logout()">
           <feather-icon size="16" icon="LogOutIcon" class="mr-50" />
           <span>Выход</span>
         </b-dropdown-item>
@@ -56,6 +56,8 @@ import {
   BAvatar,
 } from "bootstrap-vue";
 import DarkToggler from "@core/layouts/components/app-navbar/components/DarkToggler.vue";
+import auth from "@/api/auth";
+import useJwt from '@/auth/jwt/useJwt'
 
 export default {
   components: {
@@ -75,5 +77,14 @@ export default {
       default: () => {},
     },
   },
+  methods: {
+	logout() {
+		const refreshToken = useJwt.getRefreshToken();
+		const response = this.$api.auth.logout(refreshToken);
+		if (response || !refreshToken)  {
+			this.$router.push({ name: 'login' })
+		};
+	}
+  }
 };
 </script>
