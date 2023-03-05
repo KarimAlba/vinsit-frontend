@@ -1,5 +1,6 @@
 import instance from "./instance";
 
+import authModule from "./auth";
 import accountingActsModule from "./accounting-acts";
 import accountingUpdsModule from "./accounting-upds";
 import citiesModule from "./cities";
@@ -13,6 +14,7 @@ import paymentDocumentsModule from "./payment-documents";
 
 
 export default {
+	auth: authModule(instance),
     accActs: accountingActsModule(instance),
     accUpds: accountingUpdsModule(instance),
     cities: citiesModule(instance),

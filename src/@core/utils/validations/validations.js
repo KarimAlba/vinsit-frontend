@@ -13,7 +13,7 @@ import {
   alpha_num as rule_alpha_num,
   length as rule_length,
 } from 'vee-validate/dist/rules'
-import ru from 'vee-validate/dist/locale/ru.json'
+// import ru from 'vee-validate/dist/locale/ru.json'
 
 // eslint-disable-next-line object-curly-newline
 import { validatorPositive, validatorUrlValidator, validatorPassword, validatorCreditCard } from './validators'

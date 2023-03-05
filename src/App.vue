@@ -1,14 +1,14 @@
 <template>
-  <div
-    id="app"
-    class="h-100"
-    :class="[skinClasses]"
-  >
-    <component :is="layout">
-      <router-view />
-    </component>
+	<div
+		id="app"
+		class="h-100"
+		:class="[skinClasses]"
+	>
+		<component :is="layout">
+			<router-view />
+		</component>
 
-  </div>
+	</div>
 </template>
 
 <script>
@@ -28,26 +28,26 @@ const LayoutHorizontal = () => import('@/layouts/horizontal/LayoutHorizontal.vue
 const LayoutFull = () => import('@/layouts/full/LayoutFull.vue')
 
 export default {
-  components: {
+	components: {
 
-    // Layouts
-    LayoutHorizontal,
-    LayoutVertical,
-    LayoutFull,
+		// Layouts
+		LayoutHorizontal,
+		LayoutVertical,
+		LayoutFull,
 
-  },
-  // ! We can move this computed: layout & contentLayoutType once we get to use Vue 3
-  // Currently, router.currentRoute is not reactive and doesn't trigger any change
-  computed: {
-    layout() {
-      if (this.$route.meta.layout === 'full') return 'layout-full'
-      return `layout-${this.contentLayoutType}`
-    },
-    contentLayoutType() {
-      return this.$store.state.appConfig.layout.type
-    },
-  },
-  beforeCreate() {
+	},
+	// ! We can move this computed: layout & contentLayoutType once we get to use Vue 3
+	// Currently, router.currentRoute is not reactive and doesn't trigger any change
+	computed: {
+		layout() {
+		if (this.$route.meta.layout === 'full') return 'layout-full'
+		return `layout-${this.contentLayoutType}`
+		},
+		contentLayoutType() {
+		return this.$store.state.appConfig.layout.type
+		},
+	},
+	beforeCreate() {
     // Set colors in theme
     const colors = ['primary', 'secondary', 'success', 'info', 'warning', 'danger', 'light', 'dark']
 
@@ -67,8 +67,8 @@ export default {
     // Set RTL
     const { isRTL } = $themeConfig.layout
     document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr')
-  },
-  setup() {
+	},
+	setup() {
     const { skin, skinClasses } = useAppConfig()
 
     // If skin is dark when initialized => Add class to body
