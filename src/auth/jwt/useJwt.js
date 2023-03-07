@@ -1,6 +1,5 @@
-import useJwt from '@core/auth/jwt/useJwt'
-import axios from '@axios'
-import jwtDefaultConfig from '@/@core/auth/jwt/jwtDefaultConfig'
+import useJwt from '@core/auth/jwt/useJwt';
+import axios from '@axios';
 
-const { jwt } = useJwt(axios, {})
-export default jwt
+const { jwt } = useJwt(axios, {});
+export default jwt;

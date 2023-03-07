@@ -21,7 +21,9 @@ export default class JwtService {
     this.axiosIns.interceptors.request.use(
       config => {
         // Get token from localStorage
-        const accessToken = this.getToken()
+        const accessToken = this.getToken();
+
+		console.log('Called this interceptor ', accessToken);
 
         // If token is present add it to request's Authorization Header
         if (accessToken) {
