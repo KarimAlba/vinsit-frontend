@@ -14,6 +14,14 @@ export default [
             layout: 'full',
         },
     },
+	{
+        path: '/registration',
+        name: 'registration',
+        component: () => import('@/views/Registration.vue'),
+        meta: {
+            layout: 'full',
+        },
+    },
     {
         path: '/error-404',
         name: 'error-404',

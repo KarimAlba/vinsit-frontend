@@ -1,4 +1,4 @@
-import instance from "./instance";
+import Instance from "./instance";
 
 import authModule from "./auth";
 import accountingActsModule from "./accounting-acts";
@@ -12,6 +12,7 @@ import productsModule from "./products";
 import placesModule from "./places";
 import paymentDocumentsModule from "./payment-documents";
 
+const instance = new Instance().getAxiosIns();
 
 export default {
 	auth: authModule(instance),

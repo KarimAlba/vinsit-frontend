@@ -13,12 +13,12 @@
 		<div
 		  class="w-100 d-lg-flex align-items-center justify-content-center px-5"
 		>
-		  <b-img fluid :src="imgUrl" alt="Login V2" />
+		  <b-img fluid :src="imgUrl" alt="Registration V2" />
 		</div>
 	  </b-col>
 	  <!-- /Left Text-->
 
-	  <!-- Login-->
+	  <!-- Registration-->
 	  <b-col lg="4" class="d-flex align-items-center auth-bg px-2 p-lg-5">
 		<b-col sm="8" md="6" lg="12" class="px-xl-2 mx-auto">
 		  <b-card-title title-tag="h2" class="font-weight-bold mb-1">
@@ -29,49 +29,67 @@
 		  </b-card-text>
 
 		  <!-- form -->
-		  <!-- <validation-observer ref="loginValidation"> -->
-			<b-form class="auth-login-form mt-2" @submit.prevent>
+		  <validation-observer ref="registrationValidation">
+			<b-form class="auth-registration-form mt-2" @submit.prevent>
+			<!-- username -->
+			<b-form-group label="Username" label-for="registration-username">
+				<validation-provider
+				  #default="{ errors }"
+				  name="Username"
+				  rules="required|username"
+				>
+				  <b-form-input
+					id="registration-username"
+					v-model="userEmail"
+					:state="errors.length > 0 ? false : null"
+					name="registration-username"
+					placeholder="Username"
+				  />
+				  <small class="text-danger">{{ errors[0] }}</small>
+				</validation-provider>
+			  </b-form-group>
 			  <!-- email -->
-			  <b-form-group label="Email" label-for="login-email">
-				<!-- <validation-provider
+			  <b-form-group label="Email" label-for="registration-email">
+				<validation-provider
 				  #default="{ errors }"
 				  name="Email"
 				  rules="required|email"
-				> -->
+				>
 				  <b-form-input
-					id="login-email"
+					id="registration-email"
 					v-model="userEmail"
-					
-					name="login-email"
+					:state="errors.length > 0 ? false : null"
+					name="registration-email"
 					placeholder="john@example.com"
 				  />
-				  <!-- <small class="text-danger">{{ errors[0] }}</small> -->
-				<!-- </validation-provider> -->
+				  <small class="text-danger">{{ errors[0] }}</small>
+				</validation-provider>
 			  </b-form-group>
 
 			  <!-- forgot password -->
 			  <b-form-group>
 				<div class="d-flex justify-content-between">
-				  <label for="login-password">Password</label>
-				  <b-link :to="{ name: 'auth-forgot-password-v2' }">
+				  <!-- <label for="registration-password">Password</label> -->
+				  <!-- <b-link :to="{ name: 'auth-forgot-password-v2' }">
 					<small>Forgot Password?</small>
-				  </b-link>
+				  </b-link> -->
 				</div>
-				<!-- <validation-provider
+				<validation-provider
 				  #default="{ errors }"
 				  name="Password"
 				  rules="required"
-				> -->
+				>
 				  <b-input-group
 					class="input-group-merge"
+					:class="errors.length > 0 ? 'is-invalid' : null"
 				  >
 					<b-form-input
-					  id="login-password"
+					  id="registration-password"
 					  v-model="password"
-					  
+					  :state="errors.length > 0 ? false : null"
 					  class="form-control-merge"
 					  :type="passwordFieldType"
-					  name="login-password"
+					  name="registration-password"
 					  placeholder="············"
 					/>
 					<b-input-group-append is-text>
@@ -82,8 +100,8 @@
 					  />
 					</b-input-group-append>
 				  </b-input-group>
-				  <!-- <small class="text-danger">{{ errors[0] }}</small> -->
-				<!-- </validation-provider > -->
+				  <small class="text-danger">{{ errors[0] }}</small>
+				</validation-provider>
 			  </b-form-group>
 
 			  <!-- checkbox -->
@@ -93,7 +111,12 @@
 				  v-model="status"
 				  name="checkbox-1"
 				>
-				  Remember Me
+				<b-card-text class="text-center">
+					<span> I agree to </span>
+					<b-link :to="{ name: 'page-auth-register-v2' }">
+						<span>&nbsp;privacy policy & terms</span>
+					</b-link>
+				</b-card-text>
 				</b-form-checkbox>
 			  </b-form-group>
 
@@ -104,15 +127,15 @@
 				block
 				@click="validationForm"
 			  >
-				Sign in
+				Sign up
 			  </b-button>
 			</b-form>
-		  <!-- </validation-observer> -->
+		  </validation-observer>
 
 		  <b-card-text class="text-center mt-2">
-			<span>New on our platform? </span>
+			<span>Already have an account? </span>
 			<b-link :to="{ name: 'page-auth-register-v2' }">
-			  <span>&nbsp;Create an account</span>
+			  <span>&nbsp;Sign in instead</span>
 			</b-link>
 		  </b-card-text>
 
@@ -138,14 +161,14 @@
 		  </div>
 		</b-col>
 	  </b-col>
-	  <!-- /Login-->
+	  <!-- /Registration-->
 	</b-row>
   </div>
 </template>
 
 <script>
 /* eslint-disable global-require */
-// import { ValidationProvider, ValidationObserver } from "vee-validate";
+import { ValidationProvider, ValidationObserver } from "vee-validate";
 import Logo from "@core/layouts/components/Logo.vue";
 import {
   BRow,
@@ -162,7 +185,7 @@ import {
   BForm,
   BButton,
 } from "bootstrap-vue";
-// import { required, email } from "@validations";
+import { required, email } from "@validations";
 import { togglePasswordVisibility } from "@core/mixins/ui/forms";
 import store from "@/store/index";
 import ToastificationContent from "@core/components/toastification/ToastificationContent.vue";
@@ -184,8 +207,8 @@ export default {
 	BForm,
 	BButton,
 	Logo,
-	// ValidationProvider,
-	// ValidationObserver,
+	ValidationProvider,
+	ValidationObserver,
   },
   mixins: [togglePasswordVisibility],
   data() {
@@ -193,10 +216,11 @@ export default {
 	  status: "",
 	  password: "",
 	  userEmail: "",
+	//   sideImg: require("@/assets/images/pages/registration-v2.svg"),
 	  sideImg: require("@/assets/images/pages/login-v2.svg"),
 	  // validation rulesimport store from '@/store/index'
-	//   required,
-	//   email,
+	  required,
+	  email,
 	};
   },
 	computed: {
@@ -206,6 +230,7 @@ export default {
 		imgUrl() {
 		if (store.state.appConfig.layout.skin === "dark") {
 			// eslint-disable-next-line vue/no-side-effects-in-computed-properties
+			// this.sideImg = require("@/assets/images/pages/registration-v2-dark.svg");
 			this.sideImg = require("@/assets/images/pages/login-v2-dark.svg");
 			return this.sideImg;
 		}
@@ -214,14 +239,14 @@ export default {
 	},
 	methods: {
 		validationForm() {
-			// this.$refs.loginValidation.validate().then((success) => {
-				// if (success) {
+			this.$refs.registrationValidation.validate().then((success) => {
+				if (success) {
 					this.$api.auth.signIn(this.userEmail, this.password)
 						.then((response) => {
 							console.log(response);
 							if (response.status === 200) {
-								useJwt.setToken(response.data.access);
-								useJwt.setRefreshToken(response.data.refresh);
+								useJwt.setToken(response.data.access_token);
+								useJwt.setRefreshToken(response.data.refresh_token);
 								useJwt.setTokenLifetime(response.data.access_token_lifetime);
 								this.$toast({
 									component: ToastificationContent,
@@ -254,8 +279,8 @@ export default {
 								},
 							});
 						});
-				// }
-			// });
+				}
+			});
 		},
 	},
 };
