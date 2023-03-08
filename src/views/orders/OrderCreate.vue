@@ -650,7 +650,7 @@ export default {
       cities: [],
       counterparty: [],
       order: {
-        status: 1,
+        status: 0,
         type: "",
         mode: "",
         sender: 0,
@@ -707,7 +707,8 @@ export default {
           this.$api.orders
             .createOrder(this.order)
             .then((response) => {
-              if (response.status === 201) {
+              if (response.status === 200) {
+				console.log('Успешно - ', response);
                 this.$router.push({
                   name: "order",
                   params: { id: response.data.id },
@@ -723,6 +724,7 @@ export default {
                   },
                 });
               } else {
+				console.log('Не успешно - ', response);
                 this.$toast({
                   component: ToastificationContent,
                   props: {

@@ -15,7 +15,6 @@ export default function (instance) {
             return instance.post("api/v1/register/", data);
         },
 		logout(refresh_token) {
-			console.log(refresh_token, instance);
 			return instance.post("api/v1/logout/", {
 				refresh_token,
 			});

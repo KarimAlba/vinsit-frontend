@@ -16,9 +16,10 @@
         <b-button
           variant="primary"
           class="mb-2 btn-sm-block"
-          :to="{ path: '/' }"
+          @click.prevent="$router.go(-1)"
         >
-          Back to home
+          <!-- Back to home -->
+          Back to previous page
         </b-button>
 
         <!-- image -->
