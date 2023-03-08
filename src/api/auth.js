@@ -9,7 +9,7 @@ export default function (instance) {
 		refresh(refresh) {
 			return instance.post("api/v1/login/refresh", {
 				refresh,
-			})
+			});
 		},
         signUp(data) {
             return instance.post("api/v1/register/", data);
@@ -18,6 +18,6 @@ export default function (instance) {
 			return instance.post("api/v1/logout/", {
 				refresh_token,
 			});
-		}
+		},
     };
 }
