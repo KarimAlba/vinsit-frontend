@@ -41,7 +41,7 @@
             </b-col>
 
             <b-col class="mb-1" cols="12" md="4">
-              <validation-provider #default="{ errors }" rules="required">
+              <validation-provider #default="{ errors }">
                 <b-form-group
                   :invalid-feedback="errors[0]"
                   :state="!errors.length"
@@ -650,7 +650,7 @@ export default {
       cities: [],
       counterparty: [],
       order: {
-        status: 1,
+        // status: 1,
         type: "",
         mode: "",
         sender: 0,

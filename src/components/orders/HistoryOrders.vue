@@ -180,12 +180,13 @@ export default {
           _.isEqual
         );
 
-        changes.forEach((change) => {
+        changes.forEach(async (change) => {
           if (_.has(this.fieldsForHistory, change[0])) {
             let key = change[0],
-              valByKeyObj = this.fieldsForHistory[key],
-              oldValue = array[index][key],
-              newValue = array[index + 1][key];
+				valByKeyObj = this.fieldsForHistory[key],
+				oldValue = array[index][key],
+				newValue = array[index + 1][key],
+				history_date = array[index].status_changed_date;
 
             if (key === "mode") {
               if (oldValue)
@@ -216,7 +217,17 @@ export default {
               newValue = this.orderStatus.find((x) => x.id === newValue).status;
             }
 
-            arr.push({ valByKeyObj, oldValue, newValue });
+			if (key === "payer_city" || key === "recipient_city" || key === "sender_city") {
+			await this.$api.cities.getCitiesById({ids_list: [oldValue, newValue]})
+				.then((response) => {
+					newValue = response.data[response.data[0].id == newValue ? 0 : 1].name;
+					oldValue = response.data[response.data[1].id == oldValue ? 1 : 0].name;
+				})
+				.catch((error) => {})
+			}
+            
+
+            arr.push({ valByKeyObj, oldValue, newValue, history_date });
           }
         });
       }
