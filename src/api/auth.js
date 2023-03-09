@@ -9,16 +9,15 @@ export default function (instance) {
 		refresh(refresh) {
 			return instance.post("api/v1/login/refresh", {
 				refresh,
-			})
+			});
 		},
         signUp(data) {
             return instance.post("api/v1/register/", data);
         },
 		logout(refresh_token) {
-			console.log(refresh_token, instance);
 			return instance.post("api/v1/logout/", {
 				refresh_token,
 			});
-		}
+		},
     };
 }
