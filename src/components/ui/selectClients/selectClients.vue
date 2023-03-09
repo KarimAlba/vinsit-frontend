@@ -48,7 +48,6 @@
 		computed: {
 			inputVal: {
 				get() {
-					// console.log('get - ', this.value);
 					return this.value;
 				},
 				set(val) {
@@ -60,6 +59,7 @@
 			onSearchClients(search, loading) {
 				if (search.length) {
 					loading(true);
+					this.$emit("input", search);
 					this.fetchClients(search, loading, this);
 				};
 			},
