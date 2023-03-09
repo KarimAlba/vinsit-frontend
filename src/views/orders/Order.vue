@@ -104,7 +104,7 @@
 
                 <table class="w-100">
                   <tr>
-                    <td class="pb-1">Шрих-код</td>
+                    <td class="pb-1">Штрих-код</td>
                     <td class="pb-1">
                       <a class="link" target="_blank" :href="order.barcode">{{
                         order.id
@@ -142,8 +142,7 @@
 
         <div>
           <b-button
-            :href="linkToPDF"
-            target="_blank"
+            @click="handlePdfDownload"
             class="mr-2"
             variant="success"
           >
@@ -200,6 +199,7 @@ import {
 } from "bootstrap-vue";
 import BCardActions from "@/@core/components/b-card-actions/BCardActions.vue";
 import vSelect from "vue-select";
+import downloadPdf from '../../utils/downloadPdf';
 
 export default {
   components: {
@@ -282,6 +282,9 @@ export default {
         this.$router.push({ name: "orders" });
       });
     },
+    async handlePdfDownload() {
+        downloadPdf(this.linkToPDF, `order${this.idOrder}.pdf`);
+    }
   },
   mounted() {
     this.fetchOrder(this.idOrder);

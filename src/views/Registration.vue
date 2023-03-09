@@ -263,18 +263,15 @@ export default {
 	},	
 	methods: {
 		validationForm() {
-			// this.$refs.registrationValidation.validate().then((success) => {
+			this.$refs.registrationValidation.validate().then((success) => {
 				if (!this.status) {
 					this.isChosenCheckbox = false;
 					return;
 				};
-				if (true) {
+				if (success) {
 					this.$api.auth.signUp({full_name: this.username, password: this.password, password2: this.repeatPassword, role: 'CR'})
 						.then((response) => {
-							if (response.status === 200) {
-								useJwt.setToken(response.data.access_token);
-								useJwt.setRefreshToken(response.data.refresh_token);
-								useJwt.setTokenLifetime(response.data.access_token_lifetime);
+							if (response.status === 200 || response.status === 201) {
 								this.$toast({
 									component: ToastificationContent,
 									props: {
@@ -283,7 +280,7 @@ export default {
 										variant: "success",
 									},
 								});
-								this.$router.push({ name: 'order' });
+								this.$router.push({ name: 'login' });
 								return;
 							} else if (response.status === 400) {
 								console.log(response.data);
@@ -317,7 +314,7 @@ export default {
 							});
 						});
 					}
-			// });
+			});
 		},
 	},
 };

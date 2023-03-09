@@ -5,7 +5,10 @@ export default {
   state: {
     windowWidth: 0,
     shallShowOverlay: false,
-	name: "User",
+	user: {
+        name: "Неизвестный",
+        role: "AD",
+    },
   },
   getters: {
     currentBreakPoint: state => {
@@ -24,6 +27,10 @@ export default {
     TOGGLE_OVERLAY(state, val) {
       state.shallShowOverlay = val !== undefined ? val : !state.shallShowOverlay
     },
+    UPDATE_USER_DATA(state, value) {
+        state.user.name = value.name;
+        state.user.role = value.role;
+    }
   },
   actions: {},
 }
