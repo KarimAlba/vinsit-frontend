@@ -1,16 +1,16 @@
 <template>
-  <div></div>
+  	<div></div>
 </template>
 
 <script>
 import { BCard, BCardText, BLink } from "bootstrap-vue";
 
 export default {
-  components: {
-    BCard,
-    BCardText,
-    BLink,
-  },
+	components: {
+		BCard,
+		BCardText,
+		BLink,
+	},
 };
 </script>
 

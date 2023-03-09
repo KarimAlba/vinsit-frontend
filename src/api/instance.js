@@ -32,8 +32,6 @@ export default class Instance {
 				// Get token from localStorage
 				const accessToken = useJwt.getToken();
 		
-				console.log('Called this interceptor ', accessToken);
-		
 				// If token is present add it to request's Authorization Header
 				if (accessToken) {
 					// eslint-disable-next-line no-param-reassign

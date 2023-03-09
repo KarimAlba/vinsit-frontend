@@ -5,6 +5,7 @@ export default {
   state: {
     windowWidth: 0,
     shallShowOverlay: false,
+	name: "User",
   },
   getters: {
     currentBreakPoint: state => {

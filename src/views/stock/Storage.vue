@@ -1,9 +1,9 @@
 <template>
-  <h3>Раздел в разработке</h3>
+  	<h3>Раздел в разработке</h3>
 </template>
 
 <script>
-export default {};
+	export default {};
 </script>
 
 <style lang="scss" scoped></style>

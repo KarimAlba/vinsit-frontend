@@ -289,7 +289,7 @@ export default {
       );
     },
     formatDate(date) {
-      return this.dayjs(date).format("DD.MM.YYYY");
+      	return this.dayjs(date).format("DD.MM.YYYY");
     },
     changePage(page) {
       this.changeCurPage(page);
