@@ -221,15 +221,21 @@ export default {
 								useJwt.setToken(response.data.access);
 								useJwt.setRefreshToken(response.data.refresh);
 								useJwt.setTokenLifetime(response.data.access_token_lifetime);
+                                localStorage.setItem('role', response.data.role);
+                                localStorage.setItem('user_name', this.userEmail);
+		                        store.commit('app/UPDATE_USER_DATA', {
+                                    name: this.userEmail,
+                                    role: response.data.role,
+                                });
 								this.$toast({
 									component: ToastificationContent,
 									props: {
-									title: "Form Submitted",
-									icon: "EditIcon",
-									variant: "success",
+                                        title: "Form Submitted",
+                                        icon: "EditIcon",
+                                        variant: "success",
 									},
 								});
-								this.$router.push({ name: 'order' });
+								this.$router.push({ name: 'orders' });
 								return;
 							}
 							this.$toast({

@@ -12,7 +12,7 @@ import productsModule from "./products";
 import placesModule from "./places";
 import paymentDocumentsModule from "./payment-documents";
 
-const instance = new Instance().getAxiosIns();
+export const instance = new Instance().getAxiosIns();
 
 export default {
 	auth: authModule(instance),
