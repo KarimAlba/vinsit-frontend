@@ -130,6 +130,14 @@
 					<b-row>
 						<b-col class="mb-1" cols="12" md="4">
 							<b-form-group label="Отправитель">
+								<!-- <b-form-input
+									v-model="order.sender_counterparty"
+									:state="errors.length > 0 ? false : null"
+									type="number"
+								/>
+								<template #no-options="{ search }">
+									{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
+								</template> -->
 								<select-clients
 									:reduce="(client) => client.id"
 									v-model="order.sender_counterparty"
@@ -623,16 +631,22 @@
 		},
 		watch: {
 			'order.recipient_counterparty'() {
-				const id = this.order.recipient_counterparty;
-				if (Number.isFinite(id)) this.addRecipient(id);
+				if (Number.isFinite(this.order.recipient_counterparty)) {
+					const id = this.order.recipient_counterparty;
+					this.addCounterparty(id, 'recipient');
+				};
 			},
 			'order.sender_counterparty'() {
-				const id = this.order.sender_counterparty;
-				if (Number.isFinite(id)) this.addSender(id);
+				if (Number.isFinite(this.order.sender_counterparty)) {
+					const id = this.order.sender_counterparty;
+					this.addCounterparty(id, 'sender');
+				};
 			},
 			'order.payer_counterparty'() {
-				const id = this.order.payer_counterparty;
-				if (Number.isFinite(id)) this.addPayer(id);
+				if (Number.isFinite(this.order.payer_counterparty)) {
+					const id = this.order.payer_counterparty;
+					this.addCounterparty(id, 'payer');
+				};
 			}
 		},
 		computed: {
@@ -715,54 +729,27 @@
 					this.order.product.splice(inx, 1);
 				};
 			},
-			addRecipient(id) {
-				console.log('id - ', id);
+			changeCounterpartyParams(data, name) {
+				for (let key in data) {
+					if (data[key] && key === 'name') {
+						this.order[name + '_counterparty'] = data.name;
+						continue;
+					};
+					if (data[key] && key === 'client_phones') {
+						this.order[name + '_phone'] = +(data.client_phones[0].phone_number);
+						continue;
+					};
+					if (data[key]) {
+						this.order[name + '_' + key] = data[key];
+						console.log(name + '_' + key + ' - ', this.order[name + '_' + key] = data[key]);
+					};
+				}
+			},
+			addCounterparty(id, name) {
 				this.$api.clients.getClient(id).then((response) => {
-					console.log(response);
-					this.order.recipient_counterparty = response.data.name;
-					this.order.recipient_city = response.data.city;
-					this.order.recipient_counterparty_type = response.data.counterparty_type;
-					this.order.recipient_full_name = response.data.full_name;
-					this.order.recipient_passport_series = response.data.passport_series;
-					this.order.recipient_passport_no = response.data.passport_no;
-					this.order.recipient_address = response.data.address;
-					this.order.recipient_phone = +(response.data.client_phones[0].phone_number);
-					this.order.recipient_email = response.data.email;	
+					this.changeCounterpartyParams(response.data, name);	
 				});
 			},
-			addSender(id) {
-				console.log('id - ', id);
-				this.$api.clients.getClient(id).then((response) => {
-					console.log(response);
-					this.order.sender_counterparty = response.data.name;
-					this.order.sender_city = response.data.city;
-					this.order.sender_counterparty_type = response.data.counterparty_type;
-					this.order.sender_full_name = response.data.full_name;
-					this.order.sender_passport_series = response.data.passport_series;
-					this.order.sender_passport_no = response.data.passport_no;
-					this.order.sender_address = response.data.address;
-					this.order.sender_phone = +(response.data.client_phones[0].phone_number);
-					// this.order.sender_email = response.data.email;	
-				});
-			},
-			addPayer(id) {
-				console.log('id - ', id);
-				this.$api.clients.getClient(id).then((response) => {
-					console.log(response);
-					this.order.payer_counterparty = response.data.name;
-					this.order.payer_city = response.data.city;
-					// this.order.payer_counterparty_type = response.data.counterparty_type;
-					// this.order.payer_full_name = response.data.full_name;
-					// this.order.payer_passport_series = response.data.passport_series;
-					// this.order.payer_passport_no = response.data.passport_no;
-					// this.order.payer_address = response.data.address;
-					// this.order.payer_phone = +(response.data.client_phones[0].phone_number);
-					// this.order.payer_email = response.data.email;	
-				});
-			},
-			onChange: function(event){
-				console.log('yep');
-			}
 		},
 		mounted() {
 			this.fetchStatus();
