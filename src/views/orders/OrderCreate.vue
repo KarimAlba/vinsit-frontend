@@ -89,11 +89,6 @@
 								</b-form-group>
 							</validation-provider>
 						</b-col>
-						<b-col class="mb-1" cols="4">
-							<b-form-group label="Договор">
-								<b-form-input v-model="order.contract"/>
-							</b-form-group>
-						</b-col>
 						<b-col class="mb-1" cols="6">
 							<b-form-group label="Местоположение">
 								<b-form-input v-model="order.location"/>
@@ -119,6 +114,11 @@
 								/>
 							</b-form-group>
 						</b-col>
+						<b-col class="mb-1" cols="4">
+							<b-form-group label="Договор">
+								<b-form-input v-model="order.contract"/>
+							</b-form-group>
+						</b-col>
 						<b-col class="mb-1" cols="12" md="6">
 							<b-form-group label="Город">
 								<select-cities v-model="order.payer_city" />
@@ -126,178 +126,234 @@
 						</b-col>
 					</b-row>
 				</b-card-actions>
-				<b-card-actions title="Отправитель" actionCollapse>
-					<b-row>
-						<b-col class="mb-1" cols="12" md="4">
-							<b-form-group label="Отправитель">
-								<!-- <b-form-input
-									v-model="order.sender_counterparty"
-									:state="errors.length > 0 ? false : null"
-									type="number"
-								/>
-								<template #no-options="{ search }">
-									{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
-								</template> -->
-								<select-clients
-									:reduce="(client) => client.id"
-									v-model="order.sender_counterparty"
-								/>
-							</b-form-group>
-						</b-col>
-						<b-col class="mb-1" cols="12" md="4">
-							<b-form-group label="Город">
-								<select-cities v-model="order.sender_city" />
-							</b-form-group>
-						</b-col>
-						<b-col class="mb-1" cols="12" md="4">
-							<validation-provider #default="{ errors }" rules="required">
-								<b-form-group
-									label="Тип отправителя"
-									:invalid-feedback="errors[0]"
-									:state="!errors.length"
+				<b-row>
+					<b-col cols="6">
+						<b-card-actions title="Отправитель" actionCollapse>
+							<b-row>
+								<b-col class="mb-1" cols="12">
+									<validation-provider #default="{ errors }" rules="required">
+										<b-form-group
+											label="Тип контрагента *"
+											:invalid-feedback="errors[0]"
+											:state="!errors.length"
+										>
+											<b-row>
+												<b-col cols="3">
+													<b-form-radio 
+														v-model="order.sender_counterparty_type" 
+														name="some-radios" 
+														value="clientType[0].id"
+														>
+														{{clientType[0].short_title}}
+													</b-form-radio>
+												</b-col>
+												<b-col cols="3">
+													<b-form-radio 
+														v-model="order.sender_counterparty_type" 
+														name="some-radios" 
+														value="clientType[1].id"
+														>
+														{{clientType[1].short_title}}
+													</b-form-radio>
+												</b-col>
+											</b-row>
+										</b-form-group>
+									</validation-provider>
+								</b-col>
+								<b-col class="mb-1" cols="12">
+									<b-form-group label="Город *">
+										<select-cities v-model="order.sender_city" />
+									</b-form-group>
+								</b-col>
+								<b-col class="mb-1" cols="12">
+									<b-form-group label="Наименование контрагента *">
+										<!-- <b-form-input
+											v-model="order.sender_counterparty"
+											:state="errors.length > 0 ? false : null"
+											type="number"
+										/>
+										<template #no-options="{ search }">
+											{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
+										</template> -->
+										<select-clients
+											:reduce="(client) => client.id"
+											v-model="order.sender_counterparty"
+										/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12">
+									<b-form-group label="ФИО *">
+										<b-form-input v-model="order.sender_full_name"></b-form-input>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12">
+									<b-form-group label="Адрес *">
+										<b-form-input v-model="order.sender_address"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group label="Серия паспорта">
+										<b-form-input v-model="order.sender_passport_series"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group label="Номер паспорта">
+										<b-form-input v-model="order.sender_passport_no"/>
+									</b-form-group>
+								</b-col>
+								<b-col
+									cols="12"
 								>
-									<v-select
-										label="title"
-										:reduce="(type) => type.id"
-										:options="clientType"
-										v-model="order.sender_counterparty_type"
-									/>
-								</b-form-group>
-							</validation-provider>
-						</b-col>
-						<b-col cols="12" md="8">
-							<b-form-group label="ФИО отправителя">
-								<b-form-input v-model="order.sender_full_name"></b-form-input>
-							</b-form-group>
-						</b-col>
-						<b-col cols="12" md="2">
-							<b-form-group label="Серия паспорта">
-								<b-form-input v-model="order.sender_passport_series"/>
-							</b-form-group>
-						</b-col>
-						<b-col cols="12" md="2">
-							<b-form-group label="Номер паспорта">
-								<b-form-input v-model="order.sender_passport_no"/>
-							</b-form-group>
-						</b-col>
-						<b-col cols="12">
-							<b-form-group label="Адрес">
-								<b-form-textarea
-									rows="3"
-									max-rows="6"
-									v-model="order.sender_address"
-								/>
-							</b-form-group>
-						</b-col>
-						<b-col
-							v-for="(phone, i) in order.sender_phones"
-							:key="i"
-							cols="12"
-							md="4"
-						>
-							<validation-provider #default="{ errors }" rules="required">
-								<b-form-group
-									:invalid-feedback="errors[0]"
-									label="Номер телефона"
+									<validation-provider #default="{ errors }" rules="required">
+										<b-form-group
+											:invalid-feedback="errors[0]"
+											label="Телефоны *"
+										>
+										<b-row class="">
+											<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
+												Номер телефона
+											</b-col>
+											<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="popPhone('sender')">
+												+
+											</b-col>
+										</b-row>
+										<b-row 
+											v-for="(phone, i) in order.sender_phones"
+											:key="i"
+										>
+											<b-col class=" border border-secondary px-0" cols="8">
+												<b-form-input
+													v-model="phone.number"
+													:state="errors.length > 0 ? false : null"
+													v-maska
+													placeholder="+71234567890"
+													data-maska="+7##########"
+												/>
+											</b-col>
+											<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('sender', i)">
+												<b-icon icon="trash"></b-icon>
+											</b-col>
+										</b-row>
+										</b-form-group>
+									</validation-provider>
+								</b-col>
+							</b-row>
+						</b-card-actions>
+					</b-col>
+					<b-col cols="6">
+						<b-card-actions title="Получатель" actionCollapse>
+							<b-row>
+								<b-col class="mb-1" cols="12">
+									<validation-provider #default="{ errors }" rules="required">
+										<b-form-group
+											label="Тип контрагента *"
+											:invalid-feedback="errors[0]"
+											:state="!errors.length"
+										>
+											<b-row>
+												<b-col cols="3">
+													<b-form-radio 
+														v-model="order.recipient_counterparty_type" 
+														name="some-radios-2" 
+														value="clientType[0].id"
+														>
+														{{clientType[0].short_title}}
+													</b-form-radio>
+												</b-col>
+												<b-col cols="3">
+													<b-form-radio 
+														v-model="order.recipient_counterparty_type" 
+														name="some-radios-2" 
+														value="clientType[1].id"
+														>
+														{{clientType[1].short_title}}
+													</b-form-radio>
+												</b-col>
+											</b-row>
+										</b-form-group>
+									</validation-provider>
+								</b-col>
+								<b-col class="mb-1" cols="12">
+									<b-form-group label="Город *">
+										<select-cities v-model="order.recipient_city" />
+									</b-form-group>
+								</b-col>
+								<b-col class="mb-1" cols="12">
+									<b-form-group label="Наименование контрагента *">
+										<select-clients
+											:reduce="(client) => client.id"
+											v-model="order.recipient_counterparty"
+										/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12">
+									<b-form-group label="ФИО *">
+										<b-form-input v-model="order.recipient_full_name"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12">
+									<b-form-group label="Адрес *">
+										<b-form-input v-model="order.recipient_address"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group label="Серия паспорта">
+										<b-form-input v-model="order.recipient_passport_series" />
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group label="Номер паспорта">
+										<b-form-input v-model="order.recipient_passport_no"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group label="Email">
+										<b-form-input
+										type="email"
+										v-model="order.recipient_email"
+										></b-form-input>
+									</b-form-group>
+								</b-col>
+								<b-col
+									cols="12"
 								>
-									<b-form-input
-										v-model="order.sender_phone"
-										:state="errors.length > 0 ? false : null"
-										v-maska
-										placeholder="+71234567890"
-										data-maska="+7##########"
-									/>
-								</b-form-group>
-							</validation-provider>
-						</b-col>
-					</b-row>
-				</b-card-actions>
-				<b-card-actions title="Получатель" actionCollapse>
-					<b-row>
-						<b-col class="mb-1" cols="12" md="4">
-							<b-form-group label="Получатель">
-								<select-clients
-									:reduce="(client) => client.id"
-									v-model="order.recipient_counterparty"
-								/>
-							</b-form-group>
-						</b-col>
-						<b-col class="mb-1" cols="12" md="4">
-							<b-form-group label="Город">
-								<select-cities v-model="order.recipient_city" />
-							</b-form-group>
-						</b-col>
-						<b-col class="mb-1" cols="12" md="4">
-							<validation-provider #default="{ errors }" rules="required">
-								<b-form-group
-									label="Тип получателя"
-									:invalid-feedback="errors[0]"
-									:state="!errors.length"
-								>
-									<v-select
-										label="title"
-										:reduce="(type) => type.id"
-										:options="clientType"
-										v-model="order.recipient_counterparty_type"
-									/>
-								</b-form-group>
-							</validation-provider>
-						</b-col>
-						<b-col cols="12" md="8">
-							<b-form-group label="ФИО получателя">
-								<b-form-input v-model="order.recipient_full_name"/>
-							</b-form-group>
-						</b-col>
-						<b-col cols="12" md="2">
-							<b-form-group label="Серия паспорта">
-								<b-form-input v-model="order.recipient_passport_series" />
-							</b-form-group>
-						</b-col>
-						<b-col cols="12" md="2">
-							<b-form-group label="Номер паспорта">
-								<b-form-input v-model="order.recipient_passport_no"/>
-							</b-form-group>
-						</b-col>
-						<b-col cols="12">
-							<b-form-group label="Адрес">
-								<b-form-textarea
-									rows="3"
-									max-rows="6"
-									v-model="order.recipient_address"
-								/>
-							</b-form-group>
-						</b-col>
-						<b-col
-							v-for="(phone, i) in order.recipient_phones"
-							:key="i"
-							cols="12"
-							md="4"
-						>
-							<validation-provider #default="{ errors }" rules="required">
-								<b-form-group
-									:invalid-feedback="errors[0]"
-									label="Номер телефона"
-								>
-									<b-form-input
-										v-model="order.recipient_phone"
-										:state="errors.length > 0 ? false : null"
-										v-maska
-										placeholder="+71234567890"
-										data-maska="+7##########"
-									/>
-								</b-form-group>
-							</validation-provider>
-						</b-col>
-						<b-col cols="12" md="4">
-						<b-form-group label="Email">
-							<b-form-input
-							type="email"
-							v-model="order.recipient_email"
-							></b-form-input>
-						</b-form-group>
-						</b-col>
-					</b-row>
-				</b-card-actions>
+									<validation-provider #default="{ errors }" rules="required">
+										<b-form-group
+											:invalid-feedback="errors[0]"
+											label="Телефоны *"
+										>
+										<b-row class="">
+											<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
+												Номер телефона
+											</b-col>
+											<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="popPhone('recipient')">
+												+
+											</b-col>
+										</b-row>
+										<b-row 
+											v-for="(phone, i) in order.recipient_phones"
+											:key="i"
+										>
+											<b-col class=" border border-secondary px-0" cols="8">
+												<b-form-input
+													v-model="phone.number"
+													:state="errors.length > 0 ? false : null"
+													v-maska
+													placeholder="+71234567890"
+													data-maska="+7##########"
+												/>
+											</b-col>
+											<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('recipient', i)">
+												<b-icon icon="trash"></b-icon>
+											</b-col>
+										</b-row>
+										</b-form-group>
+									</validation-provider>
+								</b-col>
+							</b-row>
+						</b-card-actions>
+					</b-col>
+				</b-row>
 				<!-- <b-card-actions title="Информация о грузе" actionCollapse>
 				<b-table
 					:items="order.places"
@@ -536,8 +592,11 @@
 		BFormGroup,
 		BTable,
 		BButton,
+		BFormRadio,
 		VBTooltip,
 		BFormDatepicker,
+		BIcon,
+		BIconTrash,
 	} from "bootstrap-vue";
 	import BCardActions from "@/@core/components/b-card-actions/BCardActions.vue";
 	import vSelect from "vue-select";
@@ -560,9 +619,12 @@
 			BBadge,
 			BFormTextarea,
 			BFormGroup,
+			BFormRadio,
 			BTable,
 			BButton,
 			BFormDatepicker,
+			BIcon,
+			BIconTrash,
 
 			vSelect,
 			SelectCities,
@@ -736,12 +798,19 @@
 						continue;
 					};
 					if (data[key] && key === 'client_phones') {
-						this.order[name + '_phone'] = +(data.client_phones[0].phone_number);
+						if (this.order[name + '_phones'][0].number) {
+							const oredrPhone = this.order[name + '_phones'];
+							data.client_phones.map((it) => {
+								oredrPhone.push({number: it.phone_number});
+							})
+						} else {
+							this.order[name + '_phones'] = data.client_phones.map((it) => ({number: it.phone_number}));
+						}
 						continue;
 					};
 					if (data[key]) {
 						this.order[name + '_' + key] = data[key];
-						console.log(name + '_' + key + ' - ', this.order[name + '_' + key] = data[key]);
+						// console.log(name + '_' + key + ' - ', this.order[name + '_' + key] = data[key]);
 					};
 				}
 			},
@@ -749,6 +818,17 @@
 				this.$api.clients.getClient(id).then((response) => {
 					this.changeCounterpartyParams(response.data, name);	
 				});
+			},
+			popPhone(name) {
+				if (this.order[name + '_phones'][0].number){
+					this.order[name + '_phones'].unshift({});
+				}
+			},
+			deletePhone(name, id) {
+				this.order[name + '_phones'].splice(id, 1);
+				if (this.order[name + '_phones'].length == 0){
+					this.order[name + '_phones'].unshift({});
+				}
 			},
 		},
 		mounted() {
@@ -771,5 +851,13 @@
 			box-shadow: 0px 0px 8px rgba(11, 31, 53, 0.04),
 			0px -4px 8px rgba(11, 31, 53, 0.08);
 		}
+	}
+	.plus {
+		font-size: 35px;
+	}
+	.bi-trash {
+		width: 30px;
+		height: auto;
+		margin-top: 5px;
 	}
 </style>
