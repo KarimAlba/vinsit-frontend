@@ -62,6 +62,13 @@
           ></b-form-input>
         </template>
 
+        <template #cell(seal_number)="data">
+          <b-form-input
+            v-model="data.item.seal_number"
+            @change="updatePlace(data.item.id, $event, 'seal_number')"
+          ></b-form-input>
+        </template>
+
         <!-- <template #cell(description)="data">
           <b-form-input
             v-model="data.item.description"
@@ -166,9 +173,36 @@
           </b-col> -->
         </b-row>
 
-        <b-button variant="primary" :disabled="invalid" @click="createPlace"
-          >Добавить</b-button
-        >
+        <b-row>
+            <b-col cols="12" md="12">
+                <validation-provider #default="{ errors }">
+                <b-form-group
+                    label="Пломба"
+                    :invalid-feedback="errors[0]"
+                    :state="!errors.length"
+                >
+                    <b-form-input
+                        v-model="newPlace.seal_number"
+                        type="number"
+                        :state="errors.length > 0 ? false : null"
+                    ></b-form-input>
+                </b-form-group>
+                </validation-provider>
+            </b-col>
+        </b-row>
+
+        <b-row class="justify-content-between">
+            <b-col cols="12" md="3" class="align-self-end">
+                <b-button variant="primary" :disabled="invalid" @click="createPlace">
+                    Добавить
+                </b-button>
+            </b-col>
+            <b-col cols="12" md="3" class="align-self-end">
+                <b-form-group label="Кол-во" style="margin-bottom: 0;">
+                    <b-form-input type="number" v-model="newPlaceCount"></b-form-input>
+                </b-form-group>
+            </b-col>
+        </b-row>
       </validation-observer>
     </b-modal>
   </div>
@@ -250,6 +284,7 @@ export default {
         { key: "width", label: "Ширина, см" },
         { key: "height", label: "Высота, см" },
         { key: "weight", label: "Фактический вес, кг" },
+        { key: "seal_number", label: "Пломба" },
         /* { key: "status", label: "Статус" },
         { key: "rack", label: "Rack" },
         { key: "tare", label: "tare" }, */
@@ -257,6 +292,7 @@ export default {
         { key: "delete", label: "" },
       ],
       newPlace: {},
+      newPlaceCount: 1,
     };
   },
   computed: {
@@ -273,39 +309,58 @@ export default {
     },
   },
   methods: {
-    createPlace() {
-      this.$api.places
-        .createPlace({ order: this.order, ...this.newPlace })
-        .then((response) => {
-          if (response.status === 201) {
+    handlePlaceCreationResponse(response) {
+        console.log(response);
+        if (response.status === 201) {
             this.placesList.push(response.data);
             this.$toast({
-              component: ToastificationContent,
-              props: {
+                component: ToastificationContent,
+                props: {
                 title: "Успешно",
                 text: "Место добавлено",
                 icon: "CheckCircleIcon",
                 variant: "success",
-              },
+                },
             });
 
             this.newPlace = {};
 
             this.$nextTick(() => {
-              this.$bvModal.hide("modal-create-place");
+                this.$bvModal.hide("modal-create-place");
             });
-          } else {
+        } else {
             this.$toast({
-              component: ToastificationContent,
-              props: {
+                component: ToastificationContent,
+                props: {
                 title: "Ошибка",
                 text: "Не удалось создать",
                 icon: "XIcon",
                 variant: "danger",
-              },
+                },
             });
-          }
-        });
+        }
+    },
+    createPlace() {
+        const requests = [];
+        if (this.newPlaceCount > 1) {
+            for (let i = 0; i < this.newPlaceCount; i++) {
+                requests.push(this.$api.places.createPlace({
+                    order: this.order,
+                    ...this.newPlace,
+                    place_no: Number(this.newPlace.place_no) + i,
+                }));
+            }
+            Promise.allSettled(requests)
+                .then((results) => {
+                    results.forEach((result) => {
+                        this.handlePlaceCreationResponse(result.value);
+                    });
+                });
+            return;
+        }
+        this.$api.places
+            .createPlace({ order: this.order, ...this.newPlace })
+            .then(this.handlePlaceCreationResponse);
     },
     fetchUpdatePlace(id, val, key) {
       let payload = {};

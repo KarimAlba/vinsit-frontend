@@ -364,6 +364,9 @@
 						<template #cell(height)="data">
 							<b-form-input v-model="data.item.height"/>
 						</template>
+                        <template #cell(seal_number)="data">
+							<b-form-input v-model="data.item.seal_number"/>
+						</template>
 						<template #cell(rack)="data">
 							<b-form-input
 								style="min-width: 100px"
@@ -396,12 +399,115 @@
 							<p>Всего мест: <b>{{ order.places.length }} </b></p>
 						</div>
 						<div>
-							<b-button @click="addPlace" variant="primary" size="sm">
+							<b-button v-b-modal.modal-create-place variant="primary" size="sm">
 								Добавить место
 							</b-button>
 						</div>
 					</div>
 				</b-card-actions>
+
+                <!-- Places creation modal -->
+                <b-modal id="modal-create-place" title="Добавить место" hide-footer>
+                    <validation-observer v-slot="{ invalid }">
+                        <b-row>
+                            <b-col cols="12" md="12">
+                                <validation-provider #default="{ errors }" rules="required">
+                                <b-form-group
+                                    label="# места"
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                    v-model="newPlace.place_no"
+                                    type="number"
+                                    :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                                </validation-provider>
+                            </b-col>
+
+                            <b-col cols="12" md="3">
+                                <validation-provider #default="{ errors }" rules="required">
+                                <b-form-group
+                                    label="Вес"
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                    v-model="newPlace.weight"
+                                    type="number"
+                                    :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                                </validation-provider>
+                            </b-col>
+
+                            <b-col cols="12" md="3">
+                                <b-form-group label="Ширина">
+                                <b-form-input
+                                    type="number"
+                                    v-model="newPlace.width"
+                                ></b-form-input>
+                                </b-form-group>
+                            </b-col>
+
+                            <b-col cols="12" md="3">
+                                <b-form-group label="Длина">
+                                <b-form-input
+                                    type="number"
+                                    v-model="newPlace.length"
+                                ></b-form-input>
+                                </b-form-group>
+                            </b-col>
+
+                            <b-col cols="12" md="3">
+                                <b-form-group label="Высота">
+                                <b-form-input
+                                    type="number"
+                                    v-model="newPlace.height"
+                                ></b-form-input>
+                                </b-form-group>
+                            </b-col>
+
+                            <!-- <b-col cols="12" md="12">
+                                <b-form-group label="Примечание">
+                                <b-form-input v-model="newPlace.description"></b-form-input>
+                                </b-form-group>
+                            </b-col> -->
+                        </b-row>
+                        <b-row>
+                            <b-col cols="12" md="12">
+                                <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    label="Пломба"
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="newPlace.seal_number"
+                                        type="number"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                                </validation-provider>
+                            </b-col>
+                        </b-row>
+
+                        <b-row class="justify-content-between">
+                            <b-col cols="12" md="3" class="align-self-end">
+                                <b-button variant="primary" :disabled="invalid" @click="addPlace">
+                                    Добавить
+                                </b-button>
+                            </b-col>
+                            <b-col cols="12" md="3" class="align-self-end">
+                                <b-form-group label="Кол-во" style="margin-bottom: 0;">
+                                    <b-form-input type="number" v-model="newPlaceCount"></b-form-input>
+                                </b-form-group>
+                            </b-col>
+                        </b-row>
+                    </validation-observer>
+                </b-modal>
+
 				<b-card-actions title="Товары" actionCollapse>
 					<b-table
 						:items="order.products"
@@ -589,6 +695,7 @@
 					{ key: "width", label: "Ширина, см" },
 					{ key: "height", label: "Высота, см" },
 					{ key: "weight", label: "Фактический вес, кг" },
+					{ key: "seal_number", label: "Пломба" },
 					/* { key: "rack", label: "Rack" },
 					{ key: "tare", label: "Tare" }, */
 					{ key: "description", label: "Примечание" },
@@ -622,6 +729,8 @@
 				clients: [],
 				products: [],
 				orderStatus: [],
+                newPlace: {},
+                newPlaceCount: 1,
 				phoneMask: {
 					phone: true,
 					phoneRegionCode: "RU",
@@ -712,7 +821,14 @@
 			addPlace() {
 				let arr = this.order.places.map((place) => place.place_no),
 				max = arr.length ? Math.max(...arr) : 0;
-				this.order.places.push({ place_no: max + 1 });
+                if (this.newPlaceCount > 0) {
+                    for (let i = 0; i < this.newPlaceCount; i++) {
+                        this.order.places.push({ ...this.newPlace, place_no: max + 1 + i });
+                    }
+                }
+                this.$nextTick(() => {
+                    this.$bvModal.hide("modal-create-place");
+                });
 			},
 			deletePlace(id) {
 				let inx = this.order.places.findIndex((place) => place.place_no === id);

@@ -17,8 +17,13 @@
 			>
 				<template #button-content>
 					<div class="d-sm-flex d-none user-nav">
-						<p class="user-name font-weight-bolder mb-0">Админ {{ $store.state.app.name }}</p>
-						<span class="user-status">Админ</span>
+						<p class="user-name font-weight-bolder mb-0">
+                            {{ $store.state.app.user.role ? role[$store.state.app.user.role] : 'Неизвестный' }}&nbsp;
+                            {{ $store.state.app.user.name }}
+                        </p>
+						<span class="user-status">
+                            {{ $store.state.app.user.role ? role[$store.state.app.user.role] : 'Неизвестный' }}
+                        </span>
 					</div>
 					<b-avatar
 						size="40"
@@ -36,7 +41,7 @@
 				</b-dropdown-item>
 
 				<b-dropdown-divider />
-					<b-dropdown-item link-class="d-flex align-items-center" @click="logout()">
+					<b-dropdown-item link-class="d-flex align-items-center" @click="logout">
 						<feather-icon size="16" icon="LogOutIcon" class="mr-50" />
 						<span>Выход</span>
 					</b-dropdown-item>
@@ -55,8 +60,9 @@ import {
 	BAvatar,
 } from "bootstrap-vue";
 import DarkToggler from "@core/layouts/components/app-navbar/components/DarkToggler.vue";
-import auth from "@/api/auth";
 import useJwt from '@/auth/jwt/useJwt';
+import role from '../../utils/role';
+import store from "@/store/index";
 
 export default {
 	components: {
@@ -70,6 +76,9 @@ export default {
 		// Navbar Components
 		DarkToggler,
 	},
+    data: () => ({
+        role: role,
+    }),
 	props: {
 		toggleVerticalMenuActive: {
 			type: Function,
@@ -82,6 +91,12 @@ export default {
 			const response = await this.$api.auth.logout(refreshToken);
 			if (response || !refreshToken)  {
 				useJwt.removeAccessToken();
+                useJwt.removeRefreshToken();
+                localStorage.clear();
+                store.commit('app/UPDATE_USER_DATA', {
+                    name: 'Неизвестный',
+                    role: 'AD',
+                });
 				this.$router.push({ name: 'login' });
 			};
 		}
