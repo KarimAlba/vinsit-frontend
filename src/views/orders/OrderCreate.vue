@@ -788,7 +788,8 @@
 			'order.recipient_phone'() {
 				if (this.order.recipient_phone.length === 12) {
 					// this.newUser.client_phones.push(this.order.recipient_phone);
-					this.newUser.client_phones[0] = this.order.recipient_phone;
+					// this.newUser.client_phones[0] = +this.order.recipient_phone;
+					// this.newUser.client_phones[0] = +this.order.recipient_phone;
 					if (this.newUser.name) {
 						this.addClient('recipient');
 						return;
@@ -798,7 +799,7 @@
 			'order.sender_phone'() {
 				if (this.order.sender_phone.length === 12) {
 					// this.newUser.client_phones.push(this.order.sender_phone);
-					this.newUser.client_phones[0] = this.order.sender_phone;
+					// this.newUser.client_phones[0] = +this.order.sender_phone;
 					if (this.newUser.name) {
 						this.addClient('sender');	
 						return;
@@ -935,12 +936,14 @@
 				});
 			},
 			addClient(name) {
-				if ((!this.newUser.type) && (this.newUser.name) && (!this.newUser.client_phones.length)) {
+				// if ((!this.newUser.type) && (this.newUser.name) && (!this.newUser.client_phones.length)) {
+				if ((!this.newUser.type) && (this.newUser.name)) {
 					// this.$refs.simpleRules.validate();
 					this.creationError = true;
 					return;
 				};
-				if ((this.newUser.type) && (this.newUser.name) && (this.newUser.client_phones.length)) {
+				// if ((this.newUser.type) && (this.newUser.name) && (this.newUser.client_phones.length)) {
+				if ((this.newUser.type) && (this.newUser.name)) {
 					this.creationError = false;
 					this.$api.clients.addNewClient(this.newUser)
 						.then((response) => {
