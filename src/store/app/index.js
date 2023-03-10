@@ -6,8 +6,8 @@ export default {
     windowWidth: 0,
     shallShowOverlay: false,
 	user: {
-        name: "Неизвестный",
-        role: "AD",
+        name: localStorage.getItem('user_name') ? localStorage.getItem('user_name') : "Неизвестный",
+        role: localStorage.getItem('role') ? localStorage.getItem('role') : "AD",
     },
   },
   getters: {
