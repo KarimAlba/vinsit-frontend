@@ -2,18 +2,18 @@
 	<b-card-actions title="История заказа" actionCollapse>
 		<b-row align-h="between">
 			<b-col cols="3"> Всего изменений: {{ totalRows }} </b-col>
-			<b-col cols="6">
+			<b-col cols="7">
 				<b-row>
-					<b-col cols="6">
-						<v-select
+					<b-col cols="7">
+						<select-filter-type
 							label="type"
 							:reduce="(type) => type.key"
+							:items="types"
 							placeholder="Фильтр"
-							:options="types.map((type) => type.name)"
 							v-model="type"
 						/>
 					</b-col>
-					<b-col cols="6">
+					<b-col cols="5">
 						<b-form-input
 							class="mb-2"
 							placeholder="Поиск"
@@ -94,7 +94,7 @@
 					{ key: "history_date", label: "Дата изменения" },
 					{ key: "history_content", label: "Информация" },
 				],
-				type: 0,
+				type: null,
 				types: [
 					{
 						name: "По штрихкоду",
@@ -164,6 +164,7 @@
 				},
 				orderStatus: [],
 				history: [],
+				initialHistory: [],
 			};
 		},
 		components: {
@@ -181,8 +182,14 @@
 			vSelect,
 		},
 		watch: {
-			'type'() {
-				this.filterHistoryArr();
+			type(newType, oldType) {
+				if (!newType) {
+					this.clearFilterHistory();
+					return;
+				};
+				
+				const filter = this.types[this.types.findIndex(filter => filter.key === newType)].key;
+				this.filterHistoryArr(filter);
 			}
 		},
 		computed: {
@@ -264,16 +271,20 @@
 					});
 				}
 				this.totalRows = arr.length;
-				this.history = arr;
+				this.initialHistory = arr;
+				this.history = this.initialHistory;
 			},
 			filteredTable(filteredItems) {
 				this.totalRows = filteredItems.length;
 				this.currentPage = 1;
 			},
-			filterHistoryArr() {
-				console.log('history - ', this.history, 'filter - ', this.type);
-				return this.history.filter((story) => story.valByKeyObj === this.type);
-			}
+			filterHistoryArr(filter) {
+				this.clearFilterHistory();
+				this.history = this.history.filter(story => story.valByKeyObj === filter);
+			},
+			clearFilterHistory() {
+				this.history = this.initialHistory;
+			},
 		},
 		mounted() {
 			this.fetchOrderHistory();
