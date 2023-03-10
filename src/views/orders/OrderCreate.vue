@@ -43,15 +43,6 @@
 									:invalid-feedback="errors[0]"
 									:state="!errors.length"
 								>
-									<!-- <v-select
-									label="status"
-									:reduce="(status) => status.id"
-
-									placeholder="Статус товара"
-
-									:options="orderStatus"
-									v-model="order.status"
-								/> -->
 									<b-form-datepicker
 										label="date"
 										:reduce="(status) => status.id"
@@ -130,14 +121,6 @@
 					<b-row>
 						<b-col class="mb-1" cols="12" md="4">
 							<b-form-group label="Отправитель">
-								<!-- <b-form-input
-									v-model="order.sender_counterparty"
-									:state="errors.length > 0 ? false : null"
-									type="number"
-								/>
-								<template #no-options="{ search }">
-									{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
-								</template> -->
 								<select-clients
 									:reduce="(client) => client.id"
 									v-model="order.sender_counterparty"
@@ -155,12 +138,15 @@
 									label="Тип отправителя"
 									:invalid-feedback="errors[0]"
 									:state="!errors.length"
+									:class="{selectType: creationError && order.sender_counterparty}"
+									style="border: 0px solid white"
 								>
 									<v-select
 										label="title"
 										:reduce="(type) => type.id"
 										:options="clientType"
 										v-model="order.sender_counterparty_type"
+										:class="{selectType: creationError && order.sender_counterparty}"
 									/>
 								</b-form-group>
 							</validation-provider>
@@ -199,6 +185,8 @@
 								<b-form-group
 									:invalid-feedback="errors[0]"
 									label="Номер телефона"
+									:class="{selectType: creationError && order.sender_counterparty}"
+									style="border: 0px solid white"
 								>
 									<b-form-input
 										v-model="order.sender_phone"
@@ -206,6 +194,7 @@
 										v-maska
 										placeholder="+71234567890"
 										data-maska="+7##########"
+										:class="{selectType: creationError && order.sender_counterparty}"
 									/>
 								</b-form-group>
 							</validation-provider>
@@ -233,12 +222,15 @@
 									label="Тип получателя"
 									:invalid-feedback="errors[0]"
 									:state="!errors.length"
+									:class="{selectType: creationError && order.recipient_counterparty}"
+									style="border: 0px solid white"
 								>
 									<v-select
 										label="title"
 										:reduce="(type) => type.id"
 										:options="clientType"
 										v-model="order.recipient_counterparty_type"
+										:class="{selectType: creationError && order.recipient_counterparty}"
 									/>
 								</b-form-group>
 							</validation-provider>
@@ -277,6 +269,8 @@
 								<b-form-group
 									:invalid-feedback="errors[0]"
 									label="Номер телефона"
+									:class="{selectType: creationError && order.recipient_counterparty}"
+									style="border: 0px solid white"
 								>
 									<b-form-input
 										v-model="order.recipient_phone"
@@ -284,6 +278,7 @@
 										v-maska
 										placeholder="+71234567890"
 										data-maska="+7##########"
+										:class="{selectType: creationError && order.recipient_counterparty}"
 									/>
 								</b-form-group>
 							</validation-provider>
@@ -291,9 +286,9 @@
 						<b-col cols="12" md="4">
 						<b-form-group label="Email">
 							<b-form-input
-							type="email"
-							v-model="order.recipient_email"
-							></b-form-input>
+								type="email"
+								v-model="order.recipient_email"
+							/>
 						</b-form-group>
 						</b-col>
 					</b-row>
@@ -599,7 +594,6 @@
 				</b-card-actions>
 				<div class="footer order__footer px-4 py-1 d-flex">
 					<b-button
-						:disabled="invalid"
 						variant="primary"
 						class="mr-1"
 						@click="validationForm"
@@ -736,6 +730,22 @@
 					phoneRegionCode: "RU",
 					prefix: "+7",
 				},
+				newUser: {
+					INN: '',
+					address: '',
+					bank_account: '',
+					city: '',
+					client_phones: [],
+					email: '',
+					// id: null,
+					name: '',
+					passport_no: '', 
+					passport_series: '',
+					position: '',
+					type: null,
+					web: '',
+				},
+				creationError: false,
 			};
 		},
 		watch: {
@@ -743,20 +753,79 @@
 				if (Number.isFinite(this.order.recipient_counterparty)) {
 					const id = this.order.recipient_counterparty;
 					this.addCounterparty(id, 'recipient');
+					return;
+				};
+				if (typeof this.order.recipient_counterparty === 'string') {
+					this.newUser.name = this.order.recipient_counterparty;
+					this.addClient('recipient');
+					return;
 				};
 			},
 			'order.sender_counterparty'() {
 				if (Number.isFinite(this.order.sender_counterparty)) {
 					const id = this.order.sender_counterparty;
 					this.addCounterparty(id, 'sender');
+					return;
+				};
+				if (typeof this.order.sender_counterparty === 'string') {
+					this.newUser.name = this.order.sender_counterparty;
+					this.addClient('sender');
+					return;
 				};
 			},
 			'order.payer_counterparty'() {
 				if (Number.isFinite(this.order.payer_counterparty)) {
 					const id = this.order.payer_counterparty;
 					this.addCounterparty(id, 'payer');
+					return;
 				};
-			}
+				// if (typeof this.order.payer_counterparty === 'string') {
+				// 	this.newUser.name = this.order.payer_counterparty;
+				// 	this.addClient('payer');
+				// 	return;
+				// };
+			},
+			'order.recipient_phone'() {
+				if (this.order.recipient_phone.length === 12) {
+					// this.newUser.client_phones.push(this.order.recipient_phone);
+					this.newUser.client_phones[0] = this.order.recipient_phone;
+					if (this.newUser.name) {
+						this.addClient('recipient');
+						return;
+					};
+				}
+			},
+			'order.sender_phone'() {
+				if (this.order.sender_phone.length === 12) {
+					// this.newUser.client_phones.push(this.order.sender_phone);
+					this.newUser.client_phones[0] = this.order.sender_phone;
+					if (this.newUser.name) {
+						this.addClient('sender');	
+						return;
+					};
+				}
+			},
+			// 'order.payer_counterparty_type'() {
+			// 	this.newUser.type = this.order.payer_counterparty_type;
+			// 	if (this.newUser.name) {
+			// 		this.addClient('payer');
+			// 		return;
+			// 	};
+			// },
+			'order.recipient_counterparty_type'() {
+				this.newUser.type = this.order.recipient_counterparty_type;
+				if (this.newUser.name) {
+					this.addClient('recipient');
+					return;
+				};
+			},
+			'order.sender_counterparty_type'() {
+				this.newUser.type = this.order.sender_counterparty_type;
+				if (this.newUser.name) {
+					this.addClient('sender');
+					return;
+				};
+			},
 		},
 		computed: {
 			...mapGetters({
@@ -857,7 +926,6 @@
 					};
 					if (data[key]) {
 						this.order[name + '_' + key] = data[key];
-						console.log(name + '_' + key + ' - ', this.order[name + '_' + key] = data[key]);
 					};
 				}
 			},
@@ -865,6 +933,28 @@
 				this.$api.clients.getClient(id).then((response) => {
 					this.changeCounterpartyParams(response.data, name);	
 				});
+			},
+			addClient(name) {
+				if ((!this.newUser.type) && (this.newUser.name) && (!this.newUser.client_phones.length)) {
+					// this.$refs.simpleRules.validate();
+					this.creationError = true;
+					return;
+				};
+				if ((this.newUser.type) && (this.newUser.name) && (this.newUser.client_phones.length)) {
+					this.creationError = false;
+					this.$api.clients.addNewClient(this.newUser)
+						.then((response) => {
+							console.log('response - ', response);
+							this.order[name + '_id'] = response.data.id;
+							this.order[name + '_counterparty'] = this.newUser.name;
+							this.newUser.name = '';
+							this.newUser.type = '';
+							this.newUser.client_phones.pop();
+							// console.log(name + '_id' + ' - ' + this.order[name + '_id']);
+							// console.log(name + '_counterparty' + ' - ' +this.order[name + '_counterparty']);
+						})
+						.catch((error) => {console.log('error - ', error)})
+				};
 			},
 		},
 		mounted() {
@@ -887,5 +977,11 @@
 			box-shadow: 0px 0px 8px rgba(11, 31, 53, 0.04),
 			0px -4px 8px rgba(11, 31, 53, 0.08);
 		}
-	}
+	};
+
+	.selectType {
+		color: red;
+		border: 2px solid red; 
+		border-radius: 4px;
+	};
 </style>
