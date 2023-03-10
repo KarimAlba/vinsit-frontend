@@ -62,6 +62,13 @@
           ></b-form-input>
         </template>
 
+        <template #cell(seal_number)="data">
+          <b-form-input
+            v-model="data.item.seal_number"
+            @change="updatePlace(data.item.id, $event, 'seal_number')"
+          ></b-form-input>
+        </template>
+
         <!-- <template #cell(description)="data">
           <b-form-input
             v-model="data.item.description"
@@ -166,6 +173,24 @@
           </b-col> -->
         </b-row>
 
+        <b-row>
+            <b-col cols="12" md="12">
+                <validation-provider #default="{ errors }">
+                <b-form-group
+                    label="Пломба"
+                    :invalid-feedback="errors[0]"
+                    :state="!errors.length"
+                >
+                    <b-form-input
+                        v-model="newPlace.seal_number"
+                        type="number"
+                        :state="errors.length > 0 ? false : null"
+                    ></b-form-input>
+                </b-form-group>
+                </validation-provider>
+            </b-col>
+        </b-row>
+
         <b-row class="justify-content-between">
             <b-col cols="12" md="3" class="align-self-end">
                 <b-button variant="primary" :disabled="invalid" @click="createPlace">
@@ -259,6 +284,7 @@ export default {
         { key: "width", label: "Ширина, см" },
         { key: "height", label: "Высота, см" },
         { key: "weight", label: "Фактический вес, кг" },
+        { key: "seal_number", label: "Пломба" },
         /* { key: "status", label: "Статус" },
         { key: "rack", label: "Rack" },
         { key: "tare", label: "tare" }, */

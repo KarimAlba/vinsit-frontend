@@ -41,7 +41,7 @@
 				</b-dropdown-item>
 
 				<b-dropdown-divider />
-					<b-dropdown-item link-class="d-flex align-items-center" @click="logout()">
+					<b-dropdown-item link-class="d-flex align-items-center" @click="logout">
 						<feather-icon size="16" icon="LogOutIcon" class="mr-50" />
 						<span>Выход</span>
 					</b-dropdown-item>

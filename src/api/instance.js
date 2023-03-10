@@ -56,6 +56,7 @@ export default class Instance {
                         this.refreshToken().then(r => {
                             if (r.status > 203) {
                                 location.pathname = 'login';
+                                localStorage.clear();
                                 return;
                             }
                             this.isAlreadyFetchingAccessToken = false
@@ -104,8 +105,9 @@ export default class Instance {
 					if (!this.isAlreadyFetchingAccessToken) {
                         this.isAlreadyFetchingAccessToken = true
                         this.refreshToken().then(r => {
-                            if (r.status > 201) {
+                            if (r.status > 203) {
                                 location.pathname = 'login';
+                                localStorage.clear();
                                 return;
                             }
                             this.isAlreadyFetchingAccessToken = false
