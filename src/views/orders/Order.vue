@@ -6,13 +6,9 @@
       <b-tabs>
         <b-tab active title="Форма заказа">
           <update-main v-if="order" :order="order" :readOnly="readOnly" />
-
           <update-payer v-if="order" :order="order" :readOnly="readOnly" />
-
-          <update-sender v-if="order" :order="order" :readOnly="readOnly" />
-
-          <update-recipient v-if="order" :order="order" :readOnly="readOnly" />
-
+          <update-sender v-if="order" :order="order" :readOnly="readOnly" @updateSender="getOrder" />
+          <update-recipient v-if="order" :order="order" :readOnly="readOnly" @updateRecipient="getOrder" />
           <update-places
             v-if="order"
             :readOnly="readOnly"
@@ -20,7 +16,6 @@
             :places="order.places"
             v-model="order.places"
           />
-
           <update-products
             v-if="order"
             :readOnly="readOnly"
@@ -292,7 +287,10 @@ export default {
     },
     async handlePdfDownload() {
         downloadPdf(this.linkToPDF, `order${this.idOrder}.pdf`);
-    }
+    },
+	getOrder() {
+		this.fetchOrder(this.idOrder);
+	},
   },
   mounted() {
     this.fetchOrder(this.idOrder);

@@ -2,7 +2,7 @@
 	<section class="order pb-5">
 		<b-overlay :show="loading" rounded="sm">
 			<h1>Новый заказ</h1>
-			<validation-observer ref="simpleRules" v-slot="{ invalid }">
+			<validation-observer ref="simpleRules">
 				<b-card-actions title="Главная" actionCollapse>
 					<b-row>
 						<b-col class="mb-1" cols="12" md="4">
@@ -43,15 +43,6 @@
 									:invalid-feedback="errors[0]"
 									:state="!errors.length"
 								>
-									<!-- <v-select
-									label="status"
-									:reduce="(status) => status.id"
-
-									placeholder="Статус товара"
-
-									:options="orderStatus"
-									v-model="order.status"
-								/> -->
 									<b-form-datepicker
 										label="date"
 										:reduce="(status) => status.id"
@@ -89,11 +80,6 @@
 								</b-form-group>
 							</validation-provider>
 						</b-col>
-						<b-col class="mb-1" cols="4">
-							<b-form-group label="Договор">
-								<b-form-input v-model="order.contract"/>
-							</b-form-group>
-						</b-col>
 						<b-col class="mb-1" cols="6">
 							<b-form-group label="Местоположение">
 								<b-form-input v-model="order.location"/>
@@ -116,7 +102,13 @@
 								<select-clients
 									:reduce="(client) => client.id"
 									v-model="order.payer_counterparty"
+									:disabledAddBtn="true"
 								/>
+							</b-form-group>
+						</b-col>
+						<b-col class="mb-1" cols="4">
+							<b-form-group label="Договор">
+								<b-form-input v-model="order.contract"/>
 							</b-form-group>
 						</b-col>
 						<b-col class="mb-1" cols="12" md="6">
@@ -126,21 +118,224 @@
 						</b-col>
 					</b-row>
 				</b-card-actions>
-				<b-card-actions title="Отправитель" actionCollapse>
+				<b-row>
+					<b-col cols="6">
+						<b-card-actions title="Отправитель" actionCollapse>
+							<b-row>
+								<b-col class="mb-1" cols="12">
+									<validation-provider #default="{ errors }" rules="required">
+                                        <b-form-group
+                                            label="Тип контрагента *"
+                                            :invalid-feedback="errors[0]"
+                                            :state="!errors.length"
+                                            :class="{selectType: creationError.creationErrorSender && !order.sender_counterparty_type}"
+                                            style="border: 0px solid white"
+                                        >
+                                            <v-select
+                                                label="title"
+                                                :reduce="(type) => type.id"
+                                                :options="clientType"
+                                                v-model="order.sender_counterparty_type"
+                                                :class="{selectType: creationError.creationErrorSender && !order.sender_counterparty_type}"
+                                            />
+                                        </b-form-group>
+                                    </validation-provider>
+								</b-col>
+								<b-col class="mb-1" cols="12">
+									<b-form-group label="Город *">
+										<select-cities v-model="order.sender_city" />
+									</b-form-group>
+								</b-col>
+								<b-col class="mb-1" cols="12">
+									<b-form-group label="Наименование контрагента *">
+										<!-- <b-form-input
+											v-model="order.sender_counterparty"
+											:state="errors.length > 0 ? false : null"
+											type="number"
+										/>
+										<template #no-options="{ search }">
+											{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
+										</template> -->
+										<select-clients
+                                            :reduce="(client) => client.id"
+                                            v-model="order.sender_counterparty"
+                                            @createClient="(name) => handleClientCreation(name, 'sender')"
+                                        />
+									</b-form-group>
+								</b-col>
+								<b-col cols="12">
+									<b-form-group label="ФИО *">
+										<b-form-input v-model="order.sender_full_name"></b-form-input>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12">
+									<b-form-group label="Адрес *">
+										<b-form-input v-model="order.sender_address"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group label="Серия паспорта">
+										<b-form-input v-model="order.sender_passport_series"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group label="Номер паспорта">
+										<b-form-input v-model="order.sender_passport_no"/>
+									</b-form-group>
+								</b-col>
+								<b-col
+									cols="12"
+								>
+									<validation-provider #default="{ errors }" rules="required">
+										<b-form-group
+											:invalid-feedback="errors[0]"
+											label="Телефоны *"
+										>
+										<b-row class="">
+											<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
+												Номер телефона
+											</b-col>
+											<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('sender')">
+												+
+											</b-col>
+										</b-row>
+										<b-row 
+											v-for="(phone, i) in order.sender_phones"
+											:key="i"
+										>
+											<b-col class=" border border-secondary px-0" cols="8">
+												<b-form-input
+													v-model="phone.phone_number"
+													:state="errors.length > 0 ? false : null"
+													v-maska
+													placeholder="+71234567890"
+													data-maska="+7##########"
+												/>
+											</b-col>
+											<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('sender', i)">
+												<b-icon icon="trash"></b-icon>
+											</b-col>
+										</b-row>
+										</b-form-group>
+									</validation-provider>
+								</b-col>
+							</b-row>
+						</b-card-actions>
+					</b-col>
+					<b-col cols="6">
+						<b-card-actions title="Получатель" actionCollapse>
+							<b-row>
+								<b-col class="mb-1" cols="12">
+									<validation-provider #default="{ errors }" rules="required">
+                                        <b-form-group
+                                            label="Тип контрагента *"
+                                            :invalid-feedback="errors[0]"
+                                            :state="!errors.length"
+                                            :class="{selectType: creationError.creationErrorRecipient && !order.recipient_counterparty_type}"
+                                            style="border: 0px solid white"
+                                        >
+                                            <v-select
+                                                label="title"
+                                                :reduce="(type) => type.id"
+                                                :options="clientType"
+                                                v-model="order.recipient_counterparty_type"
+                                                :class="{selectType: creationError.creationErrorRecipient && !order.recipient_counterparty_type}"
+                                            />
+                                        </b-form-group>
+                                    </validation-provider>
+								</b-col>
+								<b-col class="mb-1" cols="12">
+									<b-form-group label="Город *">
+										<select-cities v-model="order.recipient_city" />
+									</b-form-group>
+								</b-col>
+								<b-col class="mb-1" cols="12">
+									<b-form-group label="Наименование контрагента *">
+										<select-clients
+                                            :reduce="(client) => client.id"
+                                            v-model="order.recipient_counterparty"
+                                            @createClient="(name) => handleClientCreation(name, 'recipient')"
+                                        />
+									</b-form-group>
+								</b-col>
+								<b-col cols="12">
+									<b-form-group label="ФИО *">
+										<b-form-input v-model="order.recipient_full_name"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12">
+									<b-form-group label="Адрес *">
+										<b-form-input v-model="order.recipient_address"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group label="Серия паспорта">
+										<b-form-input v-model="order.recipient_passport_series" />
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group label="Номер паспорта">
+										<b-form-input v-model="order.recipient_passport_no"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group label="Email">
+										<b-form-input
+										type="email"
+										v-model="order.recipient_email"
+										></b-form-input>
+									</b-form-group>
+								</b-col>
+								<b-col
+									cols="12"
+								>
+									<validation-provider #default="{ errors }" rules="required">
+										<b-form-group
+											:invalid-feedback="errors[0]"
+											label="Телефоны *"
+										>
+										<b-row class="">
+											<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
+												Номер телефона
+											</b-col>
+											<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('recipient')">
+												+
+											</b-col>
+										</b-row>
+										<b-row 
+											v-for="(phone, i) in order.recipient_phones"
+											:key="i"
+										>
+											<b-col class=" border border-secondary px-0" cols="8">
+												<b-form-input
+													v-model="phone.phone_number"
+													:state="errors.length > 0 ? false : null"
+													v-maska
+													placeholder="+71234567890"
+													data-maska="+7##########"
+												/>
+											</b-col>
+											<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('recipient', i)">
+												<b-icon icon="trash"></b-icon>
+											</b-col>
+										</b-row>
+										</b-form-group>
+									</validation-provider>
+								</b-col>
+							</b-row>
+						</b-card-actions>
+					</b-col>
+				</b-row>
+
+                <!-- Vadick edits -->
+				<!-- <b-card-actions title="Отправитель" actionCollapse>
 					<b-row>
 						<b-col class="mb-1" cols="12" md="4">
 							<b-form-group label="Отправитель">
-								<!-- <b-form-input
-									v-model="order.sender_counterparty"
-									:state="errors.length > 0 ? false : null"
-									type="number"
-								/>
-								<template #no-options="{ search }">
-									{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
-								</template> -->
 								<select-clients
 									:reduce="(client) => client.id"
 									v-model="order.sender_counterparty"
+									@createClient="(name) => handleClientCreation(name, 'sender')"
 								/>
 							</b-form-group>
 						</b-col>
@@ -155,12 +350,15 @@
 									label="Тип отправителя"
 									:invalid-feedback="errors[0]"
 									:state="!errors.length"
+									:class="{selectType: creationError.creationErrorSender && !order.sender_counterparty_type}"
+									style="border: 0px solid white"
 								>
 									<v-select
 										label="title"
 										:reduce="(type) => type.id"
 										:options="clientType"
 										v-model="order.sender_counterparty_type"
+										:class="{selectType: creationError.creationErrorSender && !order.sender_counterparty_type}"
 									/>
 								</b-form-group>
 							</validation-provider>
@@ -199,6 +397,8 @@
 								<b-form-group
 									:invalid-feedback="errors[0]"
 									label="Номер телефона"
+									:class="{selectType: creationError.creationErrorSender && !order.sender_phone}"
+									style="border: 0px solid white"
 								>
 									<b-form-input
 										v-model="order.sender_phone"
@@ -206,6 +406,8 @@
 										v-maska
 										placeholder="+71234567890"
 										data-maska="+7##########"
+										:class="{selectType: creationError.creationErrorSender && !order.sender_phone}"
+										
 									/>
 								</b-form-group>
 							</validation-provider>
@@ -219,6 +421,7 @@
 								<select-clients
 									:reduce="(client) => client.id"
 									v-model="order.recipient_counterparty"
+									@createClient="(name) => handleClientCreation(name, 'recipient')"
 								/>
 							</b-form-group>
 						</b-col>
@@ -230,15 +433,18 @@
 						<b-col class="mb-1" cols="12" md="4">
 							<validation-provider #default="{ errors }" rules="required">
 								<b-form-group
-									label="Тип получателя"
+									label="Тип контрагента *"
 									:invalid-feedback="errors[0]"
 									:state="!errors.length"
+									:class="{selectType: creationError.creationErrorRecipient && !order.recipient_counterparty_type}"
+									style="border: 0px solid white"
 								>
 									<v-select
 										label="title"
 										:reduce="(type) => type.id"
 										:options="clientType"
 										v-model="order.recipient_counterparty_type"
+										:class="{selectType: creationError.creationErrorRecipient && !order.recipient_counterparty_type}"
 									/>
 								</b-form-group>
 							</validation-provider>
@@ -277,6 +483,8 @@
 								<b-form-group
 									:invalid-feedback="errors[0]"
 									label="Номер телефона"
+									:class="{selectType: creationError.creationErrorRecipient && !order.recipient_phone}"
+									style="border: 0px solid white"
 								>
 									<b-form-input
 										v-model="order.recipient_phone"
@@ -284,6 +492,7 @@
 										v-maska
 										placeholder="+71234567890"
 										data-maska="+7##########"
+										:class="{selectType: creationError.creationErrorRecipient && !order.recipient_phone}"
 									/>
 								</b-form-group>
 							</validation-provider>
@@ -291,32 +500,12 @@
 						<b-col cols="12" md="4">
 						<b-form-group label="Email">
 							<b-form-input
-							type="email"
-							v-model="order.recipient_email"
-							></b-form-input>
+								type="email"
+								v-model="order.recipient_email"
+							/>
 						</b-form-group>
 						</b-col>
 					</b-row>
-				</b-card-actions>
-				<!-- <b-card-actions title="Информация о грузе" actionCollapse>
-				<b-table
-					:items="order.places"
-					:fields="orderPlacesFields"
-					striped
-					responsive
-				>
-					<template #cell(barcode)="data">
-					<a class="link" :href="data.item.barcode">Штрих-код</a>
-					</template>
-
-					<template #cell(status)="data">
-					{{ getPlaceStatus(data.item.status) }}
-					</template>
-				</b-table>
-
-				<p>
-					Всего мест: <b>{{ order.places.length }} </b>
-				</p>
 				</b-card-actions> -->
 				<b-card-actions title="Информация о грузе" actionCollapse>
 					<b-table
@@ -599,7 +788,6 @@
 				</b-card-actions>
 				<div class="footer order__footer px-4 py-1 d-flex">
 					<b-button
-						:disabled="invalid"
 						variant="primary"
 						class="mr-1"
 						@click="validationForm"
@@ -642,8 +830,11 @@
 		BFormGroup,
 		BTable,
 		BButton,
+		BFormRadio,
 		VBTooltip,
 		BFormDatepicker,
+		BIcon,
+		BIconTrash,
 	} from "bootstrap-vue";
 	import BCardActions from "@/@core/components/b-card-actions/BCardActions.vue";
 	import vSelect from "vue-select";
@@ -666,9 +857,12 @@
 			BBadge,
 			BFormTextarea,
 			BFormGroup,
+			BFormRadio,
 			BTable,
 			BButton,
 			BFormDatepicker,
+			BIcon,
+			BIconTrash,
 
 			vSelect,
 			SelectCities,
@@ -721,8 +915,19 @@
 					payer: 0,
 					comment: "",
 					delivery_date: '',
+                    sender_counterparty_type: 'E',
 					sender_phones: [{}],
+                    sender_address: '',
+                    sender_passport_series: '',
+                    sender_passport_no: '',
+                    sender_city: null,
+                    recipient_city: null,
+                    recipient_counterparty_type: 'E',
 					recipient_phones: [{}],
+                    recipient_address: '',
+                    recipient_email: '',
+                    recipient_passport_series: '',
+                    recipient_passport_no: '',
 					places: [],
 					products: [],
 				},
@@ -736,6 +941,25 @@
 					phoneRegionCode: "RU",
 					prefix: "+7",
 				},
+				newUser: {
+					INN: '',
+					address: '',
+					bank_account: '',
+					city: '',
+					client_phones: [],
+					email: '',
+					// id: null,
+					name: '',
+					passport_no: '', 
+					passport_series: '',
+					position: '',
+					type: null,
+					web: '',
+				},
+				creationError: {
+					creationErrorSender: false,
+					creationErrorRecipient: false,
+				},
 			};
 		},
 		watch: {
@@ -743,20 +967,53 @@
 				if (Number.isFinite(this.order.recipient_counterparty)) {
 					const id = this.order.recipient_counterparty;
 					this.addCounterparty(id, 'recipient');
+					return;
 				};
 			},
 			'order.sender_counterparty'() {
 				if (Number.isFinite(this.order.sender_counterparty)) {
 					const id = this.order.sender_counterparty;
 					this.addCounterparty(id, 'sender');
-				};
+					return;
+				};	
 			},
 			'order.payer_counterparty'() {
 				if (Number.isFinite(this.order.payer_counterparty)) {
 					const id = this.order.payer_counterparty;
 					this.addCounterparty(id, 'payer');
+					return;
 				};
-			}
+				// if (typeof this.order.payer_counterparty === 'string') {
+				// 	this.newUser.name = this.order.payer_counterparty;
+				// 	this.addClient('payer');
+				// 	return;
+				// };
+			},
+			'order.recipient_phone'() {
+				if (this.order.recipient_phone.length === 12) {
+					this.creationError.creationErrorRecipient = false;
+					this.newUser.client_phones.splice(0, 1, {phone_number : this.order.recipient_phone});
+				}
+			},
+			'order.sender_phone'() {
+				if (this.order.sender_phone.length === 12) {
+					this.creationError.creationErrorSender = false;
+					this.newUser.client_phones.splice(0, 1, {phone_number : this.order.sender_phone});
+				}
+			},
+			// 'order.payer_counterparty_type'() {
+			// 	this.newUser.type = this.order.payer_counterparty_type;
+			// 	if (this.newUser.name) {
+			// 		this.addClient('payer');
+			// 		return;
+			// 	};
+			// },
+			'order.recipient_counterparty_type'() {
+				this.newUser.type = this.order.recipient_counterparty_type;
+			},
+			'order.sender_counterparty_type'() {
+				this.newUser.type = this.order.sender_counterparty_type;
+			},
 		},
 		computed: {
 			...mapGetters({
@@ -852,12 +1109,15 @@
 						continue;
 					};
 					if (data[key] && key === 'client_phones') {
-						this.order[name + '_phone'] = +(data.client_phones[0].phone_number);
+                        if (data.client_phones && data.client_phones.length) {
+                            this.order[name + '_phones'] = data.client_phones.map((it) => ({phone_number: it.phone_number}));
+                        } else {
+                            this.order[name + '_phones'] = [{phone_number: ''}];
+                        }
 						continue;
 					};
 					if (data[key]) {
 						this.order[name + '_' + key] = data[key];
-						console.log(name + '_' + key + ' - ', this.order[name + '_' + key] = data[key]);
 					};
 				}
 			},
@@ -865,6 +1125,75 @@
 				this.$api.clients.getClient(id).then((response) => {
 					this.changeCounterpartyParams(response.data, name);	
 				});
+			},
+			addPhone(name) {
+				if (this.order[name + '_phones'][0].phone_number){
+					this.order[name + '_phones'].unshift({});
+				}
+			},
+			deletePhone(name, id) {
+				this.order[name + '_phones'].splice(id, 1);
+				if (this.order[name + '_phones'].length == 0){
+					this.order[name + '_phones'].unshift({});
+				}
+            },
+			addClient(propName) {
+				this.$api.clients.addNewClient(this.newUser)
+					.then((response) => {
+						console.log('response - ', response);
+                        if (response.status > 203) {
+                            return;
+                        }
+						this.order[propName + '_id'] = response.data.id;
+						// this.newUser.name = '';
+						// this.newUser.type = '';
+						// this.newUser.client_phones.pop();
+						this.creationError.creationErrorRecipient = false;
+						this.creationError.creationErrorSender = false;
+					})
+					.catch((error) => {console.log('error - ', error)})
+			},
+			handleClientCreation(clientName, orderPropName) {
+				this.newUser.name = clientName.trim();
+                if (orderPropName === 'sender') {
+                    this.newUser = {
+                        INN: '',
+                        address: this.order.sender_address,
+                        bank_account: '',
+                        city: this.order.sender_city ? this.order.sender_city.id : null,
+                        client_phones: this.order.sender_phones,
+                        email: '',
+                        // id: null,
+                        name: clientName.trim(),
+                        passport_no: this.order.sender_passport_no, 
+                        passport_series: this.order.sender_passport_series,
+                        position: '',
+                        type: this.order.sender_counterparty_type,
+                        web: '',
+                    };
+                } else if (orderPropName === 'recipient') {
+                    this.newUser = {
+                        INN: '',
+                        address: this.order.recipient_address,
+                        bank_account: '',
+                        city: this.order.recipient_city ? this.order.recipient_city.id : null,
+                        client_phones: this.order.recipient_phones,
+                        email: this.order.recipient_email,
+                        // id: null,
+                        name: clientName.trim(),
+                        passport_no: this.order.recipient_passport_no, 
+                        passport_series: this.order.recipient_passport_series,
+                        position: '',
+                        type: this.order.recipient_counterparty_type,
+                        web: '',
+                    };
+                }
+				if ((!this.newUser.type) && (this.newUser.name)) {
+					if (orderPropName === 'sender') this.creationError.creationErrorSender = true;
+					if (orderPropName === 'recipient') this.creationError.creationErrorRecipient = true;
+					return;
+				};
+				this.addClient(orderPropName);
 			},
 		},
 		mounted() {
@@ -888,4 +1217,18 @@
 			0px -4px 8px rgba(11, 31, 53, 0.08);
 		}
 	}
+	.plus {
+		font-size: 35px;
+	}
+	.bi-trash {
+		width: 30px;
+		height: auto;
+		margin-top: 5px;
+	}
+
+	.selectType {
+		color: red;
+		border: 2px solid red; 
+		border-radius: 4px;
+	};
 </style>

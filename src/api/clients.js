@@ -11,5 +11,8 @@ export default function (instance) {
         deleteClient(id) {
             return instance.delete(`api/v1/clients/${id}/`);
         },
+		addNewClient(data) {
+			return instance.post("api/v1/clients/", data);
+		},
     };
 }
