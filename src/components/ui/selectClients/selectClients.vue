@@ -76,8 +76,9 @@
 		},
 		methods: {
 			onSearchClients(search, loading) {
+				this.disabledBtn = true;
 				if (search.length) {
-					this.disabledBtn = true;
+					// this.disabledBtn = true;
 					loading(true);
 					this.changeSearchValue(search, this);
 					this.fetchClients(search, loading, this);
@@ -94,15 +95,15 @@
 				this.disabledBtn = true;
 			},
 			changeSearchValue:_.debounce((clientName, vm)  => {
-				vm.newClientName = clientName,
+				vm.newClientName = clientName;
 				vm.checkClient();
 			}, 500),
 			checkClient() {
 				if (this.clients.findIndex(
 						client => client.name 
 							? (
-								this.search 
-									? client.name.toLowerCase().indexOf(this.search.toLowerCase()) 
+								this.newClientName 
+									? client.name.toLowerCase() === this.newClientName.toLowerCase()
 									: null
 								) 
 							: null
