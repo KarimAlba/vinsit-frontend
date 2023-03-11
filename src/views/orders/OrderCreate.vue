@@ -2,7 +2,7 @@
 	<section class="order pb-5">
 		<b-overlay :show="loading" rounded="sm">
 			<h1>Новый заказ</h1>
-			<validation-observer ref="simpleRules" v-slot="{ invalid }">
+			<validation-observer ref="simpleRules">
 				<b-card-actions title="Главная" actionCollapse>
 					<b-row>
 						<b-col class="mb-1" cols="12" md="4">
@@ -43,15 +43,6 @@
 									:invalid-feedback="errors[0]"
 									:state="!errors.length"
 								>
-									<!-- <v-select
-									label="status"
-									:reduce="(status) => status.id"
-
-									placeholder="Статус товара"
-
-									:options="orderStatus"
-									v-model="order.status"
-								/> -->
 									<b-form-datepicker
 										label="date"
 										:reduce="(status) => status.id"
@@ -111,6 +102,7 @@
 								<select-clients
 									:reduce="(client) => client.id"
 									v-model="order.payer_counterparty"
+									:disabledAddBtn="true"
 								/>
 							</b-form-group>
 						</b-col>
@@ -132,33 +124,22 @@
 							<b-row>
 								<b-col class="mb-1" cols="12">
 									<validation-provider #default="{ errors }" rules="required">
-										<b-form-group
-											label="Тип контрагента *"
-											:invalid-feedback="errors[0]"
-											:state="!errors.length"
-										>
-											<b-row>
-												<b-col cols="3">
-													<b-form-radio 
-														v-model="order.sender_counterparty_type" 
-														name="some-radios" 
-														value="clientType[0].id"
-														>
-														{{clientType[0].short_title}}
-													</b-form-radio>
-												</b-col>
-												<b-col cols="3">
-													<b-form-radio 
-														v-model="order.sender_counterparty_type" 
-														name="some-radios" 
-														value="clientType[1].id"
-														>
-														{{clientType[1].short_title}}
-													</b-form-radio>
-												</b-col>
-											</b-row>
-										</b-form-group>
-									</validation-provider>
+                                        <b-form-group
+                                            label="Тип контрагента *"
+                                            :invalid-feedback="errors[0]"
+                                            :state="!errors.length"
+                                            :class="{selectType: creationError.creationErrorSender && !order.sender_counterparty_type}"
+                                            style="border: 0px solid white"
+                                        >
+                                            <v-select
+                                                label="title"
+                                                :reduce="(type) => type.id"
+                                                :options="clientType"
+                                                v-model="order.sender_counterparty_type"
+                                                :class="{selectType: creationError.creationErrorSender && !order.sender_counterparty_type}"
+                                            />
+                                        </b-form-group>
+                                    </validation-provider>
 								</b-col>
 								<b-col class="mb-1" cols="12">
 									<b-form-group label="Город *">
@@ -176,9 +157,10 @@
 											{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
 										</template> -->
 										<select-clients
-											:reduce="(client) => client.id"
-											v-model="order.sender_counterparty"
-										/>
+                                            :reduce="(client) => client.id"
+                                            v-model="order.sender_counterparty"
+                                            @createClient="(name) => handleClientCreation(name, 'sender')"
+                                        />
 									</b-form-group>
 								</b-col>
 								<b-col cols="12">
@@ -213,7 +195,7 @@
 											<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
 												Номер телефона
 											</b-col>
-											<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="popPhone('sender')">
+											<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('sender')">
 												+
 											</b-col>
 										</b-row>
@@ -223,7 +205,7 @@
 										>
 											<b-col class=" border border-secondary px-0" cols="8">
 												<b-form-input
-													v-model="phone.number"
+													v-model="phone.phone_number"
 													:state="errors.length > 0 ? false : null"
 													v-maska
 													placeholder="+71234567890"
@@ -245,33 +227,22 @@
 							<b-row>
 								<b-col class="mb-1" cols="12">
 									<validation-provider #default="{ errors }" rules="required">
-										<b-form-group
-											label="Тип контрагента *"
-											:invalid-feedback="errors[0]"
-											:state="!errors.length"
-										>
-											<b-row>
-												<b-col cols="3">
-													<b-form-radio 
-														v-model="order.recipient_counterparty_type" 
-														name="some-radios-2" 
-														value="clientType[0].id"
-														>
-														{{clientType[0].short_title}}
-													</b-form-radio>
-												</b-col>
-												<b-col cols="3">
-													<b-form-radio 
-														v-model="order.recipient_counterparty_type" 
-														name="some-radios-2" 
-														value="clientType[1].id"
-														>
-														{{clientType[1].short_title}}
-													</b-form-radio>
-												</b-col>
-											</b-row>
-										</b-form-group>
-									</validation-provider>
+                                        <b-form-group
+                                            label="Тип контрагента *"
+                                            :invalid-feedback="errors[0]"
+                                            :state="!errors.length"
+                                            :class="{selectType: creationError.creationErrorRecipient && !order.recipient_counterparty_type}"
+                                            style="border: 0px solid white"
+                                        >
+                                            <v-select
+                                                label="title"
+                                                :reduce="(type) => type.id"
+                                                :options="clientType"
+                                                v-model="order.recipient_counterparty_type"
+                                                :class="{selectType: creationError.creationErrorRecipient && !order.recipient_counterparty_type}"
+                                            />
+                                        </b-form-group>
+                                    </validation-provider>
 								</b-col>
 								<b-col class="mb-1" cols="12">
 									<b-form-group label="Город *">
@@ -281,9 +252,10 @@
 								<b-col class="mb-1" cols="12">
 									<b-form-group label="Наименование контрагента *">
 										<select-clients
-											:reduce="(client) => client.id"
-											v-model="order.recipient_counterparty"
-										/>
+                                            :reduce="(client) => client.id"
+                                            v-model="order.recipient_counterparty"
+                                            @createClient="(name) => handleClientCreation(name, 'recipient')"
+                                        />
 									</b-form-group>
 								</b-col>
 								<b-col cols="12">
@@ -326,7 +298,7 @@
 											<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
 												Номер телефона
 											</b-col>
-											<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="popPhone('recipient')">
+											<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('recipient')">
 												+
 											</b-col>
 										</b-row>
@@ -336,7 +308,7 @@
 										>
 											<b-col class=" border border-secondary px-0" cols="8">
 												<b-form-input
-													v-model="phone.number"
+													v-model="phone.phone_number"
 													:state="errors.length > 0 ? false : null"
 													v-maska
 													placeholder="+71234567890"
@@ -354,25 +326,186 @@
 						</b-card-actions>
 					</b-col>
 				</b-row>
-				<!-- <b-card-actions title="Информация о грузе" actionCollapse>
-				<b-table
-					:items="order.places"
-					:fields="orderPlacesFields"
-					striped
-					responsive
-				>
-					<template #cell(barcode)="data">
-					<a class="link" :href="data.item.barcode">Штрих-код</a>
-					</template>
 
-					<template #cell(status)="data">
-					{{ getPlaceStatus(data.item.status) }}
-					</template>
-				</b-table>
-
-				<p>
-					Всего мест: <b>{{ order.places.length }} </b>
-				</p>
+                <!-- Vadick edits -->
+				<!-- <b-card-actions title="Отправитель" actionCollapse>
+					<b-row>
+						<b-col class="mb-1" cols="12" md="4">
+							<b-form-group label="Отправитель">
+								<select-clients
+									:reduce="(client) => client.id"
+									v-model="order.sender_counterparty"
+									@createClient="(name) => handleClientCreation(name, 'sender')"
+								/>
+							</b-form-group>
+						</b-col>
+						<b-col class="mb-1" cols="12" md="4">
+							<b-form-group label="Город">
+								<select-cities v-model="order.sender_city" />
+							</b-form-group>
+						</b-col>
+						<b-col class="mb-1" cols="12" md="4">
+							<validation-provider #default="{ errors }" rules="required">
+								<b-form-group
+									label="Тип отправителя"
+									:invalid-feedback="errors[0]"
+									:state="!errors.length"
+									:class="{selectType: creationError.creationErrorSender && !order.sender_counterparty_type}"
+									style="border: 0px solid white"
+								>
+									<v-select
+										label="title"
+										:reduce="(type) => type.id"
+										:options="clientType"
+										v-model="order.sender_counterparty_type"
+										:class="{selectType: creationError.creationErrorSender && !order.sender_counterparty_type}"
+									/>
+								</b-form-group>
+							</validation-provider>
+						</b-col>
+						<b-col cols="12" md="8">
+							<b-form-group label="ФИО отправителя">
+								<b-form-input v-model="order.sender_full_name"></b-form-input>
+							</b-form-group>
+						</b-col>
+						<b-col cols="12" md="2">
+							<b-form-group label="Серия паспорта">
+								<b-form-input v-model="order.sender_passport_series"/>
+							</b-form-group>
+						</b-col>
+						<b-col cols="12" md="2">
+							<b-form-group label="Номер паспорта">
+								<b-form-input v-model="order.sender_passport_no"/>
+							</b-form-group>
+						</b-col>
+						<b-col cols="12">
+							<b-form-group label="Адрес">
+								<b-form-textarea
+									rows="3"
+									max-rows="6"
+									v-model="order.sender_address"
+								/>
+							</b-form-group>
+						</b-col>
+						<b-col
+							v-for="(phone, i) in order.sender_phones"
+							:key="i"
+							cols="12"
+							md="4"
+						>
+							<validation-provider #default="{ errors }" rules="required">
+								<b-form-group
+									:invalid-feedback="errors[0]"
+									label="Номер телефона"
+									:class="{selectType: creationError.creationErrorSender && !order.sender_phone}"
+									style="border: 0px solid white"
+								>
+									<b-form-input
+										v-model="order.sender_phone"
+										:state="errors.length > 0 ? false : null"
+										v-maska
+										placeholder="+71234567890"
+										data-maska="+7##########"
+										:class="{selectType: creationError.creationErrorSender && !order.sender_phone}"
+										
+									/>
+								</b-form-group>
+							</validation-provider>
+						</b-col>
+					</b-row>
+				</b-card-actions>
+				<b-card-actions title="Получатель" actionCollapse>
+					<b-row>
+						<b-col class="mb-1" cols="12" md="4">
+							<b-form-group label="Получатель">
+								<select-clients
+									:reduce="(client) => client.id"
+									v-model="order.recipient_counterparty"
+									@createClient="(name) => handleClientCreation(name, 'recipient')"
+								/>
+							</b-form-group>
+						</b-col>
+						<b-col class="mb-1" cols="12" md="4">
+							<b-form-group label="Город">
+								<select-cities v-model="order.recipient_city" />
+							</b-form-group>
+						</b-col>
+						<b-col class="mb-1" cols="12" md="4">
+							<validation-provider #default="{ errors }" rules="required">
+								<b-form-group
+									label="Тип контрагента *"
+									:invalid-feedback="errors[0]"
+									:state="!errors.length"
+									:class="{selectType: creationError.creationErrorRecipient && !order.recipient_counterparty_type}"
+									style="border: 0px solid white"
+								>
+									<v-select
+										label="title"
+										:reduce="(type) => type.id"
+										:options="clientType"
+										v-model="order.recipient_counterparty_type"
+										:class="{selectType: creationError.creationErrorRecipient && !order.recipient_counterparty_type}"
+									/>
+								</b-form-group>
+							</validation-provider>
+						</b-col>
+						<b-col cols="12" md="8">
+							<b-form-group label="ФИО получателя">
+								<b-form-input v-model="order.recipient_full_name"/>
+							</b-form-group>
+						</b-col>
+						<b-col cols="12" md="2">
+							<b-form-group label="Серия паспорта">
+								<b-form-input v-model="order.recipient_passport_series" />
+							</b-form-group>
+						</b-col>
+						<b-col cols="12" md="2">
+							<b-form-group label="Номер паспорта">
+								<b-form-input v-model="order.recipient_passport_no"/>
+							</b-form-group>
+						</b-col>
+						<b-col cols="12">
+							<b-form-group label="Адрес">
+								<b-form-textarea
+									rows="3"
+									max-rows="6"
+									v-model="order.recipient_address"
+								/>
+							</b-form-group>
+						</b-col>
+						<b-col
+							v-for="(phone, i) in order.recipient_phones"
+							:key="i"
+							cols="12"
+							md="4"
+						>
+							<validation-provider #default="{ errors }" rules="required">
+								<b-form-group
+									:invalid-feedback="errors[0]"
+									label="Номер телефона"
+									:class="{selectType: creationError.creationErrorRecipient && !order.recipient_phone}"
+									style="border: 0px solid white"
+								>
+									<b-form-input
+										v-model="order.recipient_phone"
+										:state="errors.length > 0 ? false : null"
+										v-maska
+										placeholder="+71234567890"
+										data-maska="+7##########"
+										:class="{selectType: creationError.creationErrorRecipient && !order.recipient_phone}"
+									/>
+								</b-form-group>
+							</validation-provider>
+						</b-col>
+						<b-col cols="12" md="4">
+						<b-form-group label="Email">
+							<b-form-input
+								type="email"
+								v-model="order.recipient_email"
+							/>
+						</b-form-group>
+						</b-col>
+					</b-row>
 				</b-card-actions> -->
 				<b-card-actions title="Информация о грузе" actionCollapse>
 					<b-table
@@ -420,6 +553,9 @@
 						<template #cell(height)="data">
 							<b-form-input v-model="data.item.height"/>
 						</template>
+                        <template #cell(seal_number)="data">
+							<b-form-input v-model="data.item.seal_number"/>
+						</template>
 						<template #cell(rack)="data">
 							<b-form-input
 								style="min-width: 100px"
@@ -452,12 +588,115 @@
 							<p>Всего мест: <b>{{ order.places.length }} </b></p>
 						</div>
 						<div>
-							<b-button @click="addPlace" variant="primary" size="sm">
+							<b-button v-b-modal.modal-create-place variant="primary" size="sm">
 								Добавить место
 							</b-button>
 						</div>
 					</div>
 				</b-card-actions>
+
+                <!-- Places creation modal -->
+                <b-modal id="modal-create-place" title="Добавить место" hide-footer>
+                    <validation-observer v-slot="{ invalid }">
+                        <b-row>
+                            <b-col cols="12" md="12">
+                                <validation-provider #default="{ errors }" rules="required">
+                                <b-form-group
+                                    label="# места"
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                    v-model="newPlace.place_no"
+                                    type="number"
+                                    :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                                </validation-provider>
+                            </b-col>
+
+                            <b-col cols="12" md="3">
+                                <validation-provider #default="{ errors }" rules="required">
+                                <b-form-group
+                                    label="Вес"
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                    v-model="newPlace.weight"
+                                    type="number"
+                                    :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                                </validation-provider>
+                            </b-col>
+
+                            <b-col cols="12" md="3">
+                                <b-form-group label="Ширина">
+                                <b-form-input
+                                    type="number"
+                                    v-model="newPlace.width"
+                                ></b-form-input>
+                                </b-form-group>
+                            </b-col>
+
+                            <b-col cols="12" md="3">
+                                <b-form-group label="Длина">
+                                <b-form-input
+                                    type="number"
+                                    v-model="newPlace.length"
+                                ></b-form-input>
+                                </b-form-group>
+                            </b-col>
+
+                            <b-col cols="12" md="3">
+                                <b-form-group label="Высота">
+                                <b-form-input
+                                    type="number"
+                                    v-model="newPlace.height"
+                                ></b-form-input>
+                                </b-form-group>
+                            </b-col>
+
+                            <!-- <b-col cols="12" md="12">
+                                <b-form-group label="Примечание">
+                                <b-form-input v-model="newPlace.description"></b-form-input>
+                                </b-form-group>
+                            </b-col> -->
+                        </b-row>
+                        <b-row>
+                            <b-col cols="12" md="12">
+                                <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    label="Пломба"
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="newPlace.seal_number"
+                                        type="number"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                                </validation-provider>
+                            </b-col>
+                        </b-row>
+
+                        <b-row class="justify-content-between">
+                            <b-col cols="12" md="3" class="align-self-end">
+                                <b-button variant="primary" :disabled="invalid" @click="addPlace">
+                                    Добавить
+                                </b-button>
+                            </b-col>
+                            <b-col cols="12" md="3" class="align-self-end">
+                                <b-form-group label="Кол-во" style="margin-bottom: 0;">
+                                    <b-form-input type="number" v-model="newPlaceCount"></b-form-input>
+                                </b-form-group>
+                            </b-col>
+                        </b-row>
+                    </validation-observer>
+                </b-modal>
+
 				<b-card-actions title="Товары" actionCollapse>
 					<b-table
 						:items="order.products"
@@ -549,7 +788,6 @@
 				</b-card-actions>
 				<div class="footer order__footer px-4 py-1 d-flex">
 					<b-button
-						:disabled="invalid"
 						variant="primary"
 						class="mr-1"
 						@click="validationForm"
@@ -651,6 +889,7 @@
 					{ key: "width", label: "Ширина, см" },
 					{ key: "height", label: "Высота, см" },
 					{ key: "weight", label: "Фактический вес, кг" },
+					{ key: "seal_number", label: "Пломба" },
 					/* { key: "rack", label: "Rack" },
 					{ key: "tare", label: "Tare" }, */
 					{ key: "description", label: "Примечание" },
@@ -676,18 +915,50 @@
 					payer: 0,
 					comment: "",
 					delivery_date: '',
+                    sender_counterparty_type: 'E',
 					sender_phones: [{}],
+                    sender_address: '',
+                    sender_passport_series: '',
+                    sender_passport_no: '',
+                    sender_city: null,
+                    recipient_city: null,
+                    recipient_counterparty_type: 'E',
 					recipient_phones: [{}],
+                    recipient_address: '',
+                    recipient_email: '',
+                    recipient_passport_series: '',
+                    recipient_passport_no: '',
 					places: [],
 					products: [],
 				},
 				clients: [],
 				products: [],
 				orderStatus: [],
+                newPlace: {},
+                newPlaceCount: 1,
 				phoneMask: {
 					phone: true,
 					phoneRegionCode: "RU",
 					prefix: "+7",
+				},
+				newUser: {
+					INN: '',
+					address: '',
+					bank_account: '',
+					city: '',
+					client_phones: [],
+					email: '',
+					// id: null,
+					name: '',
+					passport_no: '', 
+					passport_series: '',
+					position: '',
+					type: null,
+					web: '',
+				},
+				creationError: {
+					creationErrorSender: false,
+					creationErrorRecipient: false,
 				},
 			};
 		},
@@ -696,20 +967,53 @@
 				if (Number.isFinite(this.order.recipient_counterparty)) {
 					const id = this.order.recipient_counterparty;
 					this.addCounterparty(id, 'recipient');
+					return;
 				};
 			},
 			'order.sender_counterparty'() {
 				if (Number.isFinite(this.order.sender_counterparty)) {
 					const id = this.order.sender_counterparty;
 					this.addCounterparty(id, 'sender');
-				};
+					return;
+				};	
 			},
 			'order.payer_counterparty'() {
 				if (Number.isFinite(this.order.payer_counterparty)) {
 					const id = this.order.payer_counterparty;
 					this.addCounterparty(id, 'payer');
+					return;
 				};
-			}
+				// if (typeof this.order.payer_counterparty === 'string') {
+				// 	this.newUser.name = this.order.payer_counterparty;
+				// 	this.addClient('payer');
+				// 	return;
+				// };
+			},
+			'order.recipient_phone'() {
+				if (this.order.recipient_phone.length === 12) {
+					this.creationError.creationErrorRecipient = false;
+					this.newUser.client_phones.splice(0, 1, {phone_number : this.order.recipient_phone});
+				}
+			},
+			'order.sender_phone'() {
+				if (this.order.sender_phone.length === 12) {
+					this.creationError.creationErrorSender = false;
+					this.newUser.client_phones.splice(0, 1, {phone_number : this.order.sender_phone});
+				}
+			},
+			// 'order.payer_counterparty_type'() {
+			// 	this.newUser.type = this.order.payer_counterparty_type;
+			// 	if (this.newUser.name) {
+			// 		this.addClient('payer');
+			// 		return;
+			// 	};
+			// },
+			'order.recipient_counterparty_type'() {
+				this.newUser.type = this.order.recipient_counterparty_type;
+			},
+			'order.sender_counterparty_type'() {
+				this.newUser.type = this.order.sender_counterparty_type;
+			},
 		},
 		computed: {
 			...mapGetters({
@@ -774,7 +1078,14 @@
 			addPlace() {
 				let arr = this.order.places.map((place) => place.place_no),
 				max = arr.length ? Math.max(...arr) : 0;
-				this.order.places.push({ place_no: max + 1 });
+                if (this.newPlaceCount > 0) {
+                    for (let i = 0; i < this.newPlaceCount; i++) {
+                        this.order.places.push({ ...this.newPlace, place_no: max + 1 + i });
+                    }
+                }
+                this.$nextTick(() => {
+                    this.$bvModal.hide("modal-create-place");
+                });
 			},
 			deletePlace(id) {
 				let inx = this.order.places.findIndex((place) => place.place_no === id);
@@ -798,19 +1109,15 @@
 						continue;
 					};
 					if (data[key] && key === 'client_phones') {
-						if (this.order[name + '_phones'][0].number) {
-							const oredrPhone = this.order[name + '_phones'];
-							data.client_phones.map((it) => {
-								oredrPhone.push({number: it.phone_number});
-							})
-						} else {
-							this.order[name + '_phones'] = data.client_phones.map((it) => ({number: it.phone_number}));
-						}
+                        if (data.client_phones && data.client_phones.length) {
+                            this.order[name + '_phones'] = data.client_phones.map((it) => ({phone_number: it.phone_number}));
+                        } else {
+                            this.order[name + '_phones'] = [{phone_number: ''}];
+                        }
 						continue;
 					};
 					if (data[key]) {
 						this.order[name + '_' + key] = data[key];
-						// console.log(name + '_' + key + ' - ', this.order[name + '_' + key] = data[key]);
 					};
 				}
 			},
@@ -819,8 +1126,8 @@
 					this.changeCounterpartyParams(response.data, name);	
 				});
 			},
-			popPhone(name) {
-				if (this.order[name + '_phones'][0].number){
+			addPhone(name) {
+				if (this.order[name + '_phones'][0].phone_number){
 					this.order[name + '_phones'].unshift({});
 				}
 			},
@@ -829,6 +1136,64 @@
 				if (this.order[name + '_phones'].length == 0){
 					this.order[name + '_phones'].unshift({});
 				}
+            },
+			addClient(propName) {
+				this.$api.clients.addNewClient(this.newUser)
+					.then((response) => {
+						console.log('response - ', response);
+                        if (response.status > 203) {
+                            return;
+                        }
+						this.order[propName + '_id'] = response.data.id;
+						// this.newUser.name = '';
+						// this.newUser.type = '';
+						// this.newUser.client_phones.pop();
+						this.creationError.creationErrorRecipient = false;
+						this.creationError.creationErrorSender = false;
+					})
+					.catch((error) => {console.log('error - ', error)})
+			},
+			handleClientCreation(clientName, orderPropName) {
+				this.newUser.name = clientName.trim();
+                if (orderPropName === 'sender') {
+                    this.newUser = {
+                        INN: '',
+                        address: this.order.sender_address,
+                        bank_account: '',
+                        city: this.order.sender_city ? this.order.sender_city.id : null,
+                        client_phones: this.order.sender_phones,
+                        email: '',
+                        // id: null,
+                        name: clientName.trim(),
+                        passport_no: this.order.sender_passport_no, 
+                        passport_series: this.order.sender_passport_series,
+                        position: '',
+                        type: this.order.sender_counterparty_type,
+                        web: '',
+                    };
+                } else if (orderPropName === 'recipient') {
+                    this.newUser = {
+                        INN: '',
+                        address: this.order.recipient_address,
+                        bank_account: '',
+                        city: this.order.recipient_city ? this.order.recipient_city.id : null,
+                        client_phones: this.order.recipient_phones,
+                        email: this.order.recipient_email,
+                        // id: null,
+                        name: clientName.trim(),
+                        passport_no: this.order.recipient_passport_no, 
+                        passport_series: this.order.recipient_passport_series,
+                        position: '',
+                        type: this.order.recipient_counterparty_type,
+                        web: '',
+                    };
+                }
+				if ((!this.newUser.type) && (this.newUser.name)) {
+					if (orderPropName === 'sender') this.creationError.creationErrorSender = true;
+					if (orderPropName === 'recipient') this.creationError.creationErrorRecipient = true;
+					return;
+				};
+				this.addClient(orderPropName);
 			},
 		},
 		mounted() {
@@ -860,4 +1225,10 @@
 		height: auto;
 		margin-top: 5px;
 	}
+
+	.selectType {
+		color: red;
+		border: 2px solid red; 
+		border-radius: 4px;
+	};
 </style>

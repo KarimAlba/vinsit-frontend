@@ -44,25 +44,82 @@ export default class Instance {
 	
 		// Add request/response interceptor
 		this.axiosIns.interceptors.response.use(
-			response => response,
+			response => {
+                console.log(response);
+				const { config } = response
+				const originalRequest = config
+		
+				// if (status === 401) {
+				if (response && response.status === 401) {
+					if (!this.isAlreadyFetchingAccessToken) {
+                        this.isAlreadyFetchingAccessToken = true
+                        this.refreshToken().then(r => {
+                            if (r.status > 203) {
+                                location.pathname = 'login';
+                                localStorage.clear();
+                                return;
+                            }
+                            this.isAlreadyFetchingAccessToken = false
+            
+                            // Update accessToken in localStorage
+                            useJwt.setToken(r.data.accessToken)
+                            useJwt.setRefreshToken(r.data.refreshToken)
+            
+                            this.onAccessTokenFetched(r.data.accessToken)
+                        }).catch((err) => {
+                            console.log(err);
+                        })
+					}
+					const retryOriginalRequest = new Promise(resolve => {
+                        this.addSubscriber(accessToken => {
+                            // Make sure to assign accessToken according to your response.
+                            // Change Authorization header
+                            originalRequest.headers.Authorization = `${this.jwtConfig.tokenType} ${accessToken}`
+                            resolve(this.axiosIns(originalRequest))
+                        })
+					})
+					return retryOriginalRequest
+				}
+				if (response.status >= 500) {
+					Vue.$toast(
+						{
+							component: ToastificationContent,
+							props: {
+								title: "Ошибка",
+								text: "Ошибка при загрузке данных",
+								icon: "EditAlertCircle",
+								variant: "danger",
+							},
+						}
+					)
+				}
+                return response;
+            },
 			error => {
-				// const { config, response: { status } } = error
+                console.log(error);
 				const { config, response } = error
 				const originalRequest = config
 		
 				// if (status === 401) {
 				if (response && response.status === 401) {
 					if (!this.isAlreadyFetchingAccessToken) {
-					this.isAlreadyFetchingAccessToken = true
-					this.refreshToken().then(r => {
-						this.isAlreadyFetchingAccessToken = false
-		
-						// Update accessToken in localStorage
-						useJwt.setToken(r.data.accessToken)
-						useJwt.setRefreshToken(r.data.refreshToken)
-		
-						this.onAccessTokenFetched(r.data.accessToken)
-					})
+                        this.isAlreadyFetchingAccessToken = true
+                        this.refreshToken().then(r => {
+                            if (r.status > 203) {
+                                location.pathname = 'login';
+                                localStorage.clear();
+                                return;
+                            }
+                            this.isAlreadyFetchingAccessToken = false
+            
+                            // Update accessToken in localStorage
+                            useJwt.setToken(r.data.accessToken)
+                            useJwt.setRefreshToken(r.data.refreshToken)
+            
+                            this.onAccessTokenFetched(r.data.accessToken)
+                        }).catch((err) => {
+                            location.pathname = 'login';
+                        })
 					}
 					const retryOriginalRequest = new Promise(resolve => {
 					this.addSubscriber(accessToken => {
@@ -74,7 +131,7 @@ export default class Instance {
 					})
 					return retryOriginalRequest
 				}
-				if (statusCode >= 500) {
+				if (response.status >= 500) {
 					Vue.$toast(
 						{
 							component: ToastificationContent,
@@ -101,15 +158,15 @@ export default class Instance {
 		}
 	
 		login(...args) {
-			return this.axiosIns.post(this.jwtConfig.loginEndpoint, ...args)
+			return this.axiosIns.post(`api/v1${this.jwtConfig.loginEndpoint}/`, ...args)
 		}
 	
 		register(...args) {
-			return this.axiosIns.post(this.jwtConfig.registerEndpoint, ...args)
+			return this.axiosIns.post(`api/v1${this.jwtConfig.registerEndpoint}/`, ...args)
 		}
 	
 		refreshToken() {
-			return this.axiosIns.post(this.jwtConfig.refreshEndpoint, {
+			return this.axiosIns.post(`api/v1${this.jwtConfig.refreshEndpoint}/`, {
 				refreshToken: useJwt.getRefreshToken(),
 			})
 		}

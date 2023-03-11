@@ -13,6 +13,9 @@
       transform: translate3d(0, 0, 0);
       backface-visibility: hidden;
       .navigation {
+        &-main {
+            padding-bottom: 5rem;
+        }
         li a {
           align-items: center;
         }
@@ -144,6 +147,9 @@
             li {
               @include vertical-menu-has-sub-arrow(1rem);
             }
+            &-main {
+                padding-bottom: 10.75rem;
+            }
           }
           .navbar-header .brand-text {
             display: inline;
@@ -165,6 +171,9 @@
             > a {
               text-overflow: inherit;
             }
+          }
+          &-main {
+            padding-bottom: 10.75rem;
           }
         }
       }

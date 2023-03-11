@@ -80,6 +80,17 @@ export default {
         setOrder(state, payload) {
             state.order = payload
         },
+		setOrderSender(state, payload) {
+			console.log(payload);
+			if (!state.order.sender_counterparty) return;
+			state.order.sender_counterparty.id = payload.id
+			state.order.sender_counterparty.name = payload.name
+		},
+		setOrderRecipient(state, payload) {
+			if (!state.order.recipient_counterparty) return;
+			state.order.recipient_counterparty.id = payload.id
+			state.order.recipient_counterparty.name = payload.name
+		},
         setCount(state, payload) {
             state.count = payload
         },
@@ -140,6 +151,12 @@ export default {
                     commit('changeLoading', false)
                 });
         },
+		setOrderSenderCounterPartyId({ commit, state }, senderId) {
+			commit('setOrderSenderId', senderId);
+		},
+		setOrderRecipientCounterPartyId({ commit, state }, recipientId) {
+			commit('setOrderRecipientId', recipientId);
+		},
         resetPagination({ commit, state }) {
             commit('resetPagination')
         },

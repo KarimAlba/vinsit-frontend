@@ -7,6 +7,8 @@
             :reduce="(client) => client.id"
             v-model="order.sender_counterparty"
             @input="changeOrder($event, 'sender_counterparty')"
+			@createClient="(name) => handleClientCreation(name)"
+			:clearSearchOnBlur="true"
           />
         </b-form-group>
       </b-col>
@@ -94,7 +96,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 
 import ToastificationContent from "@core/components/toastification/ToastificationContent.vue";
 
@@ -134,27 +136,70 @@ export default {
       required: true,
     },
   },
+  data: () => ({
+	newUser: {
+		INN: '',
+		address: '',
+		bank_account: '',
+		city: '',
+		client_phones: [],
+		email: '',
+		// id: null,
+		name: '',
+		passport_no: '', 
+		passport_series: '',
+		position: '',
+		type: null,
+		web: '',
+	},
+	creationError: {
+		creationErrorSender: false,
+		creationErrorRecipient: false,
+	},
+  }), 
   computed: {
     ...mapGetters({
       clientType: "moduleClients/getClientType",
     }),
   },
   methods: {
+	...mapMutations({
+      setSender: "moduleOrders/setOrderSender",
+	  setRecipient: "moduleOrders/setOrderRecipient",
+    }),
     changeOrder(newVal, key) {
       let payload = {};
       payload[key] = newVal;
 
       this.$api.orders.updateOrder(this.order.id, payload).then((response) => {
         if (response.status !== 400) {
-          this.$toast({
-            component: ToastificationContent,
-            props: {
-              title: "Успешно",
-              text: "Информация изменена",
-              icon: "CheckCircleIcon",
-              variant: "success",
-            },
-          });
+			if (key === 'sender_counterparty') {
+				// if (this.order.sender_counterparty) {
+				// 	this.setSender({
+				// 		id: response.data.sender_counterparty,
+				// 		name: this.newUser.name,
+				// 	});
+				// }
+				this.$emit('updateSender');
+				this.newUser.name = '';
+				this.newUser.type = '';
+				this.newUser.client_phones.pop();
+			}
+			// else if (key === ) {
+			// 	this.setRicipient({
+			// 		id: response.data.recipient_counterparty,
+			// 		name: newUser.name
+			// 	});
+			// }
+			this.$toast({
+				component: ToastificationContent,
+				props: {
+					title: "Успешно",
+					text: "Информация изменена",
+					icon: "CheckCircleIcon",
+					variant: "success",
+				},
+			});
         } else {
           this.$toast({
             component: ToastificationContent,
@@ -168,6 +213,41 @@ export default {
         }
       });
     },
+	addClient() {
+		this.$api.clients.addNewClient(this.newUser)
+			.then((response) => {
+				console.log('response - ', response);
+				// this.order['sender_id'] = response.data.id;
+				if (response.status > 203) {
+					return;
+				}
+				this.changeOrder(response.data.id, 'sender_counterparty');
+				this.creationError.creationErrorSender = false;
+			})
+			.catch((error) => {console.log('error - ', error)})
+	},
+	handleClientCreation(clientName) {
+		this.newUser = {
+			INN: '',
+			address: this.order.sender_address,
+			bank_account: '',
+			city: this.order.sender_city ? this.order.sender_city.id : null,
+			client_phones: [],
+			email: '',
+			// id: null,
+			name: clientName.trim(),
+			passport_no: this.order.sender_passport_no, 
+			passport_series: this.order.sender_passport_series,
+			position: '',
+			type: this.order.sender_counterparty_type,
+			web: '',
+		};
+		if ((!this.newUser.type) && (this.newUser.name) && (!this.newUser.client_phones.length)) {
+			this.creationError.creationErrorSender = true;
+			return;
+		};
+		this.addClient();
+	},
   },
 };
 </script>
