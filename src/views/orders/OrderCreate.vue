@@ -107,6 +107,7 @@
 								<select-clients
 									:reduce="(client) => client.id"
 									v-model="order.payer_counterparty"
+									:disabledAddBtn="true"
 								/>
 							</b-form-group>
 						</b-col>
@@ -124,6 +125,7 @@
 								<select-clients
 									:reduce="(client) => client.id"
 									v-model="order.sender_counterparty"
+									@createClient="(name) => handleClientCreation(name, 'sender')"
 								/>
 							</b-form-group>
 						</b-col>
@@ -138,7 +140,7 @@
 									label="Тип отправителя"
 									:invalid-feedback="errors[0]"
 									:state="!errors.length"
-									:class="{selectType: creationError && order.sender_counterparty}"
+									:class="{selectType: creationError.creationErrorSender && !order.sender_counterparty_type}"
 									style="border: 0px solid white"
 								>
 									<v-select
@@ -146,7 +148,7 @@
 										:reduce="(type) => type.id"
 										:options="clientType"
 										v-model="order.sender_counterparty_type"
-										:class="{selectType: creationError && order.sender_counterparty}"
+										:class="{selectType: creationError.creationErrorSender && !order.sender_counterparty_type}"
 									/>
 								</b-form-group>
 							</validation-provider>
@@ -185,7 +187,7 @@
 								<b-form-group
 									:invalid-feedback="errors[0]"
 									label="Номер телефона"
-									:class="{selectType: creationError && order.sender_counterparty}"
+									:class="{selectType: creationError.creationErrorSender && !order.sender_phone}"
 									style="border: 0px solid white"
 								>
 									<b-form-input
@@ -194,7 +196,8 @@
 										v-maska
 										placeholder="+71234567890"
 										data-maska="+7##########"
-										:class="{selectType: creationError && order.sender_counterparty}"
+										:class="{selectType: creationError.creationErrorSender && !order.sender_phone}"
+										
 									/>
 								</b-form-group>
 							</validation-provider>
@@ -208,6 +211,7 @@
 								<select-clients
 									:reduce="(client) => client.id"
 									v-model="order.recipient_counterparty"
+									@createClient="(name) => handleClientCreation(name, 'recipient')"
 								/>
 							</b-form-group>
 						</b-col>
@@ -222,7 +226,7 @@
 									label="Тип получателя"
 									:invalid-feedback="errors[0]"
 									:state="!errors.length"
-									:class="{selectType: creationError && order.recipient_counterparty}"
+									:class="{selectType: creationError.creationErrorRecipient && !order.recipient_counterparty_type}"
 									style="border: 0px solid white"
 								>
 									<v-select
@@ -230,7 +234,7 @@
 										:reduce="(type) => type.id"
 										:options="clientType"
 										v-model="order.recipient_counterparty_type"
-										:class="{selectType: creationError && order.recipient_counterparty}"
+										:class="{selectType: creationError.creationErrorRecipient && !order.recipient_counterparty_type}"
 									/>
 								</b-form-group>
 							</validation-provider>
@@ -269,7 +273,7 @@
 								<b-form-group
 									:invalid-feedback="errors[0]"
 									label="Номер телефона"
-									:class="{selectType: creationError && order.recipient_counterparty}"
+									:class="{selectType: creationError.creationErrorRecipient && !order.recipient_phone}"
 									style="border: 0px solid white"
 								>
 									<b-form-input
@@ -278,7 +282,7 @@
 										v-maska
 										placeholder="+71234567890"
 										data-maska="+7##########"
-										:class="{selectType: creationError && order.recipient_counterparty}"
+										:class="{selectType: creationError.creationErrorRecipient && !order.recipient_phone}"
 									/>
 								</b-form-group>
 							</validation-provider>
@@ -745,7 +749,10 @@
 					type: null,
 					web: '',
 				},
-				creationError: false,
+				creationError: {
+					creationErrorSender: false,
+					creationErrorRecipient: false,
+				},
 			};
 		},
 		watch: {
@@ -755,23 +762,13 @@
 					this.addCounterparty(id, 'recipient');
 					return;
 				};
-				if (typeof this.order.recipient_counterparty === 'string') {
-					this.newUser.name = this.order.recipient_counterparty;
-					this.addClient('recipient');
-					return;
-				};
 			},
 			'order.sender_counterparty'() {
 				if (Number.isFinite(this.order.sender_counterparty)) {
 					const id = this.order.sender_counterparty;
 					this.addCounterparty(id, 'sender');
 					return;
-				};
-				if (typeof this.order.sender_counterparty === 'string') {
-					this.newUser.name = this.order.sender_counterparty;
-					this.addClient('sender');
-					return;
-				};
+				};	
 			},
 			'order.payer_counterparty'() {
 				if (Number.isFinite(this.order.payer_counterparty)) {
@@ -787,23 +784,14 @@
 			},
 			'order.recipient_phone'() {
 				if (this.order.recipient_phone.length === 12) {
-					// this.newUser.client_phones.push(this.order.recipient_phone);
-					// this.newUser.client_phones[0] = +this.order.recipient_phone;
-					// this.newUser.client_phones[0] = +this.order.recipient_phone;
-					if (this.newUser.name) {
-						this.addClient('recipient');
-						return;
-					};
+					this.creationError.creationErrorRecipient = false;
+					this.newUser.client_phones.splice(0, 1, {phone_number : this.order.recipient_phone});
 				}
 			},
 			'order.sender_phone'() {
 				if (this.order.sender_phone.length === 12) {
-					// this.newUser.client_phones.push(this.order.sender_phone);
-					// this.newUser.client_phones[0] = +this.order.sender_phone;
-					if (this.newUser.name) {
-						this.addClient('sender');	
-						return;
-					};
+					this.creationError.creationErrorSender = false;
+					this.newUser.client_phones.splice(0, 1, {phone_number : this.order.sender_phone});
 				}
 			},
 			// 'order.payer_counterparty_type'() {
@@ -815,17 +803,9 @@
 			// },
 			'order.recipient_counterparty_type'() {
 				this.newUser.type = this.order.recipient_counterparty_type;
-				if (this.newUser.name) {
-					this.addClient('recipient');
-					return;
-				};
 			},
 			'order.sender_counterparty_type'() {
 				this.newUser.type = this.order.sender_counterparty_type;
-				if (this.newUser.name) {
-					this.addClient('sender');
-					return;
-				};
 			},
 		},
 		computed: {
@@ -935,29 +915,27 @@
 					this.changeCounterpartyParams(response.data, name);	
 				});
 			},
-			addClient(name) {
-				// if ((!this.newUser.type) && (this.newUser.name) && (!this.newUser.client_phones.length)) {
-				if ((!this.newUser.type) && (this.newUser.name)) {
-					// this.$refs.simpleRules.validate();
-					this.creationError = true;
+			addClient(propName) {
+				this.$api.clients.addNewClient(this.newUser)
+					.then((response) => {
+						console.log('response - ', response);
+						this.order[propName + '_id'] = response.data.id;
+						this.newUser.name = '';
+						this.newUser.type = '';
+						this.newUser.client_phones.pop();
+						this.creationError.creationErrorRecipient = false;
+						this.creationError.creationErrorSender = false;
+					})
+					.catch((error) => {console.log('error - ', error)})
+			},
+			handleClientCreation(clientName, orderPropName) {
+				this.newUser.name = clientName.trim();
+				if ((!this.newUser.type) && (this.newUser.name) && (!this.newUser.client_phones.length)) {
+					if (orderPropName === 'sender') this.creationError.creationErrorSender = true;
+					if (orderPropName === 'recipient') this.creationError.creationErrorRecipient = true;
 					return;
 				};
-				// if ((this.newUser.type) && (this.newUser.name) && (this.newUser.client_phones.length)) {
-				if ((this.newUser.type) && (this.newUser.name)) {
-					this.creationError = false;
-					this.$api.clients.addNewClient(this.newUser)
-						.then((response) => {
-							console.log('response - ', response);
-							this.order[name + '_id'] = response.data.id;
-							this.order[name + '_counterparty'] = this.newUser.name;
-							this.newUser.name = '';
-							this.newUser.type = '';
-							this.newUser.client_phones.pop();
-							// console.log(name + '_id' + ' - ' + this.order[name + '_id']);
-							// console.log(name + '_counterparty' + ' - ' +this.order[name + '_counterparty']);
-						})
-						.catch((error) => {console.log('error - ', error)})
-				};
+				this.addClient(orderPropName);
 			},
 		},
 		mounted() {

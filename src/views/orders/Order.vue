@@ -9,9 +9,9 @@
 
           <update-payer v-if="order" :order="order" />
 
-          <update-sender v-if="order" :order="order" />
+          <update-sender v-if="order" :order="order" @updateSender="getOrder" />
 
-          <update-recipient v-if="order" :order="order" />
+          <update-recipient v-if="order" :order="order" @updateRecipient="getOrder" />
 
           <update-places
             v-if="order"
@@ -284,7 +284,10 @@ export default {
     },
     async handlePdfDownload() {
         downloadPdf(this.linkToPDF, `order${this.idOrder}.pdf`);
-    }
+    },
+	getOrder() {
+		this.fetchOrder(this.idOrder);
+	},
   },
   mounted() {
     this.fetchOrder(this.idOrder);

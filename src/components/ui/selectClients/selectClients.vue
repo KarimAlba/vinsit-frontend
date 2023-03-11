@@ -1,6 +1,6 @@
 <template>
 	<div style="position: relative;">
-		<div v-if="!disabledBtn" class="addIcon" @click="addClient">
+		<div v-if="!disabledBtn && !disabledAddBtn" class="addIcon" @click="addClient">
 			<b-icon-plus-square style="width: 50px;" ></b-icon-plus-square>
 		</div>
 		<v-select
@@ -13,6 +13,7 @@
 			:disabled="disabled"
 			:reduce="reduce"
 			v-model="inputVal"
+			:clearSearchOnBlur="() => clearSearchOnBlur"
 		>
 			<template #no-options="{ search }">
 				{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -41,6 +42,14 @@
 			value: {
 				type: [Number, String, Object],
 			},
+			disabledAddBtn: {
+				type: Boolean,
+				default: false,
+			},
+			clearSearchOnBlur: {
+				type: Boolean,
+				default: false,
+			},
 		},
 		data() {
 			return {
@@ -54,18 +63,10 @@
 			vSelect,
 			BIconPlusSquare,
 		},
-		watch: {
-			'value': function (newValue, oldValue) {
-				if (newValue === this.newClientName) {
-					this.disabledBtn = true;
-					// console.log("newValue - ", newValue, 'oldValue - ', oldValue);
-					return;
-				};
-			},
-		},
 		computed: {
 			inputVal: {
 				get() {
+					console.log(this.value);
 					return this.value;
 				},
 				set(val) {
@@ -78,7 +79,7 @@
 				if (search.length) {
 					this.disabledBtn = true;
 					loading(true);
-					this.createClient(search, this);
+					this.changeSearchValue(search, this);
 					this.fetchClients(search, loading, this);
 				};
 			},
@@ -92,7 +93,7 @@
 				this.$emit("input", client);
 				this.disabledBtn = true;
 			},
-			createClient:_.debounce((clientName, vm)  => {
+			changeSearchValue:_.debounce((clientName, vm)  => {
 				vm.newClientName = clientName,
 				vm.checkClient();
 			}, 500),
@@ -110,8 +111,9 @@
 				};
 			},
 			addClient() {
-				this.$emit("input", this.newClientName);
+				this.$emit("createClient", this.newClientName);
 			},
+			
 		},
 	};
 </script>
@@ -121,7 +123,7 @@
 	.addIcon{
 		position: absolute; 
 		top: 10px; 
-		right: 10px;
+		right: 40px;
 		z-index: 5;
 	}
 </style>
