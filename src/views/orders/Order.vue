@@ -199,6 +199,7 @@ import vSelect from "vue-select";
 import downloadPdf from '../../utils/downloadPdf';
 import { RoleConstants } from '@/utils/role';
 import store from "@/store/index";
+import '@/libs/dayjs'
 
 export default {
   components: {

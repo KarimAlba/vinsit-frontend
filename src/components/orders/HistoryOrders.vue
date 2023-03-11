@@ -76,6 +76,7 @@
 	import BCardActions from "@/@core/components/b-card-actions/BCardActions.vue";
 	import SelectFilterType from "@/components/ui/selectFilterType/selectFilterType.vue";
 	import vSelect from "vue-select";
+    import '@/libs/dayjs'
 
 	export default {
 		props: {
@@ -212,6 +213,7 @@
 				);
 			},
 			formatDate(date) {
+                console.log(date);
 				return this.dayjs(date).format("DD.MM.YYYY HH:mm");
 			},
 			fetchStatus() {
@@ -237,7 +239,8 @@
 							valByKeyObj = this.fieldsForHistory[key],
 							oldValue = array[index][key],
 							newValue = array[index + 1][key],
-							history_date = array[index].status_changed_date;
+							history_date = array[index].history_date;
+							// history_date = array[index].status_changed_date;
 
 							if (key === "mode") {
 								if (oldValue) oldValue = this.orderMode.find((x) => x.id === oldValue).title;

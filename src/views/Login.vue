@@ -30,7 +30,7 @@
 					<!-- <validation-observer ref="loginValidation"> -->
 					<b-form class="auth-login-form mt-2" @submit.prevent>
 						<!-- email -->
-						<b-form-group label="Email" label-for="login-email">
+						<b-form-group label="Login" label-for="login-email">
 							<!-- <validation-provider
 							#default="{ errors }"
 							name="Email"
@@ -41,7 +41,7 @@
 								v-model="userEmail"
 								
 								name="login-email"
-								placeholder="john@example.com"
+								placeholder="John"
 							/>
 							<!-- <small class="text-danger">{{ errors[0] }}</small> -->
 							<!-- </validation-provider> -->

@@ -269,7 +269,7 @@ export default {
 					return;
 				};
 				if (success) {
-					this.$api.auth.signUp({full_name: this.username, password: this.password, password2: this.repeatPassword, role: 'CR'})
+					this.$api.auth.signUp({full_name: this.username, password: this.password, password2: this.repeatPassword, role: 'AD'})
 						.then((response) => {
 							if (response.status === 200 || response.status === 201) {
 								this.$toast({
