@@ -6,8 +6,9 @@
       >
 
       <div>
-        <b-button variant="primary" :to="{ name: 'order-create' }"
-          >Создать</b-button
+        <b-button variant="primary" :to="{ name: 'order-create' }" v-if="!readOnly" :disabled="readOnly">
+            Создать
+        </b-button
         >
       </div>
     </div>
@@ -227,6 +228,9 @@ import {
   BPagination,
 } from "bootstrap-vue";
 
+import { RoleConstants } from '@/utils/role';
+import store from "@/store/index";
+
 export default {
   data() {
     return {
@@ -274,6 +278,9 @@ export default {
     showPagination() {
       return Math.ceil(this.count / this.perPage) > 1;
     },
+    readOnly() {
+        return store.state.app.user.role !== RoleConstants.AD && store.state.app.user.role !== RoleConstants.LG;
+    }
   },
 
   methods: {

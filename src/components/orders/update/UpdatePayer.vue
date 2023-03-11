@@ -6,6 +6,7 @@
           <select-clients
             :reduce="(client) => client.id"
             v-model="order.payer_counterparty"
+            :disabled="readOnly"
             @input="changeOrder($event, 'payer_counterparty')"
           />
         </b-form-group>
@@ -13,7 +14,7 @@
 
       <b-col class="mb-1" cols="12" md="6">
         <b-form-group label="Договор">
-          <b-form-input v-model="order.contract"></b-form-input>
+          <b-form-input v-model="order.contract" :disabled="readOnly"></b-form-input>
         </b-form-group>
       </b-col>
 
@@ -21,6 +22,7 @@
         <b-form-group label="Город">
           <select-cities
             v-model="order.payer_city"
+            :disabled="readOnly"
             @input="changeOrder($event, 'payer_city')"
           />
         </b-form-group>
@@ -64,6 +66,7 @@ export default {
       type: Object,
       required: true,
     },
+    readOnly: false,
   },
   methods: {
     changeOrder(newVal, key) {

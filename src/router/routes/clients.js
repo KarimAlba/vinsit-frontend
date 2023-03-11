@@ -1,3 +1,5 @@
+import { RoleConstants } from '@/utils/role';
+
 export default [
     {
         path: '/clients',
@@ -10,6 +12,9 @@ export default [
                     text: 'Контрагенты',
                     active: true,
                 },
+            ],
+            disabledRoles: [
+                RoleConstants.CR
             ],
         },
     },
@@ -28,6 +33,9 @@ export default [
                     text: 'Контрагент',
                     active: true,
                 },
+            ],
+            disabledRoles: [
+                RoleConstants.CR,
             ],
         },
     },

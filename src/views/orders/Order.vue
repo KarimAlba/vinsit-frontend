@@ -5,16 +5,17 @@
 
       <b-tabs>
         <b-tab active title="Форма заказа">
-          <update-main v-if="order" :order="order" />
+          <update-main v-if="order" :order="order" :readOnly="readOnly" />
 
-          <update-payer v-if="order" :order="order" />
+          <update-payer v-if="order" :order="order" :readOnly="readOnly" />
 
-          <update-sender v-if="order" :order="order" />
+          <update-sender v-if="order" :order="order" :readOnly="readOnly" />
 
-          <update-recipient v-if="order" :order="order" />
+          <update-recipient v-if="order" :order="order" :readOnly="readOnly" />
 
           <update-places
             v-if="order"
+            :readOnly="readOnly"
             :order="idOrder"
             :places="order.places"
             v-model="order.places"
@@ -22,6 +23,7 @@
 
           <update-products
             v-if="order"
+            :readOnly="readOnly"
             :order="idOrder"
             :products="order.products"
             :places="order.places"
@@ -130,7 +132,7 @@
             </b-col>
           </b-row>
 
-          <history-orders v-if="order" :idOrder="idOrder" />
+          <history-orders v-if="order && $store.state.app.user.role === roles.AD" :idOrder="idOrder" />
         </b-tab>
       </b-tabs>
 
@@ -149,7 +151,7 @@
             <feather-icon icon="FileTextIcon" />
             Скачать PDF</b-button
           >
-          <b-button v-b-modal.modal-delete variant="danger">Удалить</b-button>
+          <b-button v-b-modal.modal-delete variant="danger" v-if="$store.state.app.user.role === roles.AD">Удалить</b-button>
         </div>
       </div>
 
@@ -200,6 +202,8 @@ import {
 import BCardActions from "@/@core/components/b-card-actions/BCardActions.vue";
 import vSelect from "vue-select";
 import downloadPdf from '../../utils/downloadPdf';
+import { RoleConstants } from '@/utils/role';
+import store from "@/store/index";
 
 export default {
   components: {
@@ -232,6 +236,7 @@ export default {
   data() {
     return {
       orderHistory: [],
+      roles: RoleConstants,
     };
   },
   computed: {
@@ -242,6 +247,9 @@ export default {
       orderType: "moduleOrders/getOrderType",
       placeStatus: "moduleOrders/getPlaceStatus",
     }),
+    readOnly() {
+        return store.state.app.user.role !== this.roles.AD && store.state.app.user.role !== this.roles.LG;
+    },
     idOrder() {
       return this.$route.params.id || null;
     },

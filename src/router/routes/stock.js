@@ -1,3 +1,5 @@
+import { RoleConstants } from '@/utils/role';
+
 export default [
     {
         path: '/stock/documents',
@@ -5,6 +7,9 @@ export default [
         component: () => import('@/views/stock/Documents.vue'),
         meta: {
             pageTitle: 'Простые документы',
+            disabledRoles: [
+                RoleConstants.CR,
+            ]
         },
     },
     {
@@ -13,6 +18,9 @@ export default [
         component: () => import('@/views/stock/Storage.vue'),
         meta: {
             pageTitle: 'Адресное хранение',
+            disabledRoles: [
+                RoleConstants.CR,
+            ]
         },
     }
 ]

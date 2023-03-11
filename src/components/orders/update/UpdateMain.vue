@@ -11,6 +11,7 @@
                 placeholder="Режим заказа"
                 :options="orderMode"
                 v-model="order.mode"
+                :disabled="readOnly"
                 @input="changeOrder($event, 'mode')"
               />
             </b-form-group>
@@ -26,6 +27,7 @@
                 placeholder="Тип заказа"
                 :options="orderType"
                 v-model="order.type"
+                :disabled="readOnly"
                 @input="changeOrder($event, 'type')"
               />
             </b-form-group>
@@ -41,6 +43,7 @@
                 placeholder="Статус заказа"
                 :options="orderStatus"
                 v-model="order.status"
+                :disabled="readOnly"
                 @input="changeOrder($event, 'status')"
               />
             </b-form-group>
@@ -50,9 +53,10 @@
         <b-col class="mb-1" cols="4">
           <b-form-group label="Наложенный платеж">
             <b-form-input
-              v-model="order.pay_on_order"
-              type="number"
-              @change="changeOrder($event, 'pay_on_order')"
+                v-model="order.pay_on_order"
+                :disabled="readOnly"
+                type="number"
+                @change="changeOrder($event, 'pay_on_order')"
             ></b-form-input>
           </b-form-group>
         </b-col>
@@ -60,9 +64,10 @@
         <b-col class="mb-1" cols="4">
           <b-form-group label="Стоимость доставки">
             <b-form-input
-              v-model="order.delivery_price"
-              type="number"
-              @change="changeOrder($event, 'delivery_price')"
+                v-model="order.delivery_price"
+                :disabled="readOnly"
+                type="number"
+                @change="changeOrder($event, 'delivery_price')"
             ></b-form-input>
           </b-form-group>
         </b-col>
@@ -79,8 +84,9 @@
         <b-col class="mb-1" cols="6">
           <b-form-group label="Местоположение">
             <b-form-input
-              v-model="order.location"
-              @change="changeOrder($event, 'location')"
+                v-model="order.location"
+                :disabled="readOnly"
+                @change="changeOrder($event, 'location')"
             ></b-form-input>
           </b-form-group>
         </b-col>
@@ -91,6 +97,7 @@
             rows="3"
             max-rows="6"
             v-model="order.comment"
+            :disabled="readOnly"
             @change="changeOrder($event, 'comment')"
           ></b-form-textarea>
         </b-col>
@@ -141,6 +148,7 @@ export default {
       type: Object,
       required: true,
     },
+    readOnly: false,
   },
   data() {
     return {

@@ -6,6 +6,7 @@
           <select-clients
             :reduce="(client) => client.id"
             v-model="order.recipient_counterparty"
+            :disabled="readOnly"
             @input="changeOrder($event, 'recipient_counterparty')"
           />
         </b-form-group>
@@ -15,6 +16,7 @@
         <b-form-group label="Город">
           <select-cities
             v-model="order.recipient_city"
+            :disabled="readOnly"
             @input="changeOrder($event, 'recipient_city')"
           />
         </b-form-group>
@@ -28,6 +30,7 @@
             :options="clientType"
             :clearable="false"
             v-model="order.recipient_counterparty_type"
+            :disabled="readOnly"
             @input="changeOrder($event, 'recipient_counterparty_type')"
           />
         </b-form-group>
@@ -37,6 +40,7 @@
         <b-form-group label="ФИО получателя">
           <b-form-input
             v-model="order.recipient_full_name"
+            :disabled="readOnly"
             @change="changeOrder($event, 'recipient_full_name')"
           />
         </b-form-group>
@@ -46,6 +50,7 @@
         <b-form-group label="Серия паспорта">
           <b-form-input
             v-model="order.recipient_passport_series"
+            :disabled="readOnly"
             @change="changeOrder($event, 'recipient_passport_series')"
           />
         </b-form-group>
@@ -55,6 +60,7 @@
         <b-form-group label="Номер паспорта">
           <b-form-input
             v-model="order.recipient_passport_no"
+            :disabled="readOnly"
             @change="changeOrder($event, 'recipient_passport_no')"
           />
         </b-form-group>
@@ -66,6 +72,7 @@
             rows="3"
             max-rows="6"
             v-model="order.recipient_address"
+            :disabled="readOnly"
             @change="changeOrder($event, 'recipient_address')"
           ></b-form-textarea>
         </b-form-group>
@@ -81,6 +88,7 @@
           <b-form-group :invalid-feedback="errors[0]" label="Номер телефона">
             <b-form-input
               v-model="phone.phone_number"
+              :disabled="readOnly"
               :state="errors.length > 0 ? false : null"
               v-maska
               placeholder="+71234567890"
@@ -95,6 +103,7 @@
           <b-form-input
             type="email"
             v-model="order.recipient_email"
+            :disabled="readOnly"
             @change="changeOrder($event, 'recipient_email')"
           />
         </b-form-group>
@@ -143,6 +152,7 @@ export default {
       type: Object,
       required: true,
     },
+    readOnly: false,
   },
   computed: {
     ...mapGetters({

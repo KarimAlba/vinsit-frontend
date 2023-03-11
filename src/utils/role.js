@@ -1,3 +1,12 @@
+export const RoleConstants = {
+    'CR': 'CR',
+    'AD': 'AD',
+    'LG': 'LG',
+    'OP': 'OP',
+    'CC': 'CC',
+    'SM': 'SM',
+};
+
 const role = {
     'CR': 'Курьер',
     'AD': 'Администратор',

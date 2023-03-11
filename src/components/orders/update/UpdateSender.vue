@@ -6,6 +6,7 @@
           <select-clients
             :reduce="(client) => client.id"
             v-model="order.sender_counterparty"
+            :disabled="readOnly"
             @input="changeOrder($event, 'sender_counterparty')"
           />
         </b-form-group>
@@ -15,6 +16,7 @@
         <b-form-group label="Город">
           <select-cities
             v-model="order.sender_city"
+            :disabled="readOnly"
             @input="changeOrder($event, 'sender_city')"
           />
         </b-form-group>
@@ -28,6 +30,7 @@
             :options="clientType"
             :clearable="false"
             v-model="order.sender_counterparty_type"
+            :disabled="readOnly"
             @input="changeOrder($event, 'sender_counterparty_type')"
           />
         </b-form-group>
@@ -37,6 +40,7 @@
         <b-form-group label="ФИО отправителя">
           <b-form-input
             v-model="order.sender_full_name"
+            :disabled="readOnly"
             @change="changeOrder($event, 'sender_full_name')"
           />
         </b-form-group>
@@ -46,6 +50,7 @@
         <b-form-group label="Серия паспорта">
           <b-form-input
             v-model="order.sender_passport_series"
+            :disabled="readOnly"
             @change="changeOrder($event, 'sender_passport_series')"
           />
         </b-form-group>
@@ -55,6 +60,7 @@
         <b-form-group label="Номер паспорта">
           <b-form-input
             v-model="order.sender_passport_no"
+            :disabled="readOnly"
             @change="changeOrder($event, 'sender_passport_no')"
           />
         </b-form-group>
@@ -66,6 +72,7 @@
             rows="3"
             max-rows="6"
             v-model="order.sender_address"
+            :disabled="readOnly"
             @change="changeOrder($event, 'sender_address')"
           ></b-form-textarea>
         </b-form-group>
@@ -81,6 +88,7 @@
           <b-form-group :invalid-feedback="errors[0]" label="Номер телефона">
             <b-form-input
               v-model="phone.phone_number"
+              :disabled="readOnly"
               :state="errors.length > 0 ? false : null"
               v-maska
               placeholder="+71234567890"
@@ -133,6 +141,7 @@ export default {
       type: Object,
       required: true,
     },
+    readOnly: false,
   },
   computed: {
     ...mapGetters({

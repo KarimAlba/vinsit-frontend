@@ -18,6 +18,7 @@
             <b-form-group :invalid-feedback="errors[0]" :state="!errors.length">
               <b-form-input
                 v-model="data.item.place_no"
+                :disabled="readOnly"
                 type="number"
                 :state="errors.length > 0 ? false : null"
                 @change="
@@ -33,6 +34,7 @@
             <b-form-group :invalid-feedback="errors[0]" :state="!errors.length">
               <b-form-input
                 v-model="data.item.weight"
+                :disabled="readOnly"
                 type="number"
                 :state="errors.length > 0 ? false : null"
                 @change="updatePlace(data.item.id, $event, 'weight', validate)"
@@ -44,6 +46,7 @@
         <template #cell(length)="data">
           <b-form-input
             v-model="data.item.length"
+            :disabled="readOnly"
             @change="updatePlace(data.item.id, $event, 'length')"
           ></b-form-input>
         </template>
@@ -51,6 +54,7 @@
         <template #cell(width)="data">
           <b-form-input
             v-model="data.item.width"
+            :disabled="readOnly"
             @change="updatePlace(data.item.id, $event, 'width')"
           ></b-form-input>
         </template>
@@ -58,6 +62,7 @@
         <template #cell(height)="data">
           <b-form-input
             v-model="data.item.height"
+            :disabled="readOnly"
             @change="updatePlace(data.item.id, $event, 'height')"
           ></b-form-input>
         </template>
@@ -65,6 +70,7 @@
         <template #cell(seal_number)="data">
           <b-form-input
             v-model="data.item.seal_number"
+            :disabled="readOnly"
             @change="updatePlace(data.item.id, $event, 'seal_number')"
           ></b-form-input>
         </template>
@@ -83,6 +89,7 @@
             variant="danger"
             size="sm"
             @click="deletePlace(data.item.id)"
+            :disabled="readOnly"
           >
             <feather-icon icon="Trash2Icon" />
           </b-button>
@@ -97,8 +104,9 @@
         </div>
 
         <div>
-          <b-button v-b-modal.modal-create-place variant="primary" size="sm"
-            >Добавить место</b-button
+            <b-button v-b-modal.modal-create-place variant="primary" size="sm" :disabled="readOnly">
+                Добавить место
+            </b-button
           >
         </div>
       </div>
@@ -115,9 +123,10 @@
                 :state="!errors.length"
               >
                 <b-form-input
-                  v-model="newPlace.place_no"
-                  type="number"
-                  :state="errors.length > 0 ? false : null"
+                    v-model="newPlace.place_no"
+                    :disabled="readOnly"
+                    type="number"
+                    :state="errors.length > 0 ? false : null"
                 ></b-form-input>
               </b-form-group>
             </validation-provider>
@@ -131,9 +140,10 @@
                 :state="!errors.length"
               >
                 <b-form-input
-                  v-model="newPlace.weight"
-                  type="number"
-                  :state="errors.length > 0 ? false : null"
+                    v-model="newPlace.weight"
+                    :disabled="readOnly"
+                    type="number"
+                    :state="errors.length > 0 ? false : null"
                 ></b-form-input>
               </b-form-group>
             </validation-provider>
@@ -144,6 +154,7 @@
               <b-form-input
                 type="number"
                 v-model="newPlace.width"
+                :disabled="readOnly"
               ></b-form-input>
             </b-form-group>
           </b-col>
@@ -153,6 +164,7 @@
               <b-form-input
                 type="number"
                 v-model="newPlace.length"
+                :disabled="readOnly"
               ></b-form-input>
             </b-form-group>
           </b-col>
@@ -162,6 +174,7 @@
               <b-form-input
                 type="number"
                 v-model="newPlace.height"
+                :disabled="readOnly"
               ></b-form-input>
             </b-form-group>
           </b-col>
@@ -183,6 +196,7 @@
                 >
                     <b-form-input
                         v-model="newPlace.seal_number"
+                        :disabled="readOnly"
                         type="number"
                         :state="errors.length > 0 ? false : null"
                     ></b-form-input>
@@ -193,13 +207,13 @@
 
         <b-row class="justify-content-between">
             <b-col cols="12" md="3" class="align-self-end">
-                <b-button variant="primary" :disabled="invalid" @click="createPlace">
+                <b-button variant="primary" :disabled="invalid || readOnly" @click="createPlace">
                     Добавить
                 </b-button>
             </b-col>
             <b-col cols="12" md="3" class="align-self-end">
                 <b-form-group label="Кол-во" style="margin-bottom: 0;">
-                    <b-form-input type="number" v-model="newPlaceCount"></b-form-input>
+                    <b-form-input type="number" v-model="newPlaceCount" :disabled="readOnly"></b-form-input>
                 </b-form-group>
             </b-col>
         </b-row>
@@ -271,6 +285,7 @@ export default {
       reuqired: true,
       default: () => [],
     },
+    readOnly: false,
   },
   directives: {
     "b-tooltip": VBTooltip,
