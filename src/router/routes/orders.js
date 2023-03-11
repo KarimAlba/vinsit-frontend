@@ -1,3 +1,5 @@
+import { RoleConstants } from '@/utils/role';
+
 export default [
     {
         path: '/orders',
@@ -65,6 +67,9 @@ export default [
                     text: 'Новый заказ',
                     active: true,
                 },
+            ],
+            disabledRoles: [
+                ...Object.keys(RoleConstants).filter(key => key !== RoleConstants.AD)
             ],
         },
     },

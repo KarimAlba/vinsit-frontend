@@ -38,6 +38,16 @@ const router = new VueRouter({
 })
 
 // ? For splash screen
+
+router.beforeEach((to, from, next) => {
+    if (to.meta && to.meta.disabledRoles && to.meta.disabledRoles.includes(localStorage.getItem('role'))) {
+        next({
+            name: 'login',
+        });
+        return;
+    }
+    next();
+})
 // Remove afterEach hook if you are not using splash screen
 router.afterEach(() => {
   // Remove initial loading

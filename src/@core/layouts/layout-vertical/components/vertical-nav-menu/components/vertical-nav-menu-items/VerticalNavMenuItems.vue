@@ -5,6 +5,7 @@
       v-for="item in items"
       :key="item.header || item.title"
       :item="item"
+      style="margin-top: 7px;"
     />
   </ul>
 </template>

@@ -77,7 +77,7 @@
       "
     >
       <vertical-nav-menu-items
-        :items="navMenuItems"
+        :items="enabledMenuItems"
         class="navigation navigation-main"
       />
     </vue-perfect-scrollbar>
@@ -94,6 +94,7 @@ import useAppConfig from "@core/app-config/useAppConfig";
 import { $themeConfig } from "@themeConfig";
 import VerticalNavMenuItems from "./components/vertical-nav-menu-items/VerticalNavMenuItems.vue";
 import useVerticalNavMenu from "./useVerticalNavMenu";
+import store from "@/store/index";
 
 export default {
   components: {
@@ -140,8 +141,17 @@ export default {
     // App Name
     const { appName, appLogoImage } = $themeConfig.app;
 
+    const enabledMenuItems = computed(() =>
+        navMenuItems.filter((navItem) => {
+            const disabled = navItem.meta
+                && navItem.meta.disabledRoles
+                && navItem.meta.disabledRoles.includes(store.state.app.user.role);
+            return !disabled;
+        })
+    );
+
     return {
-      navMenuItems,
+      enabledMenuItems,
       perfectScrollbarSettings,
       isVerticalMenuCollapsed,
       collapseTogglerIcon,

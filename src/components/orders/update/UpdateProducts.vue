@@ -23,6 +23,7 @@
               <v-select
                 style="min-width: 100px"
                 v-model="data.item.place"
+                :disabled="readOnly"
                 label="place_no"
                 :options="places"
                 :reduce="(place) => place.id"
@@ -37,6 +38,7 @@
             <b-form-group :invalid-feedback="errors[0]" :state="!errors.length">
               <b-form-input
                 v-model="data.item.name"
+                :disabled="readOnly"
                 :state="errors.length > 0 ? false : null"
                 @change="updateProduct(data.item.id, $event, 'name', validate)"
               ></b-form-input>
@@ -49,6 +51,7 @@
             v-model="data.item.price"
             type="number"
             @change="updateProduct(data.item.id, $event, 'price')"
+            :disabled="readOnly"
           ></b-form-input>
         </template>
 
@@ -57,6 +60,7 @@
             <b-form-group :invalid-feedback="errors[0]" :state="!errors.length">
               <b-form-input
                 v-model="data.item.quantity"
+                :disabled="readOnly"
                 :state="errors.length > 0 ? false : null"
                 @change="
                   updateProduct(data.item.id, $event, 'quantity', validate)
@@ -70,6 +74,7 @@
           <b-form-input
             style="min-width: 100px"
             v-model="data.item.weight"
+            :disabled="readOnly"
             type="number"
             @change="updateProduct(data.item.id, $event, 'weight')"
           ></b-form-input>
@@ -81,6 +86,7 @@
             title="Удалить товар"
             variant="danger"
             size="sm"
+            :disabled="readOnly"
             @click="deletePlace(data.item.id)"
           >
             <feather-icon icon="Trash2Icon" />
@@ -101,6 +107,7 @@
             v-b-modal.modal-create-product
             variant="primary"
             size="sm"
+            :disabled="readOnly"
             >Создать товар</b-button
           >
         </div>
@@ -119,6 +126,7 @@
               >
                 <b-form-input
                   v-model="newProduct.name"
+                    :disabled="readOnly"
                   :state="errors.length > 0 ? false : null"
                 ></b-form-input>
               </b-form-group>
@@ -134,6 +142,7 @@
               >
                 <v-select
                   v-model="newProduct.place"
+                    :disabled="readOnly"
                   label="place_no"
                   :options="places"
                   :reduce="(place) => place.id"
@@ -152,6 +161,7 @@
                 <b-form-input
                   type="number"
                   v-model="newProduct.quantity"
+                    :disabled="readOnly"
                   :state="errors.length > 0 ? false : null"
                 ></b-form-input>
               </b-form-group>
@@ -163,6 +173,7 @@
               <b-form-input
                 type="number"
                 v-model="newProduct.price"
+                :disabled="readOnly"
               ></b-form-input>
             </b-form-group>
           </b-col>
@@ -172,12 +183,13 @@
               <b-form-input
                 type="number"
                 v-model="newProduct.weight"
+                :disabled="readOnly"
               ></b-form-input>
             </b-form-group>
           </b-col>
         </b-row>
 
-        <b-button variant="primary" :disabled="invalid" @click="createProduct"
+        <b-button variant="primary" :disabled="invalid || readOnly" @click="createProduct"
           >Добавить</b-button
         >
       </validation-observer>
@@ -253,6 +265,7 @@ export default {
       required: true,
       default: () => [],
     },
+    readOnly: false,
   },
   directives: {
     "b-tooltip": VBTooltip,

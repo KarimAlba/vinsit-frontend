@@ -1,3 +1,5 @@
+import { RoleConstants } from '@/utils/role';
+
 export default [
     {
         path: '/accounting/reconciliation-act',
@@ -5,6 +7,9 @@ export default [
         component: () => import('@/views/accounting/ReconciliationAct.vue'),
         meta: {
             pageTitle: 'Акт сверки взаиморасчетов',
+            disabledRoles: [
+                ...Object.keys(RoleConstants).filter(key => key !== RoleConstants.AD)
+            ],
         },
     },
     {
@@ -13,6 +18,9 @@ export default [
         component: () => import('@/views/accounting/Invoice.vue'),
         meta: {
             pageTitle: 'Счёт-фактура',
+            disabledRoles: [
+                ...Object.keys(RoleConstants).filter(key => key !== RoleConstants.AD)
+            ],
         },
     },
     {
@@ -21,6 +29,9 @@ export default [
         component: () => import('@/views/accounting/Act.vue'),
         meta: {
             pageTitle: 'Акт',
+            disabledRoles: [
+                ...Object.keys(RoleConstants).filter(key => key !== RoleConstants.AD)
+            ],
         },
     },
     {
@@ -29,6 +40,9 @@ export default [
         component: () => import('@/views/accounting/UPD.vue'),
         meta: {
             pageTitle: 'УПД',
+            disabledRoles: [
+                ...Object.keys(RoleConstants).filter(key => key !== RoleConstants.AD)
+            ],
         },
     },
     {
@@ -37,6 +51,9 @@ export default [
         component: () => import('@/views/accounting/PackageOfDocuments.vue'),
         meta: {
             pageTitle: 'Пакет клиентских документов',
+            disabledRoles: [
+                ...Object.keys(RoleConstants).filter(key => key !== RoleConstants.AD)
+            ],
         },
     },
     {
@@ -45,6 +62,9 @@ export default [
         component: () => import('@/views/accounting/Debt.vue'),
         meta: {
             pageTitle: 'Задолженности по заказам',
+            disabledRoles: [
+                ...Object.keys(RoleConstants).filter(key => key !== RoleConstants.AD)
+            ],
         },
     },
 
