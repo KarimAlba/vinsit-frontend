@@ -1,7 +1,7 @@
 <template>
   <b-card-actions title="Плательщик" actionCollapse>
     <b-row>
-      <b-col class="mb-1" cols="12" md="6">
+      <b-col class="mb-1" cols="12" md="4">
         <b-form-group label="Плательщик">
           <select-clients
             :reduce="(client) => client.id"
@@ -12,13 +12,13 @@
         </b-form-group>
       </b-col>
 
-      <b-col class="mb-1" cols="12" md="6">
+      <b-col class="mb-1" cols="12" md="4">
         <b-form-group label="Договор">
           <b-form-input v-model="order.contract" :disabled="readOnly"></b-form-input>
         </b-form-group>
       </b-col>
 
-      <b-col class="mb-1" cols="12" md="6">
+      <b-col class="mb-1" cols="12" md="4">
         <b-form-group label="Город">
           <select-cities
             v-model="order.payer_city"

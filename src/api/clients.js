@@ -14,5 +14,13 @@ export default function (instance) {
 		addNewClient(data) {
 			return instance.post("api/v1/clients/", data);
 		},
+        getClientContracts(id) {
+            return instance.get(`api/v1/clients/${id}/contracts/`);
+        },
+        createClientContract(id, contract) {
+            return instance.post(`api/v1/clients/${id}/create_contract/`, {
+                contract,
+            });
+        }
     };
 }

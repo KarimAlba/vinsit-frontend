@@ -97,21 +97,28 @@
 				</b-card-actions>
 				<b-card-actions title="Плательщик" actionCollapse>
 					<b-row>
-						<b-col class="mb-1" cols="12" md="6">
+						<b-col class="mb-1" cols="12" md="4">
 							<b-form-group label="Плательщик">
 								<select-clients
 									:reduce="(client) => client.id"
 									v-model="order.payer_counterparty"
-									:disabledAddBtn="true"
+                                    @input="changeOrder($event, 'payer_counterparty')"
 								/>
 							</b-form-group>
 						</b-col>
 						<b-col class="mb-1" cols="4">
 							<b-form-group label="Договор">
-								<b-form-input v-model="order.contract"/>
+								<!-- <b-form-input v-model="order.contract"/> -->
+                                <select-contracts
+									:reduce="(cont) => Number(cont.contract)"
+									v-model="order.contract"
+                                    :payerId="order.payer_counterparty"
+                                    @input="changeOrder($event, 'contract')"
+                                    @createContract="handleContractCreation"
+								/>
 							</b-form-group>
 						</b-col>
-						<b-col class="mb-1" cols="12" md="6">
+						<b-col class="mb-1" cols="12" md="4">
 							<b-form-group label="Город">
 								<select-cities v-model="order.payer_city" />
 							</b-form-group>
@@ -159,6 +166,7 @@
 										<select-clients
                                             :reduce="(client) => client.id"
                                             v-model="order.sender_counterparty"
+                                            @input="changeOrder($event, 'sender_counterparty')"
                                             @createClient="(name) => handleClientCreation(name, 'sender')"
                                         />
 									</b-form-group>
@@ -175,12 +183,22 @@
 								</b-col>
 								<b-col cols="12" md="4">
 									<b-form-group label="Серия паспорта">
-										<b-form-input v-model="order.sender_passport_series"/>
+										<b-form-input
+                                            v-model="order.sender_passport_series"
+                                            type="number"
+                                            max="4"
+                                            :formatter="serieFormatter"
+                                        />
 									</b-form-group>
 								</b-col>
 								<b-col cols="12" md="4">
 									<b-form-group label="Номер паспорта">
-										<b-form-input v-model="order.sender_passport_no"/>
+										<b-form-input
+                                            v-model="order.sender_passport_no"
+                                            type="number"
+                                            max="6"
+                                            :formatter="passportNumberFormatter"
+                                        />
 									</b-form-group>
 								</b-col>
 								<b-col
@@ -254,6 +272,7 @@
 										<select-clients
                                             :reduce="(client) => client.id"
                                             v-model="order.recipient_counterparty"
+                                            @input="changeOrder($event, 'recipient_counterparty')"
                                             @createClient="(name) => handleClientCreation(name, 'recipient')"
                                         />
 									</b-form-group>
@@ -270,12 +289,22 @@
 								</b-col>
 								<b-col cols="12" md="4">
 									<b-form-group label="Серия паспорта">
-										<b-form-input v-model="order.recipient_passport_series" />
+										<b-form-input
+                                            v-model="order.recipient_passport_series"
+                                            type="number"
+                                            max="4"
+                                            :formatter="serieFormatter"
+                                        />
 									</b-form-group>
 								</b-col>
 								<b-col cols="12" md="4">
 									<b-form-group label="Номер паспорта">
-										<b-form-input v-model="order.recipient_passport_no"/>
+										<b-form-input
+                                            v-model="order.recipient_passport_no"
+                                            type="number"
+                                            max="6"
+                                            :formatter="passportNumberFormatter"
+                                        />
 									</b-form-group>
 								</b-col>
 								<b-col cols="12" md="4">
@@ -815,6 +844,8 @@
 	import SelectCities from "@/components/ui/selectCities/selectCities.vue";
 	import SelectClients from "@/components/ui/selectClients/selectClients.vue";
 	import clients from "@/api/clients";
+    import SelectContracts from "@/components/ui/selectContracts/selectContracts.vue";
+
 	import {
 		BOverlay,
 		BRow,
@@ -867,6 +898,7 @@
 			vSelect,
 			SelectCities,
 			SelectClients,
+            SelectContracts,
 		},	
 		directives: { maska: vMaska, "b-tooltip": VBTooltip },
 		data() {
@@ -906,6 +938,7 @@
 				],
 				cities: [],
 				counterparty: [],
+                contracts: [],
 				order: {
 					// status: 0,
 					type: "",
@@ -915,6 +948,8 @@
 					payer: 0,
 					comment: "",
 					delivery_date: '',
+                    contract: null,
+                    sender_counterparty: null,
                     sender_counterparty_type: 'E',
 					sender_phones: [{}],
                     sender_address: '',
@@ -922,6 +957,7 @@
                     sender_passport_no: '',
                     sender_city: null,
                     recipient_city: null,
+                    recipient_counterparty: null,
                     recipient_counterparty_type: 'E',
 					recipient_phones: [{}],
                     recipient_address: '',
@@ -981,6 +1017,7 @@
 				if (Number.isFinite(this.order.payer_counterparty)) {
 					const id = this.order.payer_counterparty;
 					this.addCounterparty(id, 'payer');
+                    this.addPayerContracts(id);
 					return;
 				};
 				// if (typeof this.order.payer_counterparty === 'string') {
@@ -1031,11 +1068,27 @@
 			...mapMutations({
 				changeLoading: "moduleOrders/changeLoading",
 			}),
+            serieFormatter(value) {
+                if (!value) {
+                    return null;
+                }
+                return Number(String(value).substring(0, 4));
+            },
+            passportNumberFormatter(value) {
+                 if (!value) {
+                    return null;
+                }
+                return Number(String(value).substring(0, 6));
+            },
 			fetchStatus() {
 				this.$api.orderStatus.getOrderStatusList().then((response) => {
 					this.orderStatus = response.data.results;
 				});
 			},
+            changeOrder(value, key) {
+                console.log(key, value);
+                this.order[key] = value;
+            },
 			validationForm() {
 				this.$refs.simpleRules.validate().then((success) => {
 					if (success) {
@@ -1099,13 +1152,13 @@
 			deleteProduct(id) {
 				let inx = this.order.products.findIndex((product) => product.place_no === id);
 				if (inx >= 0) {
-					this.order.product.splice(inx, 1);
+					this.order.products.splice(inx, 1);
 				};
 			},
 			changeCounterpartyParams(data, name) {
 				for (let key in data) {
-					if (data[key] && key === 'name') {
-						this.order[name + '_counterparty'] = data.name;
+					if (data[key] && key === 'id') {
+						this.order[name + '_counterparty'] = data.id;
 						continue;
 					};
 					if (data[key] && key === 'client_phones') {
@@ -1126,6 +1179,14 @@
 					this.changeCounterpartyParams(response.data, name);	
 				});
 			},
+            addPayerContracts(id) {
+                this.$api.clients.getClientContracts(id).then(response => {
+                    if (response.status > 203) {
+                        return;
+                    }
+                    this.contracts = response.data;
+                })
+            },
 			addPhone(name) {
 				if (this.order[name + '_phones'][0].phone_number){
 					this.order[name + '_phones'].unshift({});
@@ -1144,7 +1205,7 @@
                         if (response.status > 203) {
                             return;
                         }
-						this.order[propName + '_id'] = response.data.id;
+						this.order[propName + '_counterparty'] = response.data.id;
 						// this.newUser.name = '';
 						// this.newUser.type = '';
 						// this.newUser.client_phones.pop();
@@ -1195,6 +1256,16 @@
 				};
 				this.addClient(orderPropName);
 			},
+            handleContractCreation(contractNumber) {
+                this.$api.clients.createClientContract(this.order.payer_counterparty, contractNumber)
+                    .then(response => {
+                        if (response.status > 203) {
+                            return;
+                        }
+                        this.order.contract = Number(response.data.contract);
+                    })
+
+            },
 		},
 		mounted() {
 			this.fetchStatus();

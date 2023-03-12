@@ -50,21 +50,27 @@
 
       <b-col cols="12" md="2">
         <b-form-group label="Серия паспорта">
-          <b-form-input
-            v-model="order.recipient_passport_series"
-            :disabled="readOnly"
-            @change="changeOrder($event, 'recipient_passport_series')"
-          />
+            <b-form-input
+                v-model="order.recipient_passport_series"
+                :disabled="readOnly"
+                @change="changeOrder($event, 'recipient_passport_series')"
+                type="number"
+                max="4"
+                :formatter="serieFormatter"
+            />
         </b-form-group>
       </b-col>
 
       <b-col cols="12" md="2">
         <b-form-group label="Номер паспорта">
-          <b-form-input
-            v-model="order.recipient_passport_no"
-            :disabled="readOnly"
-            @change="changeOrder($event, 'recipient_passport_no')"
-          />
+            <b-form-input
+                v-model="order.recipient_passport_no"
+                :disabled="readOnly"
+                @change="changeOrder($event, 'recipient_passport_no')"
+                type="number"
+                max="6"
+                :formatter="passportNumberFormatter"
+            />
         </b-form-group>
       </b-col>
 
@@ -187,6 +193,18 @@ export default {
       setSender: "moduleOrders/setOrderSender",
 	  setRecipient: "moduleOrders/setOrderRecipient",
     }),
+    serieFormatter(value) {
+        if (!value) {
+            return null;
+        }
+        return Number(String(value).substring(0, 4));
+    },
+    passportNumberFormatter(value) {
+            if (!value) {
+            return null;
+        }
+        return Number(String(value).substring(0, 6));
+    },
     changeOrder(newVal, key) {
       let payload = {};
       payload[key] = newVal;
