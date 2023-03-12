@@ -7,8 +7,14 @@
         <b-tab active title="Форма заказа">
           <update-main v-if="order" :order="order" :readOnly="readOnly" />
           <update-payer v-if="order" :order="order" :readOnly="readOnly" />
-          <update-sender v-if="order" :order="order" :readOnly="readOnly" @updateSender="getOrder" />
-          <update-recipient v-if="order" :order="order" :readOnly="readOnly" @updateRecipient="getOrder" />
+          <b-row>
+            <b-col colls="6">
+              <update-sender v-if="order" :order="order" :readOnly="readOnly" @updateSender="getOrder" />
+            </b-col>
+            <b-col colls="6">
+              <update-recipient v-if="order" :order="order" :readOnly="readOnly" @updateRecipient="getOrder" />
+            </b-col>
+          </b-row>
           <update-places
             v-if="order"
             :readOnly="readOnly"
