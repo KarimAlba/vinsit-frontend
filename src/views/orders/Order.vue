@@ -32,7 +32,7 @@
           />
         </b-tab>
 
-        <b-tab title="История заказа">
+        <b-tab title="История заказа" style="padding-bottom: 50px;">
           <b-row>
             <b-col>
               <b-card>

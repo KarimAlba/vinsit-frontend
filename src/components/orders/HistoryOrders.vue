@@ -2,9 +2,9 @@
 	<b-card-actions title="История заказа" actionCollapse>
 		<b-row align-h="between">
 			<b-col cols="3"> Всего изменений: {{ totalRows }} </b-col>
-			<b-col cols="7">
+			<b-col cols="4">
 				<b-row>
-					<b-col cols="7">
+					<b-col cols="12">
 						<select-filter-type
 							label="type"
 							:reduce="(type) => type.key"
@@ -13,19 +13,20 @@
 							v-model="type"
 						/>
 					</b-col>
-					<b-col cols="5">
+					<!-- <b-col cols="5">
 						<b-form-input
 							class="mb-2"
 							placeholder="Поиск"
 							v-model="filter"
 							debounce="500"
 						/>
-					</b-col>
+					</b-col> -->
 				</b-row>
 			</b-col>
 		</b-row>
 		<b-table
 			id="table-history-orders"
+            class="mt-1"
 			:items="history"
 			:fields="fields"
 			striped
@@ -203,7 +204,10 @@
 				
 				const filter = this.types[this.types.findIndex(filter => filter.key === newType)].key;
 				this.filterHistoryArr(filter);
-			}
+			},
+            // filter(newSearch, oldSearch) {
+			// 	const filter = this.hist
+			// }
 		},
 		computed: {
 			...mapGetters({
@@ -252,7 +256,7 @@
 							oldValue = array[index][key],
 							newValue = array[index + 1][key],
 							history_date = array[index].history_date,
-							history_user = array[index].history_user;
+							history_user = array[index].user_name;
 
                             // console.log('oldValue - ', oldValue, 'newValue - ', newValue, 'key - ', key)
 							// history_date = array[index].status_changed_date;
@@ -260,49 +264,49 @@
 							if (key === "mode") {
 								if (oldValue) oldValue = this.orderMode.find((x) => x.id === oldValue).title;
 								newValue = this.orderMode.find((x) => x.id === newValue).title;
-							};
-							if (key === "type") {
+							} else if (key === "type") {
 								if (oldValue) oldValue = this.orderType.find((x) => x.id === oldValue).title;
 								newValue = this.orderType.find((x) => x.id === newValue).title;
-							};
-							if (
+							} else if (
 								key === "recipient_counterparty_type" ||
 								key === "sender_counterparty_type"
-							) 	{
-									if (oldValue) oldValue = this.clientType.find((x) => x.id === oldValue).title;
-									newValue = this.clientType.find((x) => x.id === newValue).title;
-								};
-							if (key === "status") {
-								if (oldValue) oldValue = this.orderStatus.find( (x) => x.id === oldValue).status;
-								newValue = this.orderStatus.find((x) => x.id === newValue).status;
-							};
-							if (key === "payer_city" || key === "recipient_city" || key === "sender_city") {
-                                const ids_list = [];
-                                newValue ? ids_list.push(newValue) : null;
-                                oldValue ? ids_list.push(oldValue) : null;
-								await this.$api.cities.getCitiesById({ids_list})
-									.then((response) => {
-                                        if (newValue) {
-                                            newValue = response.data.find(c => c.id === newValue).name;
-                                        } else {
-                                            newValue = '-';
-                                        }
-										if (oldValue) {
-                                            oldValue = response.data.find(c => c.id === oldValue).name;
-                                        }
-									})
-									.catch((error) => {})
-							}
-                            if (key === "payer_counterparty" || key === "recipient_counterparty" || key === "sender_counterparty") {
-								await this.$api.clients.getClient(newValue)
-                                    .then((response) => {
-                                        newValue = response.data.name;
-                                });
-                                await this.$api.clients.getClient(oldValue)
-                                    .then((response) => {
-                                    oldValue = response.data.name;
-                                });
-							};
+							) {
+                                if (oldValue) oldValue = this.clientType.find((x) => x.id === oldValue).title;
+                                newValue = this.clientType.find((x) => x.id === newValue).title;
+							} else {
+                                newValue ? null : newValue = '-';
+                            }
+							// if (key === "status") {
+								// if (oldValue) oldValue = this.orderStatus.find( (x) => x.id === oldValue).status;
+								// newValue = this.orderStatus.find((x) => x.id === newValue).status;
+							// };
+							// if (key === "payer_city" || key === "recipient_city" || key === "sender_city") {
+                                // const ids_list = [];
+                                // newValue ? ids_list.push(newValue) : null;
+                                // oldValue ? ids_list.push(oldValue) : null;
+								// await this.$api.cities.getCitiesById({ids_list})
+								// 	.then((response) => {
+                                //         if (newValue) {
+                                //             newValue = response.data.find(c => c.id === newValue).name;
+                                //         } else {
+                                //             newValue = '-';
+                                //         }
+								// 		if (oldValue) {
+                                //             oldValue = response.data.find(c => c.id === oldValue).name;
+                                //         }
+								// 	})
+								// 	.catch((error) => {})
+							// }
+                            // if (key === "payer_counterparty" || key === "recipient_counterparty" || key === "sender_counterparty") {
+								// await this.$api.clients.getClient(newValue)
+                                //     .then((response) => {
+                                //         newValue = response.data.name;
+                                // });
+                                // await this.$api.clients.getClient(oldValue)
+                                //     .then((response) => {
+                                //     oldValue = response.data.name;
+                                // });
+							// };
 							arr.push({ valByKeyObj, oldValue, newValue, history_date, history_user });
 						}
 					});
