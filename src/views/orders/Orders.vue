@@ -30,3 +30,9 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+    .orders {
+        padding-bottom: 50px;
+    }
+</style>

@@ -3,6 +3,7 @@ export default {
     state: {
         orders: [],
         order: {},
+        editableOrder: {},
 
         count: 0,
         loading: false,
@@ -25,7 +26,7 @@ export default {
             search: null,
         },
         curPage: 1,
-        countPerPage: 20,
+        countPerPage: 10,
         placeStatus: [
             { id: "D", title: "Вручено", color: "success" },
             { id: "U", title: "Не вручено", color: "primary" },
@@ -47,6 +48,9 @@ export default {
         },
         getOrder: (state) => {
             return state.order
+        },
+        getEditableOrder: (state) => {
+            return state.editableOrder
         },
         getCount: (state) => {
             return state.count
@@ -78,7 +82,21 @@ export default {
             state.orders = payload
         },
         setOrder(state, payload) {
-            state.order = payload
+            console.log(payload);
+            state.order = payload;
+            state.editableOrder = {
+                ...payload,
+                recipient_counterparty: payload.recipient_counterparty ? payload.recipient_counterparty.id : null,
+                sender_counterparty: payload.sender_counterparty ? payload.sender_counterparty.id : null,
+                payer_counterparty: payload.payer_counterparty ? payload.payer_counterparty.id : null,
+                contract: payload.contract ? payload.contract.id : null,
+                payer_city: payload.payer_city ? payload.payer_city.id : null,
+                recipient_city: payload.recipient_city ? payload.recipient_city.id : null,
+                sender_city: payload.sender_city ? payload.sender_city.id : null,
+            };
+        },
+        setEditableOrder(state, payload) {
+            state.editableOrder = payload;
         },
 		setOrderSender(state, payload) {
 			console.log(payload);
@@ -91,6 +109,12 @@ export default {
 			state.order.recipient_counterparty.id = payload.id
 			state.order.recipient_counterparty.name = payload.name
 		},
+        addOrderPhones(state, payload) {
+            state.order[`${payload.prefix}_counterparty`].client_phones.unshift(payload.phone);
+        },
+        deleteOrderPhone(state, payload) {
+            state.order[`${payload.prefix}_counterparty`].client_phones.splice(payload.index, 1);
+        },
         setCount(state, payload) {
             state.count = payload
         },
@@ -133,7 +157,11 @@ export default {
             commit('changeLoading', true)
             commit('resetData')
 
-            this._vm.$api.orders.getOrders({ ...state.filters, offset: ((state.curPage - 1) * state.countPerPage) }).then((response) => {
+            this._vm.$api.orders.getOrders({
+                ...state.filters,
+                offset: ((state.curPage - 1) * state.countPerPage),
+                limit: state.countPerPage
+            }).then((response) => {
                 commit('setOrders', response.data.results)
                 commit('setCount', response.data.count)
             })

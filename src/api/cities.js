@@ -8,5 +8,8 @@ export default function (instance) {
         getCitiesById(data) {
             return instance.post("api/v1/city/by_ids/", data);
         },
+        getCity(id) {
+            return instance.get(`api/v1/city/${id}/`)
+        },
     };
 }

@@ -213,7 +213,7 @@
 				);
 			},
 			formatDate(date) {
-                console.log(date);
+                // console.log(date);
 				return this.dayjs(date).format("DD.MM.YYYY HH:mm");
 			},
 			fetchStatus() {
@@ -240,6 +240,8 @@
 							oldValue = array[index][key],
 							newValue = array[index + 1][key],
 							history_date = array[index].history_date;
+
+                            // console.log('oldValue - ', oldValue, 'newValue - ', newValue, 'key - ', key)
 							// history_date = array[index].status_changed_date;
 
 							if (key === "mode") {
@@ -262,13 +264,34 @@
 								newValue = this.orderStatus.find((x) => x.id === newValue).status;
 							};
 							if (key === "payer_city" || key === "recipient_city" || key === "sender_city") {
-								await this.$api.cities.getCitiesById({ids_list: [oldValue, newValue]})
+                                const ids_list = [];
+                                newValue ? ids_list.push(newValue) : null;
+                                oldValue ? ids_list.push(oldValue) : null;
+								await this.$api.cities.getCitiesById({ids_list})
 									.then((response) => {
-										newValue = response.data[response.data[0].id == newValue ? 0 : 1].name;
-										oldValue = response.data[response.data[1].id == oldValue ? 1 : 0].name;
+                                        if (newValue) {
+                                            newValue = response.data.find(c => c.id === newValue).name;
+                                        } else {
+                                            newValue = '-';
+                                        }
+										if (oldValue) {
+                                            oldValue = response.data.find(c => c.id === oldValue).name;
+                                        } else {
+                                            oldValue = '-';
+                                        }
 									})
 									.catch((error) => {})
 							}
+                            if (key === "payer_counterparty" || key === "recipient_counterparty" || key === "sender_counterparty") {
+								await this.$api.clients.getClient(newValue)
+                                    .then((response) => {
+                                        newValue = response.data.name;
+                                });
+                                await this.$api.clients.getClient(oldValue)
+                                    .then((response) => {
+                                    oldValue = response.data.name;
+                                });
+							};
 							arr.push({ valByKeyObj, oldValue, newValue, history_date });
 						}
 					});

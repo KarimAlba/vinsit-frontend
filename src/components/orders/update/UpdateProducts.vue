@@ -8,13 +8,13 @@
         responsive
       >
         <template #cell(barcode)="data">
-          <a
-            v-if="data.item.barcode"
-            target="_blank"
-            class="link"
-            :href="data.item.barcode"
-            >Штрих-код</a
-          >
+            <a
+                class="link"
+                style="color: #3d78b4;"
+                @click="handlePdfDownload($event, data.item.barcode, data.item.place)"
+            >
+                Штрих-код
+            </a>
         </template>
 
         <template #cell(place)="data">
@@ -205,6 +205,7 @@ import BCardActions from "@/@core/components/b-card-actions/BCardActions.vue";
 
 import { ValidationProvider, ValidationObserver } from "vee-validate";
 import { required, email, confirmed, password } from "@validations";
+import downloadPdf from '../../../utils/downloadPdf';
 
 import vSelect from "vue-select";
 
@@ -299,6 +300,10 @@ export default {
     },
   },
   methods: {
+    async handlePdfDownload(event, barcode, place_no) {
+        event.preventDefault();
+        downloadPdf(barcode, `barcode-${this.order}-${place_no}.png`);
+    },
     createProduct() {
       this.$api.products
         .createProduct({ order: this.order, ...this.newProduct })

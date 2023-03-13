@@ -72,6 +72,16 @@
           </b-form-group>
         </b-col>
 
+        <b-col class="mb-1" cols="4">
+            <b-form-group label="Дата доставки товара">
+                <b-form-datepicker
+                    label="date"
+                    :reduce="(status) => status.id"
+                    v-model="order.delivery_date"
+                />
+            </b-form-group>
+        </b-col>
+
         <!-- <b-col class="mb-1" cols="4">
           <b-form-group label="Договор">
             <b-form-input
@@ -124,6 +134,7 @@ import {
   BFormInput,
   BFormGroup,
   BFormTextarea,
+  BFormDatepicker,
 } from "bootstrap-vue";
 
 import BCardActions from "@/@core/components/b-card-actions/BCardActions.vue";
@@ -139,6 +150,7 @@ export default {
     BFormInput,
     BFormGroup,
     BFormTextarea,
+    BFormDatepicker,
 
     vSelect,
     BCardActions,

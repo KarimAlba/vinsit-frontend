@@ -103,6 +103,7 @@
 									:reduce="(client) => client.id"
 									v-model="order.payer_counterparty"
                                     @input="changeOrder($event, 'payer_counterparty')"
+                                    @createClient="(name) => handleClientCreation(name, 'payer')"
 								/>
 							</b-form-group>
 						</b-col>
@@ -110,7 +111,7 @@
 							<b-form-group label="Договор">
 								<!-- <b-form-input v-model="order.contract"/> -->
                                 <select-contracts
-									:reduce="(cont) => Number(cont.contract)"
+									:reduce="(cont) => cont.id"
 									v-model="order.contract"
                                     :payerId="order.payer_counterparty"
                                     @input="changeOrder($event, 'contract')"
@@ -355,187 +356,6 @@
 						</b-card-actions>
 					</b-col>
 				</b-row>
-
-                <!-- Vadick edits -->
-				<!-- <b-card-actions title="Отправитель" actionCollapse>
-					<b-row>
-						<b-col class="mb-1" cols="12" md="4">
-							<b-form-group label="Отправитель">
-								<select-clients
-									:reduce="(client) => client.id"
-									v-model="order.sender_counterparty"
-									@createClient="(name) => handleClientCreation(name, 'sender')"
-								/>
-							</b-form-group>
-						</b-col>
-						<b-col class="mb-1" cols="12" md="4">
-							<b-form-group label="Город">
-								<select-cities v-model="order.sender_city" />
-							</b-form-group>
-						</b-col>
-						<b-col class="mb-1" cols="12" md="4">
-							<validation-provider #default="{ errors }" rules="required">
-								<b-form-group
-									label="Тип отправителя"
-									:invalid-feedback="errors[0]"
-									:state="!errors.length"
-									:class="{selectType: creationError.creationErrorSender && !order.sender_counterparty_type}"
-									style="border: 0px solid white"
-								>
-									<v-select
-										label="title"
-										:reduce="(type) => type.id"
-										:options="clientType"
-										v-model="order.sender_counterparty_type"
-										:class="{selectType: creationError.creationErrorSender && !order.sender_counterparty_type}"
-									/>
-								</b-form-group>
-							</validation-provider>
-						</b-col>
-						<b-col cols="12" md="8">
-							<b-form-group label="ФИО отправителя">
-								<b-form-input v-model="order.sender_full_name"></b-form-input>
-							</b-form-group>
-						</b-col>
-						<b-col cols="12" md="2">
-							<b-form-group label="Серия паспорта">
-								<b-form-input v-model="order.sender_passport_series"/>
-							</b-form-group>
-						</b-col>
-						<b-col cols="12" md="2">
-							<b-form-group label="Номер паспорта">
-								<b-form-input v-model="order.sender_passport_no"/>
-							</b-form-group>
-						</b-col>
-						<b-col cols="12">
-							<b-form-group label="Адрес">
-								<b-form-textarea
-									rows="3"
-									max-rows="6"
-									v-model="order.sender_address"
-								/>
-							</b-form-group>
-						</b-col>
-						<b-col
-							v-for="(phone, i) in order.sender_phones"
-							:key="i"
-							cols="12"
-							md="4"
-						>
-							<validation-provider #default="{ errors }" rules="required">
-								<b-form-group
-									:invalid-feedback="errors[0]"
-									label="Номер телефона"
-									:class="{selectType: creationError.creationErrorSender && !order.sender_phone}"
-									style="border: 0px solid white"
-								>
-									<b-form-input
-										v-model="order.sender_phone"
-										:state="errors.length > 0 ? false : null"
-										v-maska
-										placeholder="+71234567890"
-										data-maska="+7##########"
-										:class="{selectType: creationError.creationErrorSender && !order.sender_phone}"
-										
-									/>
-								</b-form-group>
-							</validation-provider>
-						</b-col>
-					</b-row>
-				</b-card-actions>
-				<b-card-actions title="Получатель" actionCollapse>
-					<b-row>
-						<b-col class="mb-1" cols="12" md="4">
-							<b-form-group label="Получатель">
-								<select-clients
-									:reduce="(client) => client.id"
-									v-model="order.recipient_counterparty"
-									@createClient="(name) => handleClientCreation(name, 'recipient')"
-								/>
-							</b-form-group>
-						</b-col>
-						<b-col class="mb-1" cols="12" md="4">
-							<b-form-group label="Город">
-								<select-cities v-model="order.recipient_city" />
-							</b-form-group>
-						</b-col>
-						<b-col class="mb-1" cols="12" md="4">
-							<validation-provider #default="{ errors }" rules="required">
-								<b-form-group
-									label="Тип контрагента *"
-									:invalid-feedback="errors[0]"
-									:state="!errors.length"
-									:class="{selectType: creationError.creationErrorRecipient && !order.recipient_counterparty_type}"
-									style="border: 0px solid white"
-								>
-									<v-select
-										label="title"
-										:reduce="(type) => type.id"
-										:options="clientType"
-										v-model="order.recipient_counterparty_type"
-										:class="{selectType: creationError.creationErrorRecipient && !order.recipient_counterparty_type}"
-									/>
-								</b-form-group>
-							</validation-provider>
-						</b-col>
-						<b-col cols="12" md="8">
-							<b-form-group label="ФИО получателя">
-								<b-form-input v-model="order.recipient_full_name"/>
-							</b-form-group>
-						</b-col>
-						<b-col cols="12" md="2">
-							<b-form-group label="Серия паспорта">
-								<b-form-input v-model="order.recipient_passport_series" />
-							</b-form-group>
-						</b-col>
-						<b-col cols="12" md="2">
-							<b-form-group label="Номер паспорта">
-								<b-form-input v-model="order.recipient_passport_no"/>
-							</b-form-group>
-						</b-col>
-						<b-col cols="12">
-							<b-form-group label="Адрес">
-								<b-form-textarea
-									rows="3"
-									max-rows="6"
-									v-model="order.recipient_address"
-								/>
-							</b-form-group>
-						</b-col>
-						<b-col
-							v-for="(phone, i) in order.recipient_phones"
-							:key="i"
-							cols="12"
-							md="4"
-						>
-							<validation-provider #default="{ errors }" rules="required">
-								<b-form-group
-									:invalid-feedback="errors[0]"
-									label="Номер телефона"
-									:class="{selectType: creationError.creationErrorRecipient && !order.recipient_phone}"
-									style="border: 0px solid white"
-								>
-									<b-form-input
-										v-model="order.recipient_phone"
-										:state="errors.length > 0 ? false : null"
-										v-maska
-										placeholder="+71234567890"
-										data-maska="+7##########"
-										:class="{selectType: creationError.creationErrorRecipient && !order.recipient_phone}"
-									/>
-								</b-form-group>
-							</validation-provider>
-						</b-col>
-						<b-col cols="12" md="4">
-						<b-form-group label="Email">
-							<b-form-input
-								type="email"
-								v-model="order.recipient_email"
-							/>
-						</b-form-group>
-						</b-col>
-					</b-row>
-				</b-card-actions> -->
 				<b-card-actions title="Информация о грузе" actionCollapse>
 					<b-table
 						:items="order.places"
@@ -899,7 +719,7 @@
 			SelectCities,
 			SelectClients,
             SelectContracts,
-		},	
+		},
 		directives: { maska: vMaska, "b-tooltip": VBTooltip },
 		data() {
 			return {
@@ -1017,7 +837,7 @@
 				if (Number.isFinite(this.order.payer_counterparty)) {
 					const id = this.order.payer_counterparty;
 					this.addCounterparty(id, 'payer');
-                    this.addPayerContracts(id);
+                    // this.addPayerContracts(id);
 					return;
 				};
 				// if (typeof this.order.payer_counterparty === 'string') {
@@ -1086,7 +906,7 @@
 				});
 			},
             changeOrder(value, key) {
-                console.log(key, value);
+                // console.log(key, value);
                 this.order[key] = value;
             },
 			validationForm() {
@@ -1179,14 +999,14 @@
 					this.changeCounterpartyParams(response.data, name);	
 				});
 			},
-            addPayerContracts(id) {
-                this.$api.clients.getClientContracts(id).then(response => {
-                    if (response.status > 203) {
-                        return;
-                    }
-                    this.contracts = response.data;
-                })
-            },
+            // addPayerContracts(id) {
+            //     this.$api.clients.getClientContracts(id).then(response => {
+            //         if (response.status > 203) {
+            //             return;
+            //         }
+            //         this.contracts = response.data;
+            //     })
+            // },
 			addPhone(name) {
 				if (this.order[name + '_phones'][0].phone_number){
 					this.order[name + '_phones'].unshift({});
@@ -1256,15 +1076,14 @@
 				};
 				this.addClient(orderPropName);
 			},
-            handleContractCreation(contractNumber) {
-                this.$api.clients.createClientContract(this.order.payer_counterparty, contractNumber)
+            handleContractCreation(contract) {
+                this.$api.clients.createClientContract(this.order.payer_counterparty, contract)
                     .then(response => {
                         if (response.status > 203) {
                             return;
                         }
-                        this.order.contract = Number(response.data.contract);
+                        this.order.contract = response.data.id
                     })
-
             },
 		},
 		mounted() {

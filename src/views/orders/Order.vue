@@ -5,30 +5,30 @@
 
       <b-tabs>
         <b-tab active title="Форма заказа">
-          <update-main v-if="order" :order="order" :readOnly="readOnly" />
-          <update-payer v-if="order" :order="order" :readOnly="readOnly" />
+          <update-main v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" />
+          <update-payer v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" />
           <b-row>
             <b-col colls="6">
-              <update-sender v-if="order" :order="order" :readOnly="readOnly" @updateSender="getOrder" />
+              <update-sender v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" @updateSender="getOrder" />
             </b-col>
             <b-col colls="6">
-              <update-recipient v-if="order" :order="order" :readOnly="readOnly" @updateRecipient="getOrder" />
+              <update-recipient v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" @updateRecipient="getOrder" />
             </b-col>
           </b-row>
           <update-places
-            v-if="order"
+            v-if="editableOrder"
             :readOnly="readOnly"
             :order="idOrder"
-            :places="order.places"
-            v-model="order.places"
+            :places="editableOrder.places"
+            v-model="editableOrder.places"
           />
           <update-products
-            v-if="order"
+            v-if="editableOrder"
             :readOnly="readOnly"
             :order="idOrder"
-            :products="order.products"
-            :places="order.places"
-            v-model="order.products"
+            :products="editableOrder.products"
+            :places="editableOrder.places"
+            v-model="editableOrder.products"
           />
         </b-tab>
 
@@ -41,14 +41,14 @@
                 <table class="w-100">
                   <tr>
                     <td class="pb-1">Договор</td>
-                    <td class="pb-1">{{ order.contract }}</td>
+                    <td class="pb-1">{{ editableOrder.contract }}</td>
                   </tr>
 
                   <tr v-if="order.status">
                     <td class="pb-1">Статус</td>
                     <td class="pb-1">
                       <b-badge variant="success">
-                        {{ order.status }}
+                        {{ editableOrder.status }}
                       </b-badge>
                     </td>
                   </tr>
@@ -56,47 +56,47 @@
                   <tr>
                     <td class="pb-1">Дата создания заказа</td>
                     <td class="pb-1">
-                      {{ formatDate(order.date_created) }}
+                      {{ formatDate(editableOrder.date_created) }}
                     </td>
                   </tr>
 
                   <tr>
                     <td class="pb-1">Дата изменения статуса</td>
                     <td class="pb-1">
-                      {{ formatDate(order.status_changed_date) }}
+                      {{ formatDate(editableOrder.status_changed_date) }}
                     </td>
                   </tr>
 
                   <tr>
                     <td class="pb-1">Дата доставки</td>
                     <td class="pb-1">
-                      {{ formatDate(order.delivery_date) }}
+                      {{ formatDate(editableOrder.delivery_date) }}
                     </td>
                   </tr>
 
                   <tr>
                     <td class="pb-1">Договор</td>
-                    <td class="pb-1">{{ order.contract }}</td>
+                    <td class="pb-1">{{ editableOrder.contract }}</td>
                   </tr>
 
                   <tr>
                     <td class="pb-1">Наложенный платеж</td>
-                    <td class="pb-1">{{ order.pay_on_order }}</td>
+                    <td class="pb-1">{{ editableOrder.pay_on_order }}</td>
                   </tr>
 
                   <tr>
                     <td class="pb-1">Стоимость доставки</td>
-                    <td class="pb-1">{{ order.delivery_price }}</td>
+                    <td class="pb-1">{{ editableOrder.delivery_price }}</td>
                   </tr>
 
                   <tr>
                     <td class="pb-1">Итоговая стоимость</td>
-                    <td class="pb-1">{{ order.total_price }}</td>
+                    <td class="pb-1">{{ editableOrder.total_price }}</td>
                   </tr>
 
                   <tr>
                     <td class="pb-1">Местоположение</td>
-                    <td class="pb-1">{{ order.location }}</td>
+                    <td class="pb-1">{{ editableOrder.location }}</td>
                   </tr>
                 </table>
               </b-card>
@@ -109,31 +109,31 @@
                   <tr>
                     <td class="pb-1">Штрих-код</td>
                     <td class="pb-1">
-                      <a class="link" target="_blank" :href="order.barcode">{{
+                      <a class="link" target="_blank" :href="editableOrder.barcode">{{
                         order.id
                       }}</a>
                     </td>
                   </tr>
                   <tr>
                     <td class="pb-1">Общий физический вес</td>
-                    <td class="pb-1">{{ order.total_weight }} кг</td>
+                    <td class="pb-1">{{ editableOrder.total_weight }} кг</td>
                   </tr>
 
                   <tr>
                     <td class="pb-1">Общий объемный вес</td>
-                    <td class="pb-1">{{ order.total_volume_weight }}</td>
+                    <td class="pb-1">{{ editableOrder.total_volume_weight }}</td>
                   </tr>
 
                   <tr>
                     <td class="pb-1">Вес к оплате</td>
-                    <td class="pb-1">{{ order.payable_weight }} кг</td>
+                    <td class="pb-1">{{ editableOrder.payable_weight }} кг</td>
                   </tr>
                 </table>
               </b-card>
             </b-col>
           </b-row>
 
-          <history-orders v-if="order && $store.state.app.user.role === roles.AD" :idOrder="idOrder" />
+          <history-orders v-if="editableOrder && $store.state.app.user.role === roles.AD" :idOrder="idOrder" />
         </b-tab>
       </b-tabs>
 
@@ -245,6 +245,7 @@ export default {
     ...mapGetters({
       loading: "moduleOrders/getLoading",
       order: "moduleOrders/getOrder",
+      editableOrder: "moduleOrders/getEditableOrder",
       orderMode: "moduleOrders/getOrderMode",
       orderType: "moduleOrders/getOrderType",
       placeStatus: "moduleOrders/getPlaceStatus",
@@ -263,8 +264,8 @@ export default {
     },
     totalPrice() {
       return (
-        parseFloat(this.order.delivery_price) +
-        parseFloat(this.order.pay_on_order)
+        parseFloat(this.editableOrder.delivery_price) +
+        parseFloat(this.editableOrder.pay_on_order)
       ).toFixed(2);
     },
   },

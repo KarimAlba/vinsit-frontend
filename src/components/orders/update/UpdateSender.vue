@@ -34,7 +34,7 @@
             :disabled="readOnly"
             @input="changeOrder($event, 'sender_counterparty')"
 			@createClient="(name) => handleClientCreation(name)"
-			:clearSearchOnBlur="true"
+			:clearSearchOnBlur="false"
           />
         </b-form-group>
       </b-col>
@@ -90,38 +90,58 @@
       <b-col
         cols="12"
       >
-        <validation-provider #default="{ errors }" rules="required">
-          <b-form-group
-            :invalid-feedback="errors[0]"
-            label="Телефоны *"
-          >
-          <b-row class="">
-            <b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
-              Номер телефона
-            </b-col>
-            <b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('sender')">
-              +
-            </b-col>
-          </b-row>
-          <b-row 
-            v-for="(phone, i) in order.sender_phones"
-            :key="i"
-          >
-            <b-col class=" border border-secondary px-0" cols="8">
-              <b-form-input
-                v-model="phone.phone_number"
-                :state="errors.length > 0 ? false : null"
-                v-maska
-                placeholder="+71234567890"
-                data-maska="+7##########"
-              />
-            </b-col>
-            <b-col class="text-center border border-secondary" cols="4" @click="deletePhone('sender', i)">
-              <b-icon icon="trash"></b-icon>
-            </b-col>
-          </b-row>
-          </b-form-group>
-        </validation-provider>
+        <validation-observer ref="simpleRules">
+            <validation-provider #default="{ errors }" rules="required">
+                <b-form-group
+                    :invalid-feedback="errors[0]"
+                    label="Телефоны *"
+                >
+                    <b-row class="">
+                        <b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
+                            
+                        </b-col>
+                        <b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
+                            Номер телефона
+                        </b-col>
+                        <b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="2" @click="addPhone">
+                            +
+                        </b-col>
+                    </b-row>
+                    <b-row 
+                        v-for="(phone, i) in phones"
+                        :key="i"
+                    >
+                        <b-col
+                            class="d-flex text-center border border-secondary"
+                            cols="2"
+                        >
+                            <b-form-checkbox
+                                :id="`checkbox-${[i]}-sender`"
+                                v-model="phone.to_print"
+                                :name="`checkbox-${[i]}-sender`"
+                                class="align-self-center justify-self-center"
+                                :disabled="readOnly"
+                                @change="onPhoneSelect(i)"
+                            ></b-form-checkbox>
+                        </b-col>
+                        <b-col class=" border border-secondary px-0" cols="8">
+                            <b-form-input
+                                v-model="phone.phone_number"
+                                :state="errors.length > 0 ? false : null"
+                                :disabled="readOnly"
+                                v-maska
+                                placeholder="+71234567890"
+                                data-maska="+7##########"
+                                @blur="changeOrder(phones, 'sender_phones')"
+                            />
+                        </b-col>
+                        <b-col class="text-center border border-secondary" cols="2" @click="deletePhone(i)">
+                            <b-icon icon="trash"></b-icon>
+                        </b-col>
+                    </b-row>
+                </b-form-group>
+            </validation-provider>
+        </validation-observer>
       </b-col>
       
       <!-- <b-col
@@ -169,12 +189,15 @@ import {
   BFormGroup,
   BFormTextarea,
   BIcon,
+  VBTooltip,
   BIconTrash,
+  BFormCheckbox,
 } from "bootstrap-vue";
 
 export default {
   components: {
-		ValidationProvider,
+    ValidationProvider,
+    ValidationObserver,
     BOverlay,
     BRow,
     BCol,
@@ -184,12 +207,14 @@ export default {
     BFormTextarea,
     BIcon,
     BIconTrash,
-
+    BFormCheckbox,
     SelectCities,
     SelectClients,
     vSelect,
     BCardActions,
+    VBTooltip,
   },
+  directives: { maska: vMaska, "b-tooltip": VBTooltip },
   props: {
     order: {
       type: Object,
@@ -213,6 +238,7 @@ export default {
 		type: null,
 		web: '',
 	},
+    phones: [],
 	creationError: {
 		creationErrorSender: false,
 		creationErrorRecipient: false,
@@ -223,10 +249,17 @@ export default {
       clientType: "moduleClients/getClientType",
     }),
   },
+  watch: {
+    'order'() {
+        this.phones = this.order.sender_phones;
+    },
+  },
   methods: {
 	...mapMutations({
       setSender: "moduleOrders/setOrderSender",
 	  setRecipient: "moduleOrders/setOrderRecipient",
+      addOrderPhones: "moduleOrders/addOrderPhones",
+      deleteOrderPhones: "moduleOrders/deleteOrderPhones",
     }),
     serieFormatter(value) {
         if (!value) {
@@ -240,9 +273,22 @@ export default {
         }
         return Number(String(value).substring(0, 6));
     },
-    changeOrder(newVal, key) {
+    onPhoneSelect(index) {
+        this.changeOrder(this.phones, 'sender_phones');
+    },
+    async changeOrder(newVal, key) {
       let payload = {};
       payload[key] = newVal;
+      if (key === 'sender_counterparty') {
+        await this.$api.clients.getClient(newVal).then(response => {
+            payload['sender_phones'] = response.data.client_phones.map((p, i) => ({
+                ...p,
+                to_print: i ? false : true
+            }))
+            payload['sender_address'] = response.data.address;
+            payload['sender_city'] = response.data.city;
+        });
+      }
 
       this.$api.orders.updateOrder(this.order.id, payload).then((response) => {
         if (response.status !== 400) {
@@ -256,7 +302,7 @@ export default {
 				this.$emit('updateSender');
 				this.newUser.name = '';
 				this.newUser.type = '';
-				this.newUser.client_phones.pop();
+				this.newUser.client_phones = [];
 			}
 			// else if (key === ) {
 			// 	this.setRicipient({
@@ -321,17 +367,19 @@ export default {
 		};
 		this.addClient();
 	},
-  addPhone(name) {
-    if (this.order[name + '_phones'][0].phone_number){
-      this.order[name + '_phones'].unshift({});
-    }
-  },
-  deletePhone(name, id) {
-    this.order[name + '_phones'].splice(id, 1);
-    if (this.order[name + '_phones'].length == 0){
-      this.order[name + '_phones'].unshift({});
-    }
-  },
+    addPhone() {
+            // this.order[name + '_phones'].unshift({});
+            this.phones.unshift({phone_number: ''});
+    },
+    deletePhone(index) {
+            this.phones.splice(index, 1);
+            this.changeOrder(this.phones, 'sender_phones')
+            if (this.phones.length === 0){
+                this.phones.unshift({
+                    phone_number: ''
+                })
+            }
+    },
   },
 };
 </script>

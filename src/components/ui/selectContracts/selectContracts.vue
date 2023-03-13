@@ -4,7 +4,7 @@
 			<b-icon-plus-square style="width: 50px;" ></b-icon-plus-square>
 		</div>
 		<v-select
-			label="name"
+			label="contract"
 			@search="onSearchContracts"
 			@input="input"
 			:options="contracts"
@@ -12,7 +12,7 @@
 			:filterable="false"
 			:disabled="disabled"
 			:reduce="reduce"
-			v-model="inputVal"
+			:value="contract"
 			:clearSearchOnBlur="() => clearSearchOnBlur"
 		>
 			<template #no-options="{ search }">
@@ -25,6 +25,7 @@
 <script>
 	import vSelect from "vue-select";
 	import { BIconPlusSquare } from 'bootstrap-vue'
+    import _ from 'lodash';
 
 	export default {
 		props: {
@@ -66,20 +67,27 @@
 			vSelect,
 			BIconPlusSquare,
 		},
-		computed: {
-			inputVal: {
-				get() {
-					console.log(this.value);
-					return this.value;
-				},
-				set(val) {
-					this.$emit("input", val);
-				},
-			},
-		},
         watch: {
+            'value'() {
+                console.log(this.value);
+                this.fetchContracts(
+                    '',
+                    null,
+                    this,
+                    null,
+                    (cont) => this.contract = cont,
+                );
+            },
             'payerId'() {
-                this.fetchContracts('', null, this);
+                this.fetchContracts(
+                    '',
+                    null,
+                    this,
+                    (contract) => {
+                        this.contract = contract;
+                        this.input(contract ? contract.id : null);
+                    },
+                );
             },
         },
 		methods: {
@@ -93,20 +101,34 @@
 				};
 			},
 			fetchContracts: _.debounce(
-                (search, loading, vm) => {
+                (search, loading, vm, callback, initCallback) => {
                     vm.$api.clients.getClientContracts(vm.payerId).then((response) => {
-                        const result = response.data
-                            .filter((result) => result.contract.includes(search))
-                            .map(elem => elem.contract);
-                        vm.contracts = result;
-                        !result.length ? vm.disabledBtn = false : vm.disabledBtn = true;
                         loading ? loading(false) : null;
+                        if (response.status > 203) {
+                            return;
+                        }
+                        const result = response.data
+                            .filter((result) => result.contract.includes(search));
+                        vm.contracts = result;
+                        console.log(result);
+                        if (callback) {
+                            console.log('callback');
+                            const selected = result.find(res => res.id === vm.value);
+                            const defaultValue = result.length ? result[0] : null;
+                            callback(selected || defaultValue);
+                        }
+                        if (initCallback) {
+                            console.log('init callback');
+                            const selected = result.find(res => res.id === vm.value);
+                            initCallback(selected || null);
+                        }
+                        !result.length ? vm.disabledBtn = false : vm.disabledBtn = true;
                     });
                 },
                 500
             ),
-			input(contract) {
-				this.$emit("input", contract);
+			input(id) {
+				this.$emit("input", id);
 				this.disabledBtn = true;
 			},
 			changeSearchValue:_.debounce((contract, vm)  => {
@@ -115,10 +137,10 @@
 			}, 500),
 			checkContract() {
 				if (this.contracts.findIndex(
-						cont => cont.contract 
+						cont => cont.contract
 							? (
-								this.newContract 
-									? this.contract.toLowerCase() === this.newContract.toLowerCase()
+								this.newContract && cont.contract
+									? cont.contract.toLowerCase() === this.newContract.toLowerCase()
 									: null
 								) 
 							: null

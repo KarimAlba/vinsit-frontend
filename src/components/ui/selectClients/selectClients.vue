@@ -12,7 +12,7 @@
 			:filterable="false"
 			:disabled="disabled"
 			:reduce="reduce"
-			v-model="inputVal"
+			:value="client"
 			:clearSearchOnBlur="() => clearSearchOnBlur"
 		>
 			<template #no-options="{ search }">
@@ -24,7 +24,7 @@
 
 <script>
 	import vSelect from "vue-select";
-	import { debounce } from "lodash";
+	import _ from "lodash";
 	import { BIconPlusSquare } from 'bootstrap-vue'
 
 	export default {
@@ -63,17 +63,19 @@
 			vSelect,
 			BIconPlusSquare,
 		},
-		computed: {
-			inputVal: {
-				get() {
-					console.log(this.value);
-					return this.value;
-				},
-				set(val) {
-					this.$emit("input", val);
-				},
-			},
-		},
+        watch: {
+            'value'() {
+                this.getClient(this.value);
+                window.setTimeout(() => {
+                    this.fetchClients(
+                        this.client ? this.client.name : '',
+                        null,
+                        this,
+                        (id) => id,
+                    );
+                }, 0);
+            },
+        },
 		methods: {
 			onSearchClients(search, loading) {
 				this.disabledBtn = true;
@@ -84,13 +86,22 @@
 					this.fetchClients(search, loading, this);
 				};
 			},
-			fetchClients: _.debounce((search, loading, vm) => {
+			fetchClients: _.debounce((search, loading, vm, callback) => {
 				vm.$api.clients.getClients({ search, limit: 100 }).then((response) => {
 					vm.clients = response.data.results;
-					loading(false);
+                    if (vm.clients.length && callback) {
+                        callback(vm.clients[0].id);
+                    }
+					loading ? loading(false) : null;
 				});
 			}, 500),
+            async getClient(id) {
+                await this.$api.clients.getClient(id).then((response) => {
+					this.client = response.data;
+				});
+            },
 			input(client) {
+                console.log('Client - ', client);
 				this.$emit("input", client);
 				this.disabledBtn = true;
 			},

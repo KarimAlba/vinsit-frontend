@@ -248,7 +248,7 @@ export default {
         { key: "recipient_full_name", label: "Получатель" },
         { key: "recipient_city.name", label: "Город получателя" },
         { key: "payer_counterparty.name", label: "Плательщик" },
-        { key: "contract", label: "Договор" },
+        { key: "contract.contract", label: "Договор" },
       ],
 
       orderStatus: [],

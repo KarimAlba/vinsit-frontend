@@ -5,8 +5,9 @@ export default function (instance) {
                 params: data,
             });
         },
-        getClient(id) {
-            return instance.get(`api/v1/clients/${id}/`);
+        async getClient(id) {
+            const res = await instance.get(`api/v1/clients/${id}/`);
+            return res;
         },
         deleteClient(id) {
             return instance.delete(`api/v1/clients/${id}/`);

@@ -45,7 +45,7 @@ export default class Instance {
 		// Add request/response interceptor
 		this.axiosIns.interceptors.response.use(
 			response => {
-                console.log(response);
+                // console.log(response);
 				const { config } = response
 				const originalRequest = config
 		
