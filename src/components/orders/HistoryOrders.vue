@@ -47,6 +47,9 @@
 					</template>
 				</p>
 			</template>
+            <template #cell(history_user)="data">
+				{{ data.item.history_user }}
+			</template>
 			<template #cell(history_date)="data">
 				{{ formatDate(data.item.history_date) }}
 			</template>
@@ -93,10 +96,15 @@
 				filter: "",
 				fields: [
 					{ key: "history_date", label: "Дата изменения" },
+					{ key: "history_user", label: "Пользователь" },
 					{ key: "history_content", label: "Информация" },
 				],
 				type: null,
 				types: [
+                    {
+						name: "Все",
+						key: "Все",
+					},
 					{
 						name: "По штрихкоду",
 						key: "Штрихкод",
@@ -109,9 +117,13 @@
 						name: "По городу отправителя",
 						key: "Город отправителя",
 					},
-					{
+                    {
 						name: "По городу плательщика",
 						key: "Город плательщика",
+					},
+					{
+						name: "По городу получателя",
+						key: "Город получателя",
 					},
 					{
 						name: "По контрагенту плательщика",
@@ -184,7 +196,7 @@
 		},
 		watch: {
 			type(newType, oldType) {
-				if (!newType) {
+				if (!newType || newType === 'Все') {
 					this.clearFilterHistory();
 					return;
 				};
@@ -239,7 +251,8 @@
 							valByKeyObj = this.fieldsForHistory[key],
 							oldValue = array[index][key],
 							newValue = array[index + 1][key],
-							history_date = array[index].history_date;
+							history_date = array[index].history_date,
+							history_user = array[index].history_user;
 
                             // console.log('oldValue - ', oldValue, 'newValue - ', newValue, 'key - ', key)
 							// history_date = array[index].status_changed_date;
@@ -276,8 +289,6 @@
                                         }
 										if (oldValue) {
                                             oldValue = response.data.find(c => c.id === oldValue).name;
-                                        } else {
-                                            oldValue = '-';
                                         }
 									})
 									.catch((error) => {})
@@ -292,7 +303,7 @@
                                     oldValue = response.data.name;
                                 });
 							};
-							arr.push({ valByKeyObj, oldValue, newValue, history_date });
+							arr.push({ valByKeyObj, oldValue, newValue, history_date, history_user });
 						}
 					});
 				}
@@ -306,10 +317,12 @@
 			},
 			filterHistoryArr(filter) {
 				this.clearFilterHistory();
-				this.history = this.history.filter(story => story.valByKeyObj === filter);
+				this.history = this.initialHistory.filter(story => story.valByKeyObj === filter);
+                this.totalRows = this.history.length;
 			},
 			clearFilterHistory() {
 				this.history = this.initialHistory;
+                this.totalRows = this.initialHistory.length;
 			},
 		},
 		mounted() {

@@ -20,17 +20,17 @@
 			<b-col lg="4" class="d-flex align-items-center auth-bg px-2 p-lg-5">
 				<b-col sm="8" md="6" lg="12" class="px-xl-2 mx-auto">
 					<b-card-title title-tag="h2" class="font-weight-bold mb-1">
-						Welcome to Vinsit! 👋
+						Добро пожаловать в Винсит-Директ! 👋
 					</b-card-title>
 					<b-card-text class="mb-2">
-						Please sign-in to your account and start the adventure
+						Пожалуйста выполните вход в аккаунт
 					</b-card-text>
 
 					<!-- form -->
 					<!-- <validation-observer ref="loginValidation"> -->
 					<b-form class="auth-login-form mt-2" @submit.prevent>
 						<!-- email -->
-						<b-form-group label="Login" label-for="login-email">
+						<b-form-group label="Логин" label-for="login-email">
 							<!-- <validation-provider
 							#default="{ errors }"
 							name="Email"
@@ -41,7 +41,7 @@
 								v-model="userEmail"
 								
 								name="login-email"
-								placeholder="John"
+								placeholder="Андрей"
 							/>
 							<!-- <small class="text-danger">{{ errors[0] }}</small> -->
 							<!-- </validation-provider> -->
@@ -50,10 +50,10 @@
 						<!-- forgot password -->
 						<b-form-group>
 							<div class="d-flex justify-content-between">
-								<label for="login-password">Password</label>
-								<b-link to="/forgotPassword">
+								<label for="login-password">Пароль</label>
+								<!-- <b-link to="/forgotPassword">
 									<small>Forgot Password?</small>
-								</b-link>
+								</b-link> -->
 							</div>
 							<!-- <validation-provider
 							#default="{ errors }"
@@ -85,7 +85,7 @@
 						</b-form-group>
 
 						<!-- checkbox -->
-						<b-form-group>
+						<!-- <b-form-group>
 							<b-form-checkbox
 								id="remember-me"
 								v-model="status"
@@ -93,7 +93,7 @@
 							>
 								Remember Me
 							</b-form-checkbox>
-						</b-form-group>
+						</b-form-group> -->
 
 						<!-- submit buttons -->
 						<b-button
@@ -102,25 +102,25 @@
 							block
 							@click="validationForm"
 						>
-							Sign in
+							Войти
 						</b-button>
 					</b-form>
 					<!-- </validation-observer> -->
 
-					<b-card-text class="text-center mt-2">
+					<!-- <b-card-text class="text-center mt-2">
 						<span>New on our platform? </span>
 						<b-link to="/registration">
 							<span>&nbsp;Create an account</span>	
 						</b-link>
-					</b-card-text>
+					</b-card-text> -->
 
 					<!-- divider -->
-					<div class="divider my-2">
+					<!-- <div class="divider my-2">
 						<div class="divider-text">or</div>
-					</div>
+					</div> -->
 
 					<!-- social buttons -->
-					<div class="auth-footer-btn d-flex justify-content-center">
+					<!-- <div class="auth-footer-btn d-flex justify-content-center">
 						<b-button variant="facebook" href="javascript:void(0)">
 							<feather-icon icon="FacebookIcon" />
 						</b-button>
@@ -133,7 +133,7 @@
 						<b-button variant="github" href="javascript:void(0)">
 							<feather-icon icon="GithubIcon" />
 						</b-button>
-					</div>
+					</div> -->
 				</b-col>
 			</b-col>
 			<!-- /Login-->
