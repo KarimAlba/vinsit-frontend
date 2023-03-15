@@ -12,8 +12,8 @@ export default {
             date_created_before: null,
             status: null,
 
-            sender__city: null,
-            recipient__city: null,
+            sender_city: null,
+            recipient_city: null,
 
             sender__counterparty__client_phones__phone_number: null,
             status_changed_date_after: null,
@@ -24,6 +24,10 @@ export default {
             is_overdue: null,
             mode: null,
             search: null,
+
+			// contract: null,
+			counterparty: null,
+			search_fields: [],
         },
         curPage: 1,
         countPerPage: 10,
@@ -127,10 +131,11 @@ export default {
                 date_created_before: null,
                 status: null,
 
-                sender__city: null,
-                recipient__city: null,
+                sender_city: null,
+                recipient_city: null,
 
-                sender__counterparty__client_phones__phone_number: null,
+				// sender client phone?
+                sender_counterparty_client_phones_phone_number: null,
                 status_changed_date_after: null,
                 status_changed_date_before: null,
                 recipient_has_passport: null,
@@ -139,6 +144,10 @@ export default {
                 is_overdue: null,
                 mode: null,
                 search: null,
+
+				counterparty: null,
+				// contract: null,
+				search_fields: [],
             }
         },
         resetPagination(state) {
@@ -154,20 +163,20 @@ export default {
     },
     actions: {
         fetchOrders({ commit, state }) {
-            commit('changeLoading', true)
-            commit('resetData')
+            commit('changeLoading', true);
+            commit('resetData');
 
             this._vm.$api.orders.getOrders({
                 ...state.filters,
                 offset: ((state.curPage - 1) * state.countPerPage),
                 limit: state.countPerPage
             }).then((response) => {
+				console.log('response - ', response);
                 commit('setOrders', response.data.results)
                 commit('setCount', response.data.count)
-            })
-                .finally(() => {
-                    commit('changeLoading', false)
-                });
+            }).finally(() => {
+				commit('changeLoading', false)
+			});
         },
         fetchOrder({ commit, state }, idOrder) {
             commit('changeLoading', true)
