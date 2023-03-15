@@ -95,7 +95,7 @@
 						</b-col>
 					</b-row>
 				</b-card-actions>
-				<b-card-actions title="Плательщик" actionCollapse>
+				<!-- <b-card-actions title="Плательщик" actionCollapse>
 					<b-row>
 						<b-col class="mb-1" cols="12" md="4">
 							<b-form-group label="Плательщик">
@@ -109,7 +109,6 @@
 						</b-col>
 						<b-col class="mb-1" cols="4">
 							<b-form-group label="Договор">
-								<!-- <b-form-input v-model="order.contract"/> -->
                                 <select-contracts
 									:reduce="(cont) => cont.id"
 									v-model="order.contract"
@@ -125,7 +124,8 @@
 							</b-form-group>
 						</b-col>
 					</b-row>
-				</b-card-actions>
+				</b-card-actions> -->
+                
 				<b-row>
 					<b-col cols="6">
 						<b-card-actions title="Отправитель" actionCollapse>
