@@ -1,75 +1,103 @@
 <template>
-  <div>
+  <b-overlay :show="loading" rounded="sm">
+    <filters type="reconciliation_act" />
+
     <b-card>
-      <b-row>
-        <b-col cols="12" md="4">
-          <b-form-group label="Фирма">
-            <v-select label="title" :options="arr" />
-          </b-form-group>
-        </b-col>
-        <b-col cols="12" md="4">
-          <b-form-group label="Клиент">
-            <v-select label="title" :options="arr" />
-          </b-form-group>
-        </b-col>
-        <b-col cols="12" md="4">
-          <b-form-group label="Период заказа">
-            <app-datepicker />
-          </b-form-group>
-        </b-col>
-        <b-col cols="12" md="4">
-          <b-form-group label="Режим сверки" v-slot="{ ariaDescribedby }">
-            <b-form-radio
-              class="mb-1"
-              :aria-describedby="ariaDescribedby"
-              value="A"
-              >Только по счетам</b-form-radio
+      <b-table :items="reconciliationActs" :fields="fields" striped responsive>
+        <template #cell(date_created)="data">
+          {{ formatDate(data.item.date_created) }}
+        </template>
+
+        <template #cell(pdf)="data">
+            <a
+                class="link"
+                style="color: #3d78b4;"
+                @click="handlePdfDownload($event, data.item.id, data.item.customer, data.item.date_created)"
             >
-            <b-form-radio :aria-describedby="ariaDescribedby" value="B"
-              >По всем заказам</b-form-radio
-            >
-          </b-form-group>
-        </b-col>
-        <b-col cols="12" md="4"> </b-col>
-        <b-col class="mt-1 d-flex justify-content-end" cols="12" md="12">
-          <b-button variant="primary"> Сформировать </b-button>
-        </b-col>
-      </b-row>
+                <feather-icon icon="DownloadIcon" size="16" />
+                Скачать
+            </a>
+        </template>
+      </b-table>
+
+      <b-pagination
+        v-if="showPagination"
+        :total-rows="count"
+        :per-page="perPage"
+        @change="changePage"
+        :value="curPage"
+        align="right"
+      ></b-pagination>
     </b-card>
-  </div>
+  </b-overlay>
 </template>
 
 <script>
-import {
-  BRow,
-  BCol,
-  BCard,
-  BButton,
-  BFormGroup,
-  BFormRadio,
-} from "bootstrap-vue";
-import vSelect from "vue-select";
-import AppDatepicker from "@/@core/components/app-datepicker/AppDatepicker";
+import { mapGetters, mapActions, mapMutations } from "vuex";
+
+import { BOverlay, BCard, BTable, BPagination } from "bootstrap-vue";
+import downloadPdf from '../../utils/downloadPdf';
+
+import Filters from "@/components/accounting/Filters";
 
 export default {
-  components: {
-    BRow,
-    BCol,
-    BCard,
-    BButton,
-    BFormGroup,
-    BFormRadio,
-    AppDatepicker,
-    vSelect,
-  },
   data() {
     return {
-      arr: [],
+      fields: [
+        { key: "id", label: "ID" },
+        { key: "customer", label: "ID Клиента" },
+        { key: "date_created", label: "Дата создания" },
+        { key: "pdf", label: "Документ" },
+      ],
     };
+  },
+  components: {
+    BOverlay,
+    BCard,
+    BTable,
+    BPagination,
+
+    Filters,
+  },
+  computed: {
+    ...mapGetters({
+      loading: "moduleReconciliationActs/getLoading",
+      count: "moduleReconciliationActs/getCount",
+      perPage: "moduleReconciliationActs/getCountPerPage",
+      curPage: "moduleReconciliationActs/getCurPage",
+      invoices: "moduleReconciliationActs/getReconciliationActs",
+    }),
+    showPagination() {
+      return Math.ceil(this.count / this.perPage) > 1;
+    },
+    urlAPI() {
+      return process.env.VUE_APP_API_URL;
+    },
+  },
+  methods: {
+    ...mapActions({
+      fetchInvoices: "moduleReconciliationActs/fetchReconciliationActs",
+    }),
+    ...mapMutations({
+      changeCurPage: "moduleReconciliationActs/changePage",
+    }),
+    async handlePdfDownload(event, id, customerId, date) {
+        event.preventDefault();
+        downloadPdf(this.linkToPDF(id), `Акт сверки взаиморасчетов-#${id}-client-#${customerId}-${date}.pdf`);
+    },
+    formatDate(date) {
+      return this.dayjs(date).format("DD.MM.YYYY");
+    },
+    linkToPDF(id) {
+      return `${this.urlAPI}/api/v1/reconciliation_act/${id}/generate_pdf/`;
+    },
+    changePage(page) {
+      this.changeCurPage(page);
+      this.fetchInvoices();
+    },
+  },
+  mounted() {
+    this.fetchInvoices();
   },
 };
 </script>
-
-<style lang="scss">
-@import "@core/scss/vue/libs/vue-select.scss";
-</style>

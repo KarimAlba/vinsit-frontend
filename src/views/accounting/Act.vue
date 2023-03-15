@@ -9,10 +9,14 @@
         </template>
 
         <template #cell(pdf)="data">
-          <a :href="linkToPDF(data.item.id)" target="_blank">
-            <feather-icon icon="DownloadIcon" size="16" />
-            Скачать</a
-          >
+            <a
+                class="link"
+                style="color: #3d78b4;"
+                @click="handlePdfDownload($event, data.item.id, data.item.customer, data.item.date_created)"
+            >
+                <feather-icon icon="DownloadIcon" size="16" />
+                Скачать
+            </a>
         </template>
       </b-table>
 
@@ -32,6 +36,7 @@
 import { mapGetters, mapActions, mapMutations } from "vuex";
 
 import { BOverlay, BCard, BTable, BPagination } from "bootstrap-vue";
+import downloadPdf from '../../utils/downloadPdf';
 
 import Filters from "@/components/accounting/Filters";
 
@@ -76,6 +81,10 @@ export default {
     ...mapMutations({
       changeCurPage: "moduleAccountingActs/changePage",
     }),
+    async handlePdfDownload(event, id, customerId, date) {
+        event.preventDefault();
+        downloadPdf(this.linkToPDF(id), `Акт-#${id}-client-#${customerId}-${date}.pdf`);
+    },
     formatDate(date) {
       return this.dayjs(date).format("DD.MM.YYYY");
     },

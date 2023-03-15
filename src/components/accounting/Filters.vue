@@ -9,6 +9,7 @@
 								<select-clients
 									:reduce="(client) => client.id"
 									v-model="form.client"
+                                    :disabledAddBtn="true"
 								/>
 							</b-form-group>
 						</validation-provider>
@@ -22,7 +23,30 @@
 							</b-form-group>
 						</validation-provider>
 					</b-col>
-					<b-col class="mt-1 d-flex justify-content-end" cols="12" md="12">
+				</b-row>
+                <b-row v-if="type === 'reconciliation_act'">
+                    <b-col cols="12" md="4">
+                        <b-form-group label="Режим сверки" v-slot="{ ariaDescribedby }">
+                            <b-form-radio
+                                class="mb-1"
+                                :aria-describedby="ariaDescribedby"
+                                value="C"
+                                v-model="form.type"
+                            >
+                                Только по счетам
+                            </b-form-radio>
+                            <b-form-radio
+                                :aria-describedby="ariaDescribedby"
+                                value="O"
+                                v-model="form.type"
+                            >
+                                По всем заказам
+                            </b-form-radio>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
+                <b-row>
+                    <b-col class="mt-1 d-flex justify-content-end" cols="12" md="12">
 						<b-button
 							:disabled="invalid"
 							variant="primary"
@@ -31,7 +55,7 @@
 							Сформировать
 						</b-button>
 					</b-col>
-				</b-row>
+                </b-row>
 			</validation-observer>
 		</b-card>
 	</div>
@@ -58,7 +82,7 @@ export default {
 		type: {
 			type: String,
 			validator: function (value) {
-				return ["payment", "invoice", "act", "upd"].includes(value);
+				return ["payment", "invoice", "act", "upd", "reconciliation-act"].includes(value);
 			},
 		},
 	},
@@ -85,6 +109,8 @@ export default {
 				client: null,
 				start_date: null,
 				end_date: null,
+                is_consider_saldo: false,
+                type: 'O',
 			},
 		};
 	},
@@ -124,7 +150,32 @@ export default {
 					this.form.is_act = false;
 					this.form.is_upd = true;
 				break;
+                // case "reconciliation_act":
+				// 	this.form.is_payment_check = false;
+				// 	this.form.is_invoice = false;
+				// 	this.form.is_act = false;
+				// 	this.form.is_upd = false;
+				// break;
 			}
+
+            if (this.type === 'reconciliation_act') {
+                this.$api.reconciliationActs.createReconciliationAct(this.form).then((response) => {
+                    if (response.status > 203) {
+                        return;
+                    }
+                    this.$toast({
+                        component: ToastificationContent,
+                        props: {
+                            title: "Успешно",
+                            text: "Документ сформирован",
+                            icon: "CheckCircleIcon",
+                            variant: "success",
+                        },
+                    });
+                    this.$router.go();
+                });
+                return;
+            }
 
 			this.$api.payDoc.createPaymentDocuments(this.form).then((response) => {
 				this.$toast({
@@ -136,7 +187,7 @@ export default {
 						variant: "success",
 					},
 				});
-			this.$router.go();
+			    this.$router.go();
 			});
 		},
 	},

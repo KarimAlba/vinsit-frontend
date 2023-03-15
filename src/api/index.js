@@ -6,6 +6,7 @@ import accountingUpdsModule from "./accounting-upds";
 import citiesModule from "./cities";
 import clientsModule from "./clients";
 import invoicesModule from "./invoices";
+import reconciliationActsModule from "./reconciliation-acts";
 import ordersModule from "./orders";
 import orderStatusModule from "./orderStatus";
 import productsModule from "./products";
@@ -21,6 +22,7 @@ export default {
     cities: citiesModule(instance),
     clients: clientsModule(instance),
     invoices: invoicesModule(instance),
+    reconciliationActs: reconciliationActsModule(instance),
     orders: ordersModule(instance),
     orderStatus: orderStatusModule(instance),
     products: productsModule(instance),
