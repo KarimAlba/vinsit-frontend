@@ -125,13 +125,20 @@
                             ></b-form-checkbox>
                         </b-col>
                         <b-col class=" border border-secondary px-0" cols="8">
-                            <b-form-input
+                            <!-- <b-form-input
                                 v-model="phone.phone_number"
                                 :state="errors.length > 0 ? false : null"
                                 :disabled="readOnly"
                                 v-maska
                                 placeholder="+71234567890"
                                 data-maska="+7##########"
+                                @blur="changeOrder(phones, 'sender_phones')"
+                            /> -->
+                            <b-form-input
+                                v-model="phone.phone_number"
+                                :state="errors.length > 0 ? false : null"
+                                :disabled="readOnly"
+                                type="tel"
                                 @blur="changeOrder(phones, 'sender_phones')"
                             />
                         </b-col>
