@@ -5,7 +5,7 @@
 
       <b-tabs>
         <b-tab active title="Форма заказа">
-          <update-main v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" />
+          <update-main v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" @updateMain="getOrder" />
           <!-- <update-payer v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" /> -->
           <b-row>
             <b-col colls="6">

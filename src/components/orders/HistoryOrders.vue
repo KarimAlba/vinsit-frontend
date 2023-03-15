@@ -276,6 +276,12 @@
 							} else {
                                 newValue ? null : newValue = '-';
                             }
+
+							if (key === 'delivery_date') {
+								const value = array[index][key];
+								oldValue = newValue;
+								newValue = value;
+							}
 							// if (key === "status") {
 								// if (oldValue) oldValue = this.orderStatus.find( (x) => x.id === oldValue).status;
 								// newValue = this.orderStatus.find((x) => x.id === newValue).status;

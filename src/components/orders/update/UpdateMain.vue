@@ -78,6 +78,7 @@
                     label="date"
                     :reduce="(status) => status.id"
                     v-model="order.delivery_date"
+					@input="changeOrder($event, 'delivery_date')"
                 />
             </b-form-group>
         </b-col>
@@ -173,44 +174,45 @@ export default {
       orderType: "moduleOrders/getOrderType",
     }),
   },
-  methods: {
-    changeOrder(newVal, key) {
-      let payload = {};
-      payload[key] = newVal;
+	methods: {
+		changeOrder(newVal, key) {
+			let payload = {};
+			payload[key] = newVal;
 
-      this.$api.orders.updateOrder(this.order.id, payload).then((response) => {
-        if (response.status !== 400) {
-          this.$toast({
-            component: ToastificationContent,
-            props: {
-              title: "Успешно",
-              text: "Информация изменена",
-              icon: "CheckCircleIcon",
-              variant: "success",
-            },
-          });
-        } else {
-          this.$toast({
-            component: ToastificationContent,
-            props: {
-              title: "Ошибка",
-              text: "Не удалось обновить",
-              icon: "XIcon",
-              variant: "danger",
-            },
-          });
-        }
-      });
-    },
-    fetchStatus() {
-      this.$api.orderStatus.getOrderStatusList().then((response) => {
-        this.orderStatus = response.data.results;
-      });
-    },
-  },
-  mounted() {
-    this.fetchStatus();
-  },
+			this.$api.orders.updateOrder(this.order.id, payload).then((response) => {
+				if (response.status !== 400) {
+					this.$emit('updateMain');
+					this.$toast({
+						component: ToastificationContent,
+						props: {
+						title: "Успешно",
+						text: "Информация изменена",
+						icon: "CheckCircleIcon",
+						variant: "success",
+						},
+					});
+				} else {
+					this.$toast({
+						component: ToastificationContent,
+						props: {
+						title: "Ошибка",
+						text: "Не удалось обновить",
+						icon: "XIcon",
+						variant: "danger",
+				},
+				});
+				}
+			});
+		},
+		fetchStatus() {
+		this.$api.orderStatus.getOrderStatusList().then((response) => {
+			this.orderStatus = response.data.results;
+		});
+		},
+	},
+	mounted() {
+		this.fetchStatus();
+	},
 };
 </script>
 
