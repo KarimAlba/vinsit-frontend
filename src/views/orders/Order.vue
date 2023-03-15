@@ -6,7 +6,7 @@
       <b-tabs>
         <b-tab active title="Форма заказа">
           <update-main v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" />
-          <update-payer v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" />
+          <!-- <update-payer v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" /> -->
           <b-row>
             <b-col colls="6">
               <update-sender v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" @updateSender="getOrder" />
@@ -15,6 +15,7 @@
               <update-recipient v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" @updateRecipient="getOrder" />
             </b-col>
           </b-row>
+          <update-payment v-if="editableOrder" :order="editableOrder" :readOnly="readOnly" />
           <update-places
             v-if="editableOrder"
             :readOnly="readOnly"
@@ -181,6 +182,7 @@ import UpdateSender from "@/components/orders/update/UpdateSender.vue";
 import UpdateRecipient from "@/components/orders/update/UpdateRecipient.vue";
 import UpdateProducts from "@/components/orders/update/UpdateProducts.vue";
 import UpdatePlaces from "@/components/orders/update/UpdatePlaces.vue";
+import UpdatePayment from "@/components/orders/update/UpdatePayment.vue";
 
 import HistoryOrders from "@/components/orders/HistoryOrders.vue";
 
@@ -231,6 +233,7 @@ export default {
     UpdateRecipient,
     UpdateProducts,
     UpdatePlaces,
+    UpdatePayment,
 
     HistoryOrders,
     vSelect,
