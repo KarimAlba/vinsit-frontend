@@ -223,12 +223,17 @@
 											:key="i"
 										>
 											<b-col class=" border border-secondary px-0" cols="8">
-												<b-form-input
+												<!-- <b-form-input
 													v-model="phone.phone_number"
 													:state="errors.length > 0 ? false : null"
 													v-maska
 													placeholder="+71234567890"
 													data-maska="+7##########"
+												/> -->
+												<b-form-input
+													v-model="phone.phone_number"
+													:state="errors.length > 0 ? false : null"
+													type="tel"
 												/>
 											</b-col>
 											<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('sender', i)">
@@ -337,12 +342,17 @@
 											:key="i"
 										>
 											<b-col class=" border border-secondary px-0" cols="8">
-												<b-form-input
+												<!-- <b-form-input
 													v-model="phone.phone_number"
 													:state="errors.length > 0 ? false : null"
 													v-maska
 													placeholder="+71234567890"
 													data-maska="+7##########"
+												/> -->
+												<b-form-input
+													v-model="phone.phone_number"
+													:state="errors.length > 0 ? false : null"
+													type="tel"
 												/>
 											</b-col>
 											<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('recipient', i)">
@@ -356,6 +366,325 @@
 						</b-card-actions>
 					</b-col>
 				</b-row>
+				<b-card-actions title="Информация об оплате" actionCollapse>
+					<b-row>
+						<b-col cols="10" class="px-2">
+							<b-form-group>
+								<b-row class="d-flex justify-content-between">
+									<b-form-radio
+										v-model="order.payment_type"
+										name="some-radios"
+										:value="'SC'"
+									>
+										Отправитель нал
+									</b-form-radio>
+									<b-form-radio
+										v-model="order.payment_type"
+										name="some-radios"
+										:value="'RC'"
+									>
+										Получатель нал
+									</b-form-radio>
+									<b-form-radio
+										v-model="order.payment_type"
+										name="some-radios"
+										:value="'CS'"
+									>
+										По договору отправителя
+									</b-form-radio>
+									<b-form-radio
+										v-model="order.payment_type"
+										name="some-radios"
+										:value="'CR'"
+									>
+										По договору получателя
+									</b-form-radio>
+								</b-row>
+							</b-form-group>
+						</b-col>
+					</b-row>
+					<b-row>
+						<b-col class="my-1" cols="12" md="6">
+							<b-form-group label="Наименование контрагента *">
+							<select-clients
+								:reduce="(client) => client.id"
+								:disabled="true"
+								:value="order.payer_counterparty"
+							/>
+							</b-form-group>
+						</b-col>
+						<b-col class="my-1" cols="12" md="6" v-show="order.payment_type == 'CS' || order.payment_type == 'CR'">
+							<b-form-group label="Договор">
+							<!-- <b-form-input v-model="order.contract" :disabled="readOnly"></b-form-input> -->
+								<select-contracts
+									:reduce="(cont) => cont.id"
+									:value="order.contract"
+									:payerId="order.payer_counterparty"
+									@input="changeOrder($event, 'contract')"
+									@createContract="handleContractCreation"
+								/>
+							</b-form-group>
+						</b-col>
+					</b-row>
+					<!-- <b-row class="">
+						<b-col class="text-start py-1" cols="4">
+							Услуга
+						</b-col>
+						<b-col class="text-start py-1" cols="4">
+							Срок доставки, дни
+						</b-col>
+						<b-col class="text-start py-1" cols="4">
+							Стоимость, руб
+						</b-col>
+					</b-row>
+					<b-row 
+						class="service-table"
+						v-for="(service, i) in services"
+						:key="i"
+					>
+						<b-col  class="py-1" cols="4">
+							{{service.name}}
+						</b-col>
+						<b-col class="py-1" cols="4">
+							{{service.date}}
+						</b-col>
+						<b-col class="py-1" cols="4">
+							{{service.price}}
+						</b-col>
+					</b-row> -->
+					<b-row>
+						<b-col cols="5" class="mt-2" @click="() => additionalService = additionalService ? false : true">
+							<b-icon-chevron-up v-if="!additionalService" variant="primary"/>
+							<b-icon-chevron-down v-if="additionalService" variant="primary"/>
+							<span class="header-additional-service">Дополнительные услуги</span>
+						</b-col>
+					</b-row>
+					<b-row v-if="additionalService">
+						<b-col>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Дополнительный сбор на объявленную стоимость
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Опасный груз
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Ожидание более 15 минут у отправителя
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Ожидание более 15 минут у получателя
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Хранение на складе
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Прочее
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Повторная поездка
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Аренда курьера
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Скан документов
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Подъем на этаж ручной
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Подъем на этаж лифтом
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Уведомление о выдаче заказа на доставку
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+							<b-row class="service">
+								<b-col cols="12" md="8">
+									<b-form-checkbox
+										:id="``"
+										:name="``"
+									>
+										Упаковка
+									</b-form-checkbox>
+								</b-col>
+								<b-col cols="12" md="4">
+									<b-form-group>
+										<b-form-input
+											type="number"
+										/>
+									</b-form-group>
+								</b-col>
+							</b-row>
+						</b-col>
+					</b-row>
+				</b-card-actions>
 				<b-card-actions title="Информация о грузе" actionCollapse>
 					<b-table
 						:items="order.places"
@@ -686,6 +1015,8 @@
 		BFormDatepicker,
 		BIcon,
 		BIconTrash,
+		BIconChevronUp,
+		BIconChevronDown,
 	} from "bootstrap-vue";
 	import BCardActions from "@/@core/components/b-card-actions/BCardActions.vue";
 	import vSelect from "vue-select";
@@ -714,6 +1045,8 @@
 			BFormDatepicker,
 			BIcon,
 			BIconTrash,
+			BIconChevronUp,
+			BIconChevronDown,
 
 			vSelect,
 			SelectCities,
@@ -723,6 +1056,7 @@
 		directives: { maska: vMaska, "b-tooltip": VBTooltip },
 		data() {
 			return {
+            	additionalService: true,
 				orderPlacesFields: [
 					{ key: "barcode", label: "Штрих-код" },
 					{ key: "place_no", label: "№ места" },
@@ -769,6 +1103,8 @@
 					comment: "",
 					delivery_date: '',
                     contract: null,
+					payment_type: 'SC',
+                    payer_counterparty: null,
                     sender_counterparty: null,
                     sender_counterparty_type: 'E',
 					sender_phones: [{}],
@@ -823,6 +1159,9 @@
 				if (Number.isFinite(this.order.recipient_counterparty)) {
 					const id = this.order.recipient_counterparty;
 					this.addCounterparty(id, 'recipient');
+					if (this.order.payment_type == 'RC' || this.order.payment_type == 'CR') {
+						this.order.payer_counterparty = this.order.recipient_counterparty
+					}
 					return;
 				};
 			},
@@ -830,6 +1169,9 @@
 				if (Number.isFinite(this.order.sender_counterparty)) {
 					const id = this.order.sender_counterparty;
 					this.addCounterparty(id, 'sender');
+					if (this.order.payment_type == 'SC' || this.order.payment_type == 'CS') {
+						this.order.payer_counterparty = this.order.sender_counterparty
+					}
 					return;
 				};	
 			},
@@ -871,6 +1213,14 @@
 			'order.sender_counterparty_type'() {
 				this.newUser.type = this.order.sender_counterparty_type;
 			},
+			'order.payment_type' () {
+				this.order.payer_counterparty = 
+					(this.order.payment_type == 'SC' || this.order.payment_type == 'CS') 
+						?
+						this.order.sender_counterparty
+						:
+						this.order.recipient_counterparty
+			}
 		},
 		computed: {
 			...mapGetters({
@@ -1121,4 +1471,43 @@
 		border: 2px solid red; 
 		border-radius: 4px;
 	};
+
+	.service {
+		border-bottom: 1px solid #E7E9EB;
+
+		
+		.form-group {
+			margin-top: 1rem;
+		}
+
+		div {
+			display: flex;
+			align-items: center;
+		}
+
+		.form-group {
+			width: 100%;
+		}
+
+	}
+
+
+	.additional-service {
+		.card-header {
+			justify-content: start;
+			flex-direction: row-reverse;
+		}
+	}
+
+	.header-additional-service {
+		margin-left: 5px;
+		color: #3D78B4;
+		font-size: 14px;
+		text-decoration: underline;
+	}
+
+	.service-table:nth-child(2n - 1) {
+		background: #0B1F3508;
+	;
+	}
 </style>

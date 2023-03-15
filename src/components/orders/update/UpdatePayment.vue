@@ -5,30 +5,30 @@
             <b-form-group>
                 <b-row class="d-flex justify-content-between">
                     <b-form-radio
-                        v-model="selected"
+                        v-model="order.payment_type"
                         name="some-radios"
-                        :value="1"
+                        :value="'SC'"
                     >
                         Отправитель нал
                     </b-form-radio>
                     <b-form-radio
-                        v-model="selected"
+                        v-model="order.payment_type"
                         name="some-radios"
-                        :value="2"
+                        :value="'RC'"
                     >
                         Получатель нал
                     </b-form-radio>
                     <b-form-radio
-                        v-model="selected"
+                        v-model="order.payment_type"
                         name="some-radios"
-                        :value="3"
+                        :value="'CS'"
                     >
                         По договору отправителя
                     </b-form-radio>
                     <b-form-radio
-                        v-model="selected"
+                        v-model="order.payment_type"
                         name="some-radios"
-                        :value="4"
+                        :value="'CR'"
                     >
                         По договору получателя
                     </b-form-radio>
@@ -46,7 +46,7 @@
             />
             </b-form-group>
         </b-col>
-        <b-col class="my-1" cols="12" md="6" v-show="selected > 2">
+        <b-col class="my-1" cols="12" md="6" v-show="order.payment_type == 'CS' || order.payment_type == 'CR'">
             <b-form-group label="Договор">
             <!-- <b-form-input v-model="order.contract" :disabled="readOnly"></b-form-input> -->
                 <select-contracts
@@ -418,7 +418,6 @@ export default {
                     price: '-'
                 }
             ],
-            selected: 1,
         };
     },
     watch: {
@@ -426,15 +425,16 @@ export default {
             console.log(this.order.payer_counterparty);
             this.payer = this.order.payer_counterparty;
         },
-        'selected'() {
-            if (this.selected % 2) {
+        'order.payment_type'() {
+            this.changeOrder(this.order.payment_type, 'payment_type');
+            if (this.order.payment_type == 'SC' || this.order.payment_type == 'CS') {
                 this.changeOrder(this.order.sender_counterparty, 'payer_counterparty')
             } else {
                 this.changeOrder(this.order.recipient_counterparty, 'payer_counterparty')
             }
         },
         'order.sender_counterparty'() {
-            if (this.selected % 2) {
+            if (this.order.payment_type == 'SC' || this.order.payment_type == 'CS') {
                 this.changeOrder(this.order.sender_counterparty, 'payer_counterparty')
             } else {
                 this.changeOrder(this.order.recipient_counterparty, 'payer_counterparty')
