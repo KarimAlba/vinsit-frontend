@@ -5,6 +5,7 @@
             <b-form-group>
                 <b-row class="d-flex justify-content-between">
                     <b-form-radio
+                        id="SC"
                         v-model="order.payment_type"
                         name="some-radios"
                         :value="'SC'"
@@ -12,6 +13,7 @@
                         Отправитель нал
                     </b-form-radio>
                     <b-form-radio
+                        id="RC"
                         v-model="order.payment_type"
                         name="some-radios"
                         :value="'RC'"
@@ -19,6 +21,7 @@
                         Получатель нал
                     </b-form-radio>
                     <b-form-radio
+                        id="CS"
                         v-model="order.payment_type"
                         name="some-radios"
                         :value="'CS'"
@@ -26,6 +29,7 @@
                         По договору отправителя
                     </b-form-radio>
                     <b-form-radio
+                        id="CR"
                         v-model="order.payment_type"
                         name="some-radios"
                         :value="'CR'"
@@ -46,7 +50,7 @@
             />
             </b-form-group>
         </b-col>
-        <b-col class="my-1" cols="12" md="6" v-show="order.payment_type == 'CS' || order.payment_type == 'CR'">
+        <b-col class="my-1" cols="12" md="6" v-show="order.payment_type === 'CS' || order.payment_type === 'CR'">
             <b-form-group label="Договор">
             <!-- <b-form-input v-model="order.contract" :disabled="readOnly"></b-form-input> -->
                 <select-contracts
@@ -196,29 +200,29 @@ export default {
     },
     watch: {
         'order.payer_counterparty'() {
-            console.log(this.order.payer_counterparty);
-            this.payer = this.order.payer_counterparty;
+            // this.payer = this.order.payer_counterparty;
         },
         'order.payment_type'() {
-            this.changeOrder(this.order.payment_type, 'payment_type');
+            if (!this.initialized) return;
+            setTimeout(() => this.changeOrder(this.order.payment_type, 'payment_type'), 1000);
             if (this.order.payment_type[0] !== 'C') {
                 this.changeOrder(null, 'contract');
             }
             if (this.order.payment_type === 'SC' || this.order.payment_type === 'CS') {
-                this.changeOrder(this.order.sender_counterparty, 'payer_counterparty')
+                this.changeOrder(this.order.sender_counterparty, 'payer_counterparty');
             } else {
-                this.changeOrder(this.order.recipient_counterparty, 'payer_counterparty')
+                this.changeOrder(this.order.recipient_counterparty, 'payer_counterparty');
             }
         },
         'order.sender_counterparty'() {
             if (this.order.payment_type === 'SC' || this.order.payment_type === 'CS') {
-                this.changeOrder(this.order.sender_counterparty, 'payer_counterparty')
-            } else {
-                this.changeOrder(this.order.recipient_counterparty, 'payer_counterparty')
+                this.changeOrder(this.order.sender_counterparty, 'payer_counterparty');
             }
         },
         'order.recipient_counterparty'() {
-            this.recipient_counterparty = this.order.recipient_counterparty;
+            if (this.order.payment_type === 'RC' || this.order.payment_type === 'CR') {
+                this.changeOrder(this.order.recipient_counterparty, 'payer_counterparty');
+            }
         },
         'order.order_services'() {
             if (this.order.order_services && !this.orderServices.length && !this.initialized) {
@@ -242,7 +246,6 @@ export default {
         },
         'orderServices': {
             handler() {
-                console.log(this.orderServices);
                 if (!this.initialized) return;
                 const body = this.orderServices.filter(orderService => orderService.included).map(orderService => ({
                     service: orderService.id,
@@ -260,9 +263,6 @@ export default {
         changeOrder(newVal, key) {
             let payload = {};
             payload[key] = newVal;
-
-            console.log('newVal - ', newVal);
-            console.log('key - ', key);
 
             this.$api.orders.updateOrder(this.order.id, payload).then((response) => {
                 if (response.status !== 400) {
@@ -283,6 +283,8 @@ export default {
                                 payer_city: response.data.city,
                             });
                         });
+                    } else if (key === 'payment_type') {
+                        // nothing to change
                     } else {
                         this.setEditableOrder({
                             ...this.order,
@@ -331,12 +333,10 @@ export default {
         },
         checkService(serviceId) {
             const serviceIndex = this.order?.order_services.findIndex(serv => serv.service === serviceId);
-            console.log('serviceIndex tut - ', serviceIndex)
             return serviceIndex !== -1 ? true : false;
         },
         handleOrderService(service) {
             const serviceIndex = this.order.order_services?.findIndex(item => item.service === service.service);
-            console.log('serviceIndex - ', serviceIndex)
             if (serviceIndex === -1) {
                 this.order.order_services.push(service);
                 this.changeOrder(this.order.order_services,'order_services');
@@ -348,7 +348,7 @@ export default {
     },
     mounted() {
         this.addServicesList();
-    },
+    }
 };
 </script>
 
