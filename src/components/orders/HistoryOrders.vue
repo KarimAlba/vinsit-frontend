@@ -273,7 +273,11 @@
 							) {
                                 if (oldValue) oldValue = this.clientType.find((x) => x.id === oldValue).title;
                                 newValue = this.clientType.find((x) => x.id === newValue).title;
-							} else {
+							} else if (key === 'status') {
+                                const currentValue = oldValue;
+                                oldValue = newValue;
+                                newValue = currentValue;
+                            } else {
                                 newValue ? null : newValue = '-';
                             }
 

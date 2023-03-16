@@ -461,24 +461,27 @@
 					</b-row>
 					<b-row v-if="additionalService">
 						<b-col>
-							<b-row class="service">
+							<b-row class="service"  v-for="(service) in services" :key="service.id">
 								<b-col cols="12" md="8">
 									<b-form-checkbox
-										:id="``"
-										:name="``"
+                                        :id="service + service.id + ''"
+                                        :name="service.name"
+                                        @change="handleOrderService(service)"
 									>
-										Дополнительный сбор на объявленную стоимость
+										{{service.name}}
 									</b-form-checkbox>
 								</b-col>
 								<b-col cols="12" md="4">
 									<b-form-group>
 										<b-form-input
 											type="number"
+                                            :id="service.price + service.id + ''"
+                                            @input="handleOrderServicePrice($event, service)"
 										/>
 									</b-form-group>
 								</b-col>
 							</b-row>
-							<b-row class="service">
+							<!-- <b-row class="service">
 								<b-col cols="12" md="8">
 									<b-form-checkbox
 										:id="``"
@@ -681,7 +684,7 @@
 										/>
 									</b-form-group>
 								</b-col>
-							</b-row>
+							</b-row> -->
 						</b-col>
 					</b-row>
 				</b-card-actions>
@@ -1056,6 +1059,7 @@
 		directives: { maska: vMaska, "b-tooltip": VBTooltip },
 		data() {
 			return {
+                services: [],
             	additionalService: true,
 				orderPlacesFields: [
 					{ key: "barcode", label: "Штрих-код" },
@@ -1122,6 +1126,7 @@
                     recipient_passport_no: '',
 					places: [],
 					products: [],
+                    order_services: [],
 				},
 				clients: [],
 				products: [],
@@ -1220,7 +1225,7 @@
 						this.order.sender_counterparty
 						:
 						this.order.recipient_counterparty
-			}
+			},
 		},
 		computed: {
 			...mapGetters({
@@ -1318,6 +1323,24 @@
 			},
 			addProduct() {
 				this.order.products.push({});
+			},
+            handleOrderService(currentService) {
+                console.log('currentService - ', currentService)
+                const serviceIndex = this.order.order_services.findIndex(serv => serv.service === currentService.id);
+                if (serviceIndex === -1) {
+                    const newService = {
+                        service: currentService.id,
+                        price: null,
+                    };
+                    this.order.order_services.push(newService);
+                    return;
+                }
+                this.order.order_services.splice(serviceIndex, 1);
+			},
+            handleOrderServicePrice(event, currentService) {
+                const serviceIndex = this.order.order_services.findIndex(serv => serv.service === currentService.id);
+                if (serviceIndex === -1) return;
+                this.order.order_services[serviceIndex].price = +event;
 			},
 			deleteProduct(id) {
 				let inx = this.order.products.findIndex((product) => product.place_no === id);
@@ -1435,9 +1458,19 @@
                         this.order.contract = response.data.id
                     })
             },
+            addServicesList() {
+                this.$api.services.getServices(10, 0)
+                    .then(response => {
+                        if (response.status > 203) {
+                            return;
+                        }
+                        this.services = response.data.results;
+                    })
+            },
 		},
 		mounted() {
 			this.fetchStatus();
+            this.addServicesList();
 		},
 	};
 </script>
