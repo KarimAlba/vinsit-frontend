@@ -12,7 +12,7 @@
             <a
                 class="link"
                 style="color: #3d78b4;"
-                @click="handlePdfDownload($event, data.item.id, data.item.customer, data.item.date_created)"
+                @click="handlePdfDownload($event, data.item.id, data.item.client, data.item.date_created)"
             >
                 <feather-icon icon="DownloadIcon" size="16" />
                 Скачать
@@ -45,7 +45,7 @@ export default {
     return {
       fields: [
         { key: "id", label: "ID" },
-        { key: "customer", label: "ID Клиента" },
+        { key: "client", label: "ID Клиента" },
         { key: "date_created", label: "Дата создания" },
         { key: "pdf", label: "Документ" },
       ],
@@ -65,7 +65,7 @@ export default {
       count: "moduleReconciliationActs/getCount",
       perPage: "moduleReconciliationActs/getCountPerPage",
       curPage: "moduleReconciliationActs/getCurPage",
-      invoices: "moduleReconciliationActs/getReconciliationActs",
+      reconciliationActs: "moduleReconciliationActs/getReconciliationActs",
     }),
     showPagination() {
       return Math.ceil(this.count / this.perPage) > 1;
@@ -81,9 +81,9 @@ export default {
     ...mapMutations({
       changeCurPage: "moduleReconciliationActs/changePage",
     }),
-    async handlePdfDownload(event, id, customerId, date) {
+    async handlePdfDownload(event, id, clientId, date) {
         event.preventDefault();
-        downloadPdf(this.linkToPDF(id), `Акт сверки взаиморасчетов-#${id}-client-#${customerId}-${date}.pdf`);
+        downloadPdf(this.linkToPDF(id), `Акт сверки взаиморасчетов-#${id}-client-#${clientId}-${date}.pdf`);
     },
     formatDate(date) {
       return this.dayjs(date).format("DD.MM.YYYY");

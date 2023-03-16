@@ -93,251 +93,39 @@
             <span class="header-additional-service">Дополнительные услуги</span>
         </b-col>
     </b-row>
-    <b-row v-if="additionalService">
+    <b-row v-if="additionalService && orderServices.length">
         <b-col>
-            <b-row class="service">
+            <!-- <payment-service
+                v-for="service in orderServices"
+                :key="service.id"
+                :orderPaymentService="service"
+            /> -->
+            <b-row class="service"  v-for="(service, index) in orderServices" :key="orderServices[index].id">
                 <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
+                    <!-- @change="handleOrderService(service)"
+                    :checked="checkService(service.service)" -->
+                    <input
+                        type="checkbox"
+                        :name="service.name"
+                        :id="String(service.id)"
+                        v-model="service.included"
+                        class="service-checkbox"
                     >
-                        Дополнительный сбор на объявленную стоимость
-                    </b-form-checkbox>
+                    <span class="service-name">{{ service.name }}</span>
+                    <!-- <b-form-checkbox
+                        :id="String(orderServices[index].id)"
+                        :name="orderServices[index].name"
+                        v-model="orderServices[index].included"
+                    >
+                        {{orderServices[index].name}}
+                    </b-form-checkbox> -->
                 </b-col>
                 <b-col cols="12" md="4">
                     <b-form-group>
                         <b-form-input
                             type="number"
-                            :disabled="readOnly"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-row class="service">
-                <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
-                    >
-                        Опасный груз
-                    </b-form-checkbox>
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            :disabled="readOnly"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-row class="service">
-                <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
-                    >
-                        Ожидание более 15 минут у отправителя
-                    </b-form-checkbox>
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            :disabled="readOnly"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-row class="service">
-                <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
-                    >
-                        Ожидание более 15 минут у получателя
-                    </b-form-checkbox>
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            :disabled="readOnly"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-row class="service">
-                <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
-                    >
-                        Хранение на складе
-                    </b-form-checkbox>
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            :disabled="readOnly"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-row class="service">
-                <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
-                    >
-                        Прочее
-                    </b-form-checkbox>
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            :disabled="readOnly"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-row class="service">
-                <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
-                    >
-                        Повторная поездка
-                    </b-form-checkbox>
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            :disabled="readOnly"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-row class="service">
-                <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
-                    >
-                        Аренда курьера
-                    </b-form-checkbox>
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            :disabled="readOnly"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-row class="service">
-                <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
-                    >
-                        Скан документов
-                    </b-form-checkbox>
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            :disabled="readOnly"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-row class="service">
-                <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
-                    >
-                        Подъем на этаж ручной
-                    </b-form-checkbox>
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            :disabled="readOnly"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-row class="service">
-                <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
-                    >
-                        Подъем на этаж лифтом
-                    </b-form-checkbox>
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            :disabled="readOnly"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-row class="service">
-                <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
-                    >
-                        Уведомление о выдаче заказа на доставку
-                    </b-form-checkbox>
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            :disabled="readOnly"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-            <b-row class="service">
-                <b-col cols="12" md="8">
-                    <b-form-checkbox
-                        :id="``"
-                        :name="``"
-                        :disabled="readOnly"
-                    >
-                        Упаковка
-                    </b-form-checkbox>
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            :disabled="readOnly"
+                            v-model="orderServices[index].price"
+                            debounce="500"
                         />
                     </b-form-group>
                 </b-col>
@@ -401,23 +189,9 @@ export default {
     data() {
         return {
             additionalService: true,
-            services: [
-                {
-                    name: '-',
-                    date: '-',
-                    price: '-'
-                },
-                {
-                    name: '-',
-                    date: '-',
-                    price: '-'
-                },
-                {
-                    name: '-',
-                    date: '-',
-                    price: '-'
-                }
-            ],
+            services: [],
+            orderServices: [],
+            initialized: false,
         };
     },
     watch: {
@@ -427,14 +201,17 @@ export default {
         },
         'order.payment_type'() {
             this.changeOrder(this.order.payment_type, 'payment_type');
-            if (this.order.payment_type == 'SC' || this.order.payment_type == 'CS') {
+            if (this.order.payment_type[0] !== 'C') {
+                this.changeOrder(null, 'contract');
+            }
+            if (this.order.payment_type === 'SC' || this.order.payment_type === 'CS') {
                 this.changeOrder(this.order.sender_counterparty, 'payer_counterparty')
             } else {
                 this.changeOrder(this.order.recipient_counterparty, 'payer_counterparty')
             }
         },
         'order.sender_counterparty'() {
-            if (this.order.payment_type == 'SC' || this.order.payment_type == 'CS') {
+            if (this.order.payment_type === 'SC' || this.order.payment_type === 'CS') {
                 this.changeOrder(this.order.sender_counterparty, 'payer_counterparty')
             } else {
                 this.changeOrder(this.order.recipient_counterparty, 'payer_counterparty')
@@ -442,7 +219,39 @@ export default {
         },
         'order.recipient_counterparty'() {
             this.recipient_counterparty = this.order.recipient_counterparty;
-        }
+        },
+        'order.order_services'() {
+            if (this.order.order_services && !this.orderServices.length && !this.initialized) {
+                const results = this.services.map((service) => {
+                    const serviceFromOrder = this.order.order_services.find(orderService =>
+                        orderService.service === service.name
+                    );
+                    const servicePrice = serviceFromOrder && Number(serviceFromOrder.price)
+                        ? Number(serviceFromOrder.price)
+                        : null;
+                    return {
+                        id: service.id,
+                        name: service.name,
+                        price: servicePrice,
+                        included: this.order.order_services.map(elem => elem.service).includes(service.name),
+                    };
+                });
+                this.orderServices = results;
+                setTimeout(() => this.initialized = true, 500);
+            }
+        },
+        'orderServices': {
+            handler() {
+                console.log(this.orderServices);
+                if (!this.initialized) return;
+                const body = this.orderServices.filter(orderService => orderService.included).map(orderService => ({
+                    service: orderService.id,
+                    price: Number(orderService.price) || 0,
+                }));
+                this.changeOrder(body, 'order_services');
+            },
+            deep: true,
+        },
     },
     methods: {
         ...mapMutations({
@@ -451,6 +260,9 @@ export default {
         changeOrder(newVal, key) {
             let payload = {};
             payload[key] = newVal;
+
+            console.log('newVal - ', newVal);
+            console.log('key - ', key);
 
             this.$api.orders.updateOrder(this.order.id, payload).then((response) => {
                 if (response.status !== 400) {
@@ -508,6 +320,34 @@ export default {
                     this.changeOrder(response.data.id, 'contract');
                 })
         },
+        addServicesList() {
+            this.$api.services.getServices(10, 0)
+                .then(response => {
+                    if (response.status > 203) {
+                        return;
+                    }
+                    this.services = response.data.results;
+                })
+        },
+        checkService(serviceId) {
+            const serviceIndex = this.order?.order_services.findIndex(serv => serv.service === serviceId);
+            console.log('serviceIndex tut - ', serviceIndex)
+            return serviceIndex !== -1 ? true : false;
+        },
+        handleOrderService(service) {
+            const serviceIndex = this.order.order_services?.findIndex(item => item.service === service.service);
+            console.log('serviceIndex - ', serviceIndex)
+            if (serviceIndex === -1) {
+                this.order.order_services.push(service);
+                this.changeOrder(this.order.order_services,'order_services');
+                return;
+            }
+            this.order.order_services.splice(serviceIndex, 1);
+            this.changeOrder(this.order.order_services,'order_services');
+        },
+    },
+    mounted() {
+        this.addServicesList();
     },
 };
 </script>
@@ -530,6 +370,16 @@ export default {
 
     .form-group {
         width: 100%;
+    }
+
+    &-checkbox {
+        width: 18px;
+        height: 18px;
+    }
+
+    &-name {
+        margin-left: 16px;
+        font-size: 16px;
     }
 
 }

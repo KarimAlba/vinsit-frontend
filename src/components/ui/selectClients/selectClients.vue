@@ -50,6 +50,10 @@
 				type: Boolean,
 				default: false,
 			},
+            company: {
+                type: Number,
+                required: false,
+            },
 		},
 		data() {
 			return {
@@ -75,6 +79,14 @@
                     );
                 }, 0);
             },
+            'company'() {
+                this.fetchClients(
+                    this.client ? this.client.name : '',
+                    null,
+                    this,
+                    null,
+                );
+            },
         },
 		methods: {
 			onSearchClients(search, loading) {
@@ -87,7 +99,15 @@
 				};
 			},
 			fetchClients: _.debounce((search, loading, vm, callback) => {
-				vm.$api.clients.getClients({ search, limit: 100 }).then((response) => {
+				vm.$api.clients.getClients({
+                    search,
+                    limit: 100,
+                    ...(
+                        vm.company
+                            ? {company: vm.company}
+                            : {}
+                    ),
+                }).then((response) => {
 					vm.clients = response.data.results;
                     if (vm.clients.length && callback) {
                         callback(vm.clients[0].id);
