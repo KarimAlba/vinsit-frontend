@@ -13,31 +13,31 @@
 					placeholder="Номер заказа"
 				/> -->
 			</b-col>
-			<b-col>
+			<b-col cols="12" md="8">
 				<b-form-input 
 					placeholder="Поиск"
 					v-model="search"
 				/>
 			</b-col>
-			<b-col class="mb-1" cols="12" md="4">
-				<v-select
-					label="title"
-					:reduce="(mode) => mode.id"
-					placeholder="Режим заказа"
-					:options="orderMode"
-					v-model="filters.mode"
-				/>
-				<!-- <v-select
-					label="status"
-					:reduce="(status) => status.id"
-					placeholder="Статус заказа"
-					:options="orderStatus"
-					v-model="filters.status"
-				/> -->
-			</b-col>
 		</b-row>
 		<b-collapse v-model="visible" id="filters-collapse">
 			<b-row>
+                <b-col class="mb-1" cols="12" md="4">
+                    <v-select
+                        label="title"
+                        :reduce="(mode) => mode.id"
+                        placeholder="Режим заказа"
+                        :options="orderMode"
+                        v-model="filters.mode"
+                    />
+                    <!-- <v-select
+                        label="status"
+                        :reduce="(status) => status.id"
+                        placeholder="Статус заказа"
+                        :options="orderStatus"
+                        v-model="filters.status"
+                    /> -->
+                </b-col>
 				<b-col class="mb-1" cols="12" md="4">
 					<select-clients
 						:disabled="false"

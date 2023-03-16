@@ -24,7 +24,7 @@
 					</b-col>
 					<b-col cols="12" md="4">
 						<validation-provider #default="{ errors }">
-							<b-form-group :invalid-feedback="errors[0]" label="Клиент">
+							<b-form-group :invalid-feedback="errors[0]" label="Клиент (физ. лица)">
 								<select-clients
 									:reduce="(client) => client.id"
                                     :company="form.company"
