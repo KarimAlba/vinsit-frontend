@@ -14,6 +14,7 @@
 			:reduce="reduce"
 			:value="client"
 			:clearSearchOnBlur="() => clearSearchOnBlur"
+			:clearable="clearable"
 		>
 			<template #no-options="{ search }">
 				{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -54,6 +55,10 @@
                 type: Number,
                 required: false,
             },
+			clearable: {
+				type: Boolean,
+				default: true,
+			}
 		},
 		data() {
 			return {

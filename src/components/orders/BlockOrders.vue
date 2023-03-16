@@ -286,6 +286,7 @@ export default {
   methods: {
     ...mapActions({
       fetchOrders: "moduleOrders/fetchOrders",
+	  resetPagination: "moduleOrders/resetPagination",
     }),
     ...mapMutations({
       changeCurPage: "moduleOrders/changePage",
@@ -302,19 +303,13 @@ export default {
       this.changeCurPage(page);
       this.fetchOrders();
     },
-    fetchStatus() {
-      this.$api.orderStatus.getOrderStatusList().then((response) => {
-        this.orderStatus = response.data.results;
-      });
-    },
     getClientType(clientType) {
       return this.clientType.find((type) => type.id === clientType)
         ?.short_title;
     },
   },
   mounted() {
-    this.fetchStatus();
-
+	this.resetPagination();
     this.fetchOrders();
   },
 };
