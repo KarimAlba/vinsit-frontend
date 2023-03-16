@@ -334,6 +334,8 @@
 			}, 500),
 		},
 		mounted() {
+			this.resetFilters();
+			this.resetPagination();
 			this.fetchStatus();
 		},
 	};

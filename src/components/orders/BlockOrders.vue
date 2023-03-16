@@ -286,6 +286,7 @@ export default {
   methods: {
     ...mapActions({
       fetchOrders: "moduleOrders/fetchOrders",
+	  resetPagination: "moduleOrders/resetPagination",
     }),
     ...mapMutations({
       changeCurPage: "moduleOrders/changePage",
@@ -308,6 +309,7 @@ export default {
     },
   },
   mounted() {
+	this.resetPagination();
     this.fetchOrders();
   },
 };

@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { BFormInput } from "bootstrap-vue";
+import { BFormInput, BIcon } from "bootstrap-vue";
 import Litepicker from "litepicker";
 
 export default {
@@ -21,6 +21,7 @@ export default {
   components: {
     BFormInput,
     Litepicker,
+	BIcon,
   },
   data() {
     return {};
@@ -55,6 +56,9 @@ export default {
   },
   mounted() {
     this.initLitePicker();
+  },
+  unmounted() {
+	this.$refs.litepicker.clearSelection();
   },
 };
 </script>
