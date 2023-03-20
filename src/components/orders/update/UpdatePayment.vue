@@ -92,8 +92,8 @@
     </b-row> -->
     <b-row>
         <b-col class="mt-2" @click="() => additionalService = additionalService ? false : true">
-            <b-icon-chevron-up v-if="!additionalService" variant="primary"/>
-            <b-icon-chevron-down v-if="additionalService" variant="primary"/>
+            <b-icon-chevron-up v-if="additionalService" variant="primary"/>
+            <b-icon-chevron-down v-if="!additionalService" variant="primary"/>
             <span class="header-additional-service">Дополнительные услуги</span>
         </b-col>
     </b-row>
@@ -328,7 +328,7 @@ export default {
                     if (response.status > 203) {
                         return;
                     }
-                    this.services = response.data.results;
+                    this.services = response.data;
                 })
         },
         checkService(serviceId) {
