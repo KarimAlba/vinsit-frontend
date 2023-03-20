@@ -323,7 +323,7 @@ export default {
                 })
         },
         addServicesList() {
-            this.$api.services.getServices(10, 0)
+            this.$api.services.getServices(0, 30)
                 .then(response => {
                     if (response.status > 203) {
                         return;
