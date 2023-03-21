@@ -1061,18 +1061,18 @@
 			return {
                 services: [],
             	additionalService: true,
-				orderPlacesFields: [
-					{ key: "barcode", label: "Штрих-код" },
-					{ key: "place_no", label: "№ места" },
-					{ key: "length", label: "Длина, см" },
-					{ key: "width", label: "Ширина, см" },
-					{ key: "height", label: "Высота, см" },
-					{ key: "weight", label: "Фактический вес, кг" },
-					{ key: "status", label: "Статус" },
-					{ key: "rack", label: "Rack" },
-					{ key: "tare", label: "tare" },
-					{ key: "description", label: "Примечание" },
-				],
+				// orderPlacesFields: [
+				// 	{ key: "barcode", label: "Штрих-код" },
+				// 	{ key: "place_no", label: "№ места" },
+				// 	{ key: "length", label: "Длина, см" },
+				// 	{ key: "width", label: "Ширина, см" },
+				// 	{ key: "height", label: "Высота, см" },
+				// 	{ key: "weight", label: "Фактический вес, кг" },
+				// 	{ key: "status", label: "Статус" },
+				// 	{ key: "rack", label: "Rack" },
+				// 	{ key: "tare", label: "tare" },
+				// 	// { key: "description", label: "Примечание" },
+				// ],
 				orderPlacesFields: [
 					{ key: "place_no", label: "№ места" },
 					{ key: "length", label: "Длина, см" },
@@ -1082,7 +1082,7 @@
 					{ key: "seal_number", label: "Пломба" },
 					/* { key: "rack", label: "Rack" },
 					{ key: "tare", label: "Tare" }, */
-					{ key: "description", label: "Примечание" },
+					// { key: "description", label: "Примечание" },
 					{ key: "delete", label: "" },
 				],
 				orderProductsFields: [

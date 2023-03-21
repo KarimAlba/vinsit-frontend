@@ -308,7 +308,7 @@ export default {
         /* { key: "status", label: "Статус" },
         { key: "rack", label: "Rack" },
         { key: "tare", label: "tare" }, */
-        { key: "description", label: "Примечание" },
+        // { key: "description", label: "Примечание" },
         { key: "delete", label: "" },
       ],
       newPlace: {},

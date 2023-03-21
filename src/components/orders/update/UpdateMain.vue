@@ -76,7 +76,6 @@
             <b-form-group label="Дата доставки товара">
                 <b-form-datepicker
                     label="date"
-                    :reduce="(status) => status.id"
                     v-model="order.delivery_date"
 					@input="changeOrder($event, 'delivery_date')"
                 />
@@ -205,9 +204,9 @@ export default {
 			});
 		},
 		fetchStatus() {
-		this.$api.orderStatus.getOrderStatusList().then((response) => {
-			this.orderStatus = response.data.results;
-		});
+            this.$api.orderStatus.getOrderStatusList().then((response) => {
+                this.orderStatus = response.data.results;
+            });
 		},
 	},
 	mounted() {

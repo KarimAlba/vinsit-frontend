@@ -141,7 +141,7 @@
       <div class="footer order__footer px-4 py-1">
         <div>
           <h3><b>Итого</b></h3>
-          <p class="my-0">Стоимость услуг: {{ totalPrice }} руб</p>
+          <p class="my-0">Стоимость услуг: {{ order.total_price }} руб</p>
         </div>
 
         <div>

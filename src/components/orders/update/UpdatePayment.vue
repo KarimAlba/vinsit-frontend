@@ -289,6 +289,7 @@ export default {
                         this.setEditableOrder({
                             ...this.order,
                             [key]: newVal,
+                            total_price: response.data.total_price,
                         });
                     }
                     this.$toast({
