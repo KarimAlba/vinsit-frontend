@@ -34,7 +34,7 @@
 							</b-form-group>
 						</validation-provider>
 					</b-col>
-                    <b-col cols="12" md="4" v-if="type !== 'reconciliation_act'">
+                    <b-col cols="12" md="4">
 						<validation-provider #default="{ errors }" rules="required">
 							<b-form-group :invalid-feedback="errors[0]" label="Юр. лицо">
                                 <v-select
@@ -79,10 +79,10 @@
                             <b-form-radio
                                 class="mb-1"
                                 :aria-describedby="ariaDescribedby"
-                                value="C"
+                                value="A"
                                 v-model="form.type"
                             >
-                                Только по счетам
+                                Только по актам
                             </b-form-radio>
                             <b-form-radio
                                 :aria-describedby="ariaDescribedby"
@@ -246,7 +246,6 @@ export default {
             if (this.type === 'reconciliation_act') {
                 this.$api.reconciliationActs.createReconciliationAct({
                     ...this.form,
-                    executor: undefined,
                     client: this.form.client || undefined,
                     bank_account: this.form.bank_account || undefined,
                     company: this.form.company || undefined,
@@ -256,7 +255,7 @@ export default {
                             component: ToastificationContent,
                             props: {
                                 title: "Ошибка",
-                                text: "Не удалось сфорировать",
+                                text: "Не удалось сформировать",
                                 icon: "XIcon",
                                 variant: "danger",
                             },
@@ -288,7 +287,7 @@ export default {
                         component: ToastificationContent,
                         props: {
                             title: "Ошибка",
-                            text: "Не удалось сфорировать",
+                            text: "Не удалось сформировать",
                             icon: "XIcon",
                             variant: "danger",
                         },
