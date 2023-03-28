@@ -2,6 +2,7 @@ import Instance from "./instance";
 
 import authModule from "./auth";
 import accountingActsModule from "./accounting-acts";
+import accountingChecksModule from "./accounting-checks";
 import accountingUpdsModule from "./accounting-upds";
 import citiesModule from "./cities";
 import clientsModule from "./clients";
@@ -20,6 +21,7 @@ export const instance = new Instance().getAxiosIns();
 export default {
 	auth: authModule(instance),
     accActs: accountingActsModule(instance),
+    checks: accountingChecksModule(instance),
     accUpds: accountingUpdsModule(instance),
     cities: citiesModule(instance),
     clients: clientsModule(instance),

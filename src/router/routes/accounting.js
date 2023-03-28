@@ -35,6 +35,17 @@ export default [
         },
     },
     {
+        path: '/accounting/checks',
+        name: 'accounting-check',
+        component: () => import('@/views/accounting/Check.vue'),
+        meta: {
+            pageTitle: 'Чеки',
+            disabledRoles: [
+                ...Object.keys(RoleConstants).filter(key => key !== RoleConstants.AD)
+            ],
+        },
+    },
+    {
         path: '/accounting/upd',
         name: 'accounting-upd',
         component: () => import('@/views/accounting/UPD.vue'),

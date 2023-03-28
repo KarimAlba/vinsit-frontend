@@ -88,6 +88,11 @@ export default [
                 route: 'accounting-act',
             },
             {
+                title: 'Чеки',
+                icon: 'ChevronRightIcon',
+                route: 'accounting-check',
+            },
+            {
                 title: 'УПД',
                 icon: 'ChevronRightIcon',
                 route: 'accounting-upd',

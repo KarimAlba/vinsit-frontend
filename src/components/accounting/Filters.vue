@@ -94,6 +94,19 @@
                         </b-form-group>
                     </b-col>
                 </b-row>
+                <b-row v-if="type === 'act'">
+                    <b-col cols="12" md="4">
+                        <b-form-checkbox
+                            id="payment-check"
+                            v-model="is_payment_check"
+                            name="payment-check"
+                            :value="true"
+                            :unchecked-value="false"
+                        >
+                            Счёт
+                        </b-form-checkbox>
+                    </b-col>
+                </b-row>
                 <b-row>
                     <b-col class="mt-1 d-flex justify-content-end" cols="12" md="12">
 						<b-button
@@ -133,7 +146,7 @@ export default {
 		type: {
 			type: String,
 			validator: function (value) {
-				return ["payment", "invoice", "act", "upd", "reconciliation_act"].includes(value);
+				return ["payment", "invoice", "act", "upd", "reconciliation_act", "check"].includes(value);
 			},
 		},
 	},
@@ -157,6 +170,7 @@ export default {
             companies: [],
             executors: [],
             bank_account: '',
+            is_payment_check: false,
 
 			form: {
 				client: null,
@@ -224,7 +238,7 @@ export default {
 					this.form.is_upd = false;
 				break;
 				case "act":
-					this.form.is_payment_check = false;
+					this.form.is_payment_check = this.is_payment_check;
 					this.form.is_invoice = false;
 					this.form.is_act = true;
 					this.form.is_upd = false;
