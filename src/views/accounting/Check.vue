@@ -1,6 +1,6 @@
 <template>
   <b-overlay :show="loading" rounded="sm">
-    <filters type="payment" />
+    <!-- <filters type="payment" /> -->
 
     <b-card>
       <b-table :items="transformedChecks" :fields="fields" striped responsive>
