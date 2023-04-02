@@ -19,6 +19,27 @@ export default [
         },
     },
     {
+        path: '/clients/create',
+        name: 'client-create',
+        component: () => import(/* webpackChunkName: clients */ '@/views/clients/CreateClient.vue'),
+        meta: {
+            breadcrumb: [
+                {
+                    text: 'Контрагенты',
+                    to: "/clients"
+                },
+                {
+                    text: 'Новый контрагент',
+                    active: true,
+                },
+            ],
+            disabledRoles: [
+                // ...Object.keys(RoleConstants).filter(key => key !== RoleConstants.AD)
+                RoleConstants.CR
+            ],
+        },
+    },
+    {
         path: '/clients/:id(\\d+)',
         name: 'client',
         component: () => import(/* webpackChunkName: clients */ '@/views/clients/Client.vue'),

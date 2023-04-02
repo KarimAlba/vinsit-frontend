@@ -5,18 +5,13 @@
         <h1>{{ message }}</h1>
       </template>
       <template v-else>
-        <h1 class="mb-2">Клиент №{{ client.amo_client_id || '(Отсутствует в AMO CRM)' }}</h1>
+        <h1 class="mb-2">Новый контрагент</h1>
         <b-row>
           <b-col>
             <b-card>
               <b-card-title>Основная информация</b-card-title>
 
               <table class="w-100">
-                <tr>
-                  <td class="pb-1">AMO CRM</td>
-                  <td class="pb-1">{{ client.amo_client_id || '(Отсутствует в AMO CRM)' }}</td>
-                </tr>
-
                 <tr>
                     <td class="pb-1">Это компания?</td>
                     <td class="pb-1">
@@ -25,9 +20,7 @@
                             v-model="client.is_company"
                             name="is-company-check"
                             :value="true"
-                            :disabled="readOnly"
                             :unchecked-value="false"
-                            @change="updateClient('is_company', $event)"
                         ></b-form-checkbox>
                     </td>
                 </tr>
@@ -43,9 +36,7 @@
                             <b-form-input
                                 v-model="client.name"
                                 type="text"
-                                :disabled="readOnly"
                                 :state="errors.length > 0 ? false : null"
-                                @change="updateClient('name', $event)"
                             ></b-form-input>
                         </b-form-group>
                     </validation-provider>
@@ -63,7 +54,6 @@
                         :clearable="false"
                         v-model="client.type"
                         :disabled="readOnly"
-                        @change="updateClient('type', $event)"
                     />
                     <!-- @input="changeOrder($event, 'sender_counterparty_type')" -->
                   </td>
@@ -76,7 +66,6 @@
                             <select-cities
                                 v-model="client.city"
                                 :disabled="readOnly"
-                                @input="updateClient('city', $event)"
                             />
                             <!-- @input="changeOrder($event, 'sender_city')" -->
                         </b-form-group>
@@ -94,9 +83,7 @@
                             <b-form-input
                                 v-model="client.address"
                                 type="text"
-                                :disabled="readOnly"
                                 :state="errors.length > 0 ? false : null"
-                                @change="updateClient('address', $event)"
                             ></b-form-input>
                         </b-form-group>
                     </validation-provider>
@@ -104,15 +91,37 @@
                 </tr>
 
                 <tr>
-                    <td class="pb-1">Договор</td>
-                    <td class="pb-1">
-                        <select-contracts
-                            :disabled="readOnly"
-                            :reduce="(cont) => cont.id"
-                            :payerId="client.id"
-                            @createContract="handleContractCreation"
-                        />
-                        <!-- @input="changeOrder($event, 'contract')" -->
+                    <td class="d-flex flex-column align-items-start" style="padding-top: 10px">
+                        Договор
+                        <p class="add-phone-btn" @click="handleContractCreation">Добавить</p>
+                    </td>
+                    <td>
+                        <p
+                            v-for="(contract, i) in contracts"
+                            :key="i"
+                            style="position: relative;"
+                        >
+                        <!-- <a :href="`tel:${phone.phone_number}`"
+                            >{{ i + 1 }}. {{ phone.phone_number }}</a
+                        > -->
+                            <validation-provider #default="{ errors }">
+                                <b-form-input
+                                    v-model="contract.value"
+                                    :state="errors.length > 0 ? false : null"
+                                    :disabled="readOnly"
+                                    type="text"
+                                    style="padding-right: 30px; box-sizing: border-box;"
+                                />
+                                <!-- @blur="changeOrder(phones, 'sender_phones')" -->
+                            </validation-provider>
+                            <span
+                                class="delete-phone-btn"
+                                v-if="contracts.length > 1"
+                                @click="deleteContract(i)"
+                            >
+                                <b-icon icon="trash"></b-icon>
+                            </span>
+                        </p>
                     </td>
                 </tr>
 
@@ -132,9 +141,7 @@
                             <b-form-input
                                 v-model="client.bank_account"
                                 type="text"
-                                :disabled="readOnly"
                                 :state="errors.length > 0 ? false : null"
-                                @change="updateClient('bank_account', $event)"
                             ></b-form-input>
                         </b-form-group>
                     </validation-provider>
@@ -154,7 +161,6 @@
                                 type="number"
                                 max="4"
                                 :formatter="serieFormatter"
-                                @change="updateClient('passport_series', $event)"
                             />
                         </b-form-group>
                     </validation-provider>
@@ -174,7 +180,6 @@
                                 type="number"
                                 max="6"
                                 :formatter="passportNumberFormatter"
-                                @change="updateClient('passport_no', $event)"
                             ></b-form-input>
                         </b-form-group>
                     </validation-provider>
@@ -191,9 +196,7 @@
                             <b-form-input
                                 v-model="client.INN"
                                 type="text"
-                                :disabled="readOnly"
                                 :state="errors.length > 0 ? false : null"
-                                @change="updateClient('INN', $event)"
                             ></b-form-input>
                         </b-form-group>
                     </validation-provider>
@@ -210,9 +213,7 @@
                             <b-form-input
                                 v-model="client.position"
                                 type="text"
-                                :disabled="readOnly"
                                 :state="errors.length > 0 ? false : null"
-                                @change="updateClient('position', $event)"
                             ></b-form-input>
                         </b-form-group>
                     </validation-provider>
@@ -242,7 +243,6 @@
                         > -->
                             <validation-provider #default="{ errors }">
                                 <b-form-input
-                                    debounce="500"
                                     v-model="phone.phone_number"
                                     :state="errors.length > 0 ? false : null"
                                     :disabled="readOnly"
@@ -274,9 +274,7 @@
                             <b-form-input
                                 v-model="client.email"
                                 type="email"
-                                :disabled="readOnly"
                                 :state="errors.length > 0 ? false : null"
-                                @change="updateClient('email', $event)"
                             ></b-form-input>
                         </b-form-group>
                     </validation-provider>
@@ -301,9 +299,7 @@
                             <b-form-input
                                 v-model="client.web"
                                 type="text"
-                                :disabled="readOnly"
                                 :state="errors.length > 0 ? false : null"
-                                @change="updateClient('web', $event)"
                             ></b-form-input>
                         </b-form-group>
                     </validation-provider>
@@ -314,20 +310,8 @@
           </b-col>
         </b-row>
 
-        <b-button v-b-modal.modal-delete variant="danger">Удалить</b-button>
+        <b-button variant="primary" @click="createClient">Создать</b-button>
 
-        <b-modal
-          id="modal-delete"
-          title="Удалить?"
-          @ok="deleteClient"
-          ok-title="Удалить"
-          ok-variant="danger"
-          header-bg-variant="danger"
-          cancel-title="Отмена"
-          size="sm"
-        >
-          <p>Удалить клиента?</p>
-        </b-modal>
       </template>
     </b-overlay>
   </section>
@@ -337,8 +321,6 @@
 import { mapGetters, mapMutations } from "vuex";
 import { ValidationProvider, ValidationObserver } from "vee-validate";
 import { required, email, confirmed, password } from "@validations";
-
-import ToastificationContent from "@core/components/toastification/ToastificationContent.vue";
 
 import SelectCities from "@/components/ui/selectCities/selectCities.vue";
 import SelectContracts from "@/components/ui/selectContracts/selectContracts.vue";
@@ -369,8 +351,6 @@ import store from "@/store/index";
 
 export default {
   components: {
-    ToastificationContent,
-
     ValidationProvider,
     ValidationObserver,
 
@@ -396,30 +376,35 @@ export default {
   },
   data() {
     return {
-      client: {},
-      message: null,
-      initialized: false,
-    };
-  },
-  watch: {
-    'client.client_phones': {
-        handler() {
-            if (!this.initialized) {
-                return;
+      client: {
+        client_phones: [
+            {
+                phone_number: ''
             }
-            this.updateClient('client_phones', this.client.client_phones.filter(p => p.phone_number));
-        },
-        deep: true,
-    },
+        ],
+        type: null,
+        name: '',
+        email: '',
+        position: null,
+        address: null,
+        web: null,
+        bank_account: null,
+        INN: null,
+        passport_series: null,
+        passport_no: null,
+        is_company: false,
+        city: null,
+        company: null,
+      },
+      message: null,
+      contracts: [{ value: '' }],
+    };
   },
   computed: {
     ...mapGetters({
       loading: "moduleClients/getLoading",
       clientType: "moduleClients/getClientType",
     }),
-    idClient() {
-      return this.$route.params.id || null;
-    },
     readOnly() {
         return store.state.app.user.role !== RoleConstants.AD && store.state.app.user.role !== RoleConstants.LG;
     },
@@ -455,84 +440,35 @@ export default {
     getClientType(type) {
       return this.clientType.find((x) => x.id === type)?.title || "Не задан";
     },
-    fetchClient() {
-      this.changeLoading(true);
-
-      this.$api.clients
-        .getClient(this.idClient)
-        .then((response) => {
-            if (response.status == 404) {
-                this.message = "Клиент не найден";
-                this.changeLoading(false);
-                return;
-            }
-            this.client = response.data;
-            if (!response.data.client_phones || !response.data.client_phones.length) {
-                this.client.client_phones = [{ phone_number: '' }]
-            }
-            this.changeLoading(false);
-            setTimeout(() => this.initialized = true, 500);
-        })
-        .finally(() => this.changeLoading(false));
-    },
-    updateClient(propName, value) {
-        if (this.readOnly) {
-            return;
-        }
+    createClient() {
         this.changeLoading(true);
 
         this.$api.clients
-            .changeClient(
-                this.idClient,
-                {
-                    [propName]: value
-                }
-            )
+            .addNewClient(this.client)
             .then((response) => {
-                if (response.status > 203) {
-                    const text = response.data.client_phones
-                        ? 'Не удалось обновить. ' + response.data.client_phones[0].phone_number
-                        : 'Не удалось обновить';
-                    this.$toast({
-                        component: ToastificationContent,
-                        props: {
-                        title: "Ошибка",
-                        text: text,
-                        icon: "XIcon",
-                        variant: "danger",
-                        },
-                    });
-                    return;
-                };
+                if (response.status > 203) this.message = response.data.message;
                 this.changeLoading(false);
-                this.$toast({
-                    component: ToastificationContent,
-                    props: {
-                        title: "Успешно",
-                        text: "Информация изменена",
-                        icon: "CheckCircleIcon",
-                        variant: "success",
-                    },
-                });
+                this.createContracts(response.data.id);
             })
             .finally(() => this.changeLoading(false));
     },
-    deleteClient() {
-        if (this.readOnly) {
-            return;
-        }
-        this.changeLoading(true);
-
-        this.$api.clients.deleteClient(this.idClient).then((response) => {
-            this.changeLoading(false);
-
-            this.$router.push({ name: "clients" });
+    createContracts(id) {
+        const allPromises = this.contracts.map(c => c.value).filter(c => c).map((client) => {
+            return this.$api.clients.createClientContract(id, client)
+                .then(response => {
+                    if (response.status >= 203) {
+                        this.message = response.data;
+                        return;
+                    }
+                })
         });
+        Promise.all(allPromises)
+            .then(values => {
+                this.$router.push({ name: 'clients' })
+            })
+            .catch(err => this.message = err);
     },
     addPhoneNumber() {
-        if (this.readOnly) {
-            return;
-        }
         if (this.client.client_phones) {
             this.client.client_phones.push({phone_number: ''});
             return;
@@ -540,26 +476,15 @@ export default {
         this.client.client_phones = [{phone_number: ''}];
     },
     deletePhoneNumber(index) {
-        if (this.readOnly) {
-            return;
-        }
         if (this.client.client_phones && this.client.client_phones.length) {
             this.client.client_phones.splice(index, 1);
         }
     },
-    handleContractCreation(contract) {
-        if (this.readOnly) return;
-        this.$api.clients.createClientContract(this.client.id, contract)
-            .then(response => {
-                if (response.status > 203) {
-                    return;
-                }
-                this.client.contracts.unshift(response.data);
-            })
+    handleContractCreation() {
+        this.contracts.push({ value: '' });
     },
   },
   mounted() {
-    this.fetchClient(this.idClient);
   },
 };
 </script>

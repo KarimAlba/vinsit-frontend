@@ -848,17 +848,17 @@
                         <b-row>
                             <b-col cols="12" md="12">
                                 <validation-provider #default="{ errors }">
-                                <b-form-group
-                                    label="Пломба"
-                                    :invalid-feedback="errors[0]"
-                                    :state="!errors.length"
-                                >
-                                    <b-form-input
-                                        v-model="newPlace.seal_number"
-                                        type="number"
-                                        :state="errors.length > 0 ? false : null"
-                                    ></b-form-input>
-                                </b-form-group>
+                                    <b-form-group
+                                        label="Пломба"
+                                        :invalid-feedback="errors[0]"
+                                        :state="!errors.length"
+                                    >
+                                        <b-form-input
+                                            v-model="newPlace.seal_number"
+                                            type="number"
+                                            :state="errors.length > 0 ? false : null"
+                                        ></b-form-input>
+                                    </b-form-group>
                                 </validation-provider>
                             </b-col>
                         </b-row>

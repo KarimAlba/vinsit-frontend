@@ -9,6 +9,9 @@ export default function (instance) {
             const res = await instance.get(`api/v1/clients/${id}/`);
             return res;
         },
+        changeClient(id, body) {
+            return instance.patch(`api/v1/clients/${id}/`, body);
+        },
         deleteClient(id) {
             return instance.delete(`api/v1/clients/${id}/`);
         },

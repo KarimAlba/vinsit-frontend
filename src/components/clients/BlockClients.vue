@@ -4,6 +4,13 @@
       <span
         >Найдено: <b>{{ count }}</b></span
       >
+
+      <div>
+        <b-button variant="primary" :to="{ name: 'client-create' }" v-if="!readOnly" :disabled="readOnly">
+            Создать
+        </b-button
+        >
+      </div>
     </div>
 
     <b-card>
@@ -13,6 +20,14 @@
             style="border-bottom: 1px dotted blue"
             :to="{ name: 'client', params: { id: data.item.id } }"
             >{{ data.item.amo_client_id }}</router-link
+          >
+        </template>
+
+        <template #cell(id)="data">
+          <router-link
+            style="border-bottom: 1px dotted blue"
+            :to="{ name: 'client', params: { id: data.item.id } }"
+            >{{ data.item.id }}</router-link
           >
         </template>
 
@@ -67,11 +82,15 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 
 import { BRow, BCol, BCard, BTable, BButton, BPagination } from "bootstrap-vue";
 
+import { RoleConstants } from '@/utils/role';
+import store from "@/store/index";
+
 export default {
   data() {
     return {
       fields: [
         { key: "amo_client_id", label: "AMO ID" },
+        { key: "id", label: "ID" },
         { key: "name", label: "Название / ФИО" },
         { key: "type", label: "Тип" },
         { key: "address", label: "Адрес" },
@@ -101,6 +120,9 @@ export default {
     showPagination() {
       return Math.ceil(this.count / this.perPage) > 1;
     },
+    readOnly() {
+        return store.state.app.user.role !== RoleConstants.AD && store.state.app.user.role !== RoleConstants.LG;
+    }
   },
   methods: {
     ...mapActions({
