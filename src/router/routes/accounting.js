@@ -39,7 +39,7 @@ export default [
         name: 'accounting-check',
         component: () => import('@/views/accounting/Check.vue'),
         meta: {
-            pageTitle: 'Чеки',
+            pageTitle: 'Счета',
             disabledRoles: [
                 ...Object.keys(RoleConstants).filter(key => key !== RoleConstants.AD)
             ],

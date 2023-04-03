@@ -480,7 +480,7 @@ export default {
             return;
         }
         this.changeLoading(true);
-
+		
         this.$api.clients
             .changeClient(
                 this.idClient,
