@@ -442,7 +442,6 @@ export default {
     },
     createClient() {
         this.changeLoading(true);
-
         this.$api.clients
             .addNewClient(this.client)
             .then((response) => {

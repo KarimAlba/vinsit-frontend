@@ -136,7 +136,7 @@ export default {
       this.fetchClients();
     },
     getClientType(type) {
-      return this.clientType.find((x) => x.id === type)?.title || "Не указан";
+      	return this.clientType.find((x) => x.id === type)?.title || "Не указан";
     },
     isValidHttpUrl(string) {
       var pattern = new RegExp(
