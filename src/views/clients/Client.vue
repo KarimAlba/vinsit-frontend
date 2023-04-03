@@ -63,7 +63,6 @@
                         :clearable="false"
                         v-model="client.type"
                         :disabled="readOnly"
-                        @change="updateClient('type', $event)"
                     />
                     <!-- @input="changeOrder($event, 'sender_counterparty_type')" -->
                   </td>
@@ -411,6 +410,12 @@ export default {
         },
         deep: true,
     },
+	'client.type'() {
+		if (!this.initialized) {
+			return;
+		}
+		this.updateClient('type', this.client.type);
+	}
   },
   computed: {
     ...mapGetters({
