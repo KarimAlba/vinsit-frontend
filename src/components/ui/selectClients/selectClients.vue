@@ -126,7 +126,7 @@
 				});
             },
 			input(client) {
-                console.log('Client - ', client);
+                // console.log('Client - ', client);
 				this.$emit("input", client);
 				this.disabledBtn = true;
 			},

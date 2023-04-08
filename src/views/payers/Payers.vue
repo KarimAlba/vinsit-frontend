@@ -1,11 +1,11 @@
 <template>
-  <section class="orders">
-    <b-overlay :show="loading" rounded="sm">
-      <filter-payers />
+    <section class="orders">
+        <b-overlay :show="loading" rounded="sm">
+            <filter-payers />
 
-      <block-payers />
-    </b-overlay>
-  </section>
+            <block-payers />
+        </b-overlay>
+    </section>
 </template>
 
 <script>
@@ -17,16 +17,16 @@ import BlockPayers from "@/components/payers/BlockPayers";
 import FilterPayers from "@/components/payers/FilterPayers";
 
 export default {
-  components: {
-    BOverlay,
+    components: {
+        BOverlay,
 
-    BlockPayers,
-    FilterPayers,
-  },
-  computed: {
-    ...mapGetters({
-      loading: "modulePayers/getLoading",
-    }),
-  },
+        BlockPayers,
+        FilterPayers,
+    },
+    computed: {
+        ...mapGetters({
+            loading: "modulePayers/getLoading",
+        }),
+    },
 };
 </script>

@@ -210,36 +210,36 @@
 											:invalid-feedback="errors[0]"
 											label="Телефоны *"
 										>
-										<b-row class="">
-											<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
-												Номер телефона
-											</b-col>
-											<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('sender')">
-												+
-											</b-col>
-										</b-row>
-										<b-row 
-											v-for="(phone, i) in order.sender_phones"
-											:key="i"
-										>
-											<b-col class=" border border-secondary px-0" cols="8">
-												<!-- <b-form-input
-													v-model="phone.phone_number"
-													:state="errors.length > 0 ? false : null"
-													v-maska
-													placeholder="+71234567890"
-													data-maska="+7##########"
-												/> -->
-												<b-form-input
-													v-model="phone.phone_number"
-													:state="errors.length > 0 ? false : null"
-													type="tel"
-												/>
-											</b-col>
-											<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('sender', i)">
-												<b-icon icon="trash"></b-icon>
-											</b-col>
-										</b-row>
+											<b-row class="">
+												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
+													Номер телефона
+												</b-col>
+												<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('sender')">
+													+
+												</b-col>
+											</b-row>
+											<b-row 
+												v-for="(phone, i) in order.sender_phones"
+												:key="i"
+											>
+												<b-col class=" border border-secondary px-0" cols="8">
+													<!-- <b-form-input
+														v-model="phone.phone_number"
+														:state="errors.length > 0 ? false : null"
+														v-maska
+														placeholder="+71234567890"
+														data-maska="+7##########"
+													/> -->
+													<b-form-input
+														v-model="phone.phone_number"
+														:state="errors.length > 0 ? false : null"
+														type="tel"
+													/>
+												</b-col>
+												<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('sender', i)">
+													<b-icon icon="trash"></b-icon>
+												</b-col>
+											</b-row>
 										</b-form-group>
 									</validation-provider>
 								</b-col>
@@ -329,36 +329,36 @@
 											:invalid-feedback="errors[0]"
 											label="Телефоны *"
 										>
-										<b-row class="">
-											<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
-												Номер телефона
-											</b-col>
-											<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('recipient')">
-												+
-											</b-col>
-										</b-row>
-										<b-row 
-											v-for="(phone, i) in order.recipient_phones"
-											:key="i"
-										>
-											<b-col class=" border border-secondary px-0" cols="8">
-												<!-- <b-form-input
-													v-model="phone.phone_number"
-													:state="errors.length > 0 ? false : null"
-													v-maska
-													placeholder="+71234567890"
-													data-maska="+7##########"
-												/> -->
-												<b-form-input
-													v-model="phone.phone_number"
-													:state="errors.length > 0 ? false : null"
-													type="tel"
-												/>
-											</b-col>
-											<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('recipient', i)">
-												<b-icon icon="trash"></b-icon>
-											</b-col>
-										</b-row>
+											<b-row class="">
+												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
+													Номер телефона
+												</b-col>
+												<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('recipient')">
+													+
+												</b-col>
+											</b-row>
+											<b-row 
+												v-for="(phone, i) in order.recipient_phones"
+												:key="i"
+											>
+												<b-col class=" border border-secondary px-0" cols="8">
+													<!-- <b-form-input
+														v-model="phone.phone_number"
+														:state="errors.length > 0 ? false : null"
+														v-maska
+														placeholder="+71234567890"
+														data-maska="+7##########"
+													/> -->
+													<b-form-input
+														v-model="phone.phone_number"
+														:state="errors.length > 0 ? false : null"
+														type="tel"
+													/>
+												</b-col>
+												<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('recipient', i)">
+													<b-icon icon="trash"></b-icon>
+												</b-col>
+											</b-row>
 										</b-form-group>
 									</validation-provider>
 								</b-col>
@@ -406,11 +406,11 @@
 					<b-row>
 						<b-col class="my-1" cols="12" md="6">
 							<b-form-group label="Наименование контрагента *">
-							<select-clients
-								:reduce="(client) => client.id"
-								:disabled="true"
-								:value="order.payer_counterparty"
-							/>
+								<select-clients
+									:reduce="(client) => client.id"
+									:disabled="true"
+									:value="order.payer_counterparty"
+								/>
 							</b-form-group>
 						</b-col>
 						<b-col class="my-1" cols="12" md="6" v-show="order.payment_type == 'CS' || order.payment_type == 'CR'">
@@ -481,210 +481,6 @@
 									</b-form-group>
 								</b-col>
 							</b-row>
-							<!-- <b-row class="service">
-								<b-col cols="12" md="8">
-									<b-form-checkbox
-										:id="``"
-										:name="``"
-									>
-										Опасный груз
-									</b-form-checkbox>
-								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group>
-										<b-form-input
-											type="number"
-										/>
-									</b-form-group>
-								</b-col>
-							</b-row>
-							<b-row class="service">
-								<b-col cols="12" md="8">
-									<b-form-checkbox
-										:id="``"
-										:name="``"
-									>
-										Ожидание более 15 минут у отправителя
-									</b-form-checkbox>
-								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group>
-										<b-form-input
-											type="number"
-										/>
-									</b-form-group>
-								</b-col>
-							</b-row>
-							<b-row class="service">
-								<b-col cols="12" md="8">
-									<b-form-checkbox
-										:id="``"
-										:name="``"
-									>
-										Ожидание более 15 минут у получателя
-									</b-form-checkbox>
-								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group>
-										<b-form-input
-											type="number"
-										/>
-									</b-form-group>
-								</b-col>
-							</b-row>
-							<b-row class="service">
-								<b-col cols="12" md="8">
-									<b-form-checkbox
-										:id="``"
-										:name="``"
-									>
-										Хранение на складе
-									</b-form-checkbox>
-								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group>
-										<b-form-input
-											type="number"
-										/>
-									</b-form-group>
-								</b-col>
-							</b-row>
-							<b-row class="service">
-								<b-col cols="12" md="8">
-									<b-form-checkbox
-										:id="``"
-										:name="``"
-									>
-										Прочее
-									</b-form-checkbox>
-								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group>
-										<b-form-input
-											type="number"
-										/>
-									</b-form-group>
-								</b-col>
-							</b-row>
-							<b-row class="service">
-								<b-col cols="12" md="8">
-									<b-form-checkbox
-										:id="``"
-										:name="``"
-									>
-										Повторная поездка
-									</b-form-checkbox>
-								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group>
-										<b-form-input
-											type="number"
-										/>
-									</b-form-group>
-								</b-col>
-							</b-row>
-							<b-row class="service">
-								<b-col cols="12" md="8">
-									<b-form-checkbox
-										:id="``"
-										:name="``"
-									>
-										Аренда курьера
-									</b-form-checkbox>
-								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group>
-										<b-form-input
-											type="number"
-										/>
-									</b-form-group>
-								</b-col>
-							</b-row>
-							<b-row class="service">
-								<b-col cols="12" md="8">
-									<b-form-checkbox
-										:id="``"
-										:name="``"
-									>
-										Скан документов
-									</b-form-checkbox>
-								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group>
-										<b-form-input
-											type="number"
-										/>
-									</b-form-group>
-								</b-col>
-							</b-row>
-							<b-row class="service">
-								<b-col cols="12" md="8">
-									<b-form-checkbox
-										:id="``"
-										:name="``"
-									>
-										Подъем на этаж ручной
-									</b-form-checkbox>
-								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group>
-										<b-form-input
-											type="number"
-										/>
-									</b-form-group>
-								</b-col>
-							</b-row>
-							<b-row class="service">
-								<b-col cols="12" md="8">
-									<b-form-checkbox
-										:id="``"
-										:name="``"
-									>
-										Подъем на этаж лифтом
-									</b-form-checkbox>
-								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group>
-										<b-form-input
-											type="number"
-										/>
-									</b-form-group>
-								</b-col>
-							</b-row>
-							<b-row class="service">
-								<b-col cols="12" md="8">
-									<b-form-checkbox
-										:id="``"
-										:name="``"
-									>
-										Уведомление о выдаче заказа на доставку
-									</b-form-checkbox>
-								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group>
-										<b-form-input
-											type="number"
-										/>
-									</b-form-group>
-								</b-col>
-							</b-row>
-							<b-row class="service">
-								<b-col cols="12" md="8">
-									<b-form-checkbox
-										:id="``"
-										:name="``"
-									>
-										Упаковка
-									</b-form-checkbox>
-								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group>
-										<b-form-input
-											type="number"
-										/>
-									</b-form-group>
-								</b-col>
-							</b-row> -->
 						</b-col>
 					</b-row>
 				</b-card-actions>
@@ -814,19 +610,19 @@
 
                             <b-col cols="12" md="3">
                                 <b-form-group label="Ширина">
-                                <b-form-input
-                                    type="number"
-                                    v-model="newPlace.width"
-                                ></b-form-input>
+									<b-form-input
+										type="number"
+										v-model="newPlace.width"
+									></b-form-input>
                                 </b-form-group>
                             </b-col>
 
                             <b-col cols="12" md="3">
                                 <b-form-group label="Длина">
-                                <b-form-input
-                                    type="number"
-                                    v-model="newPlace.length"
-                                ></b-form-input>
+									<b-form-input
+										type="number"
+										v-model="newPlace.length"
+									></b-form-input>
                                 </b-form-group>
                             </b-col>
 
@@ -1261,7 +1057,6 @@
 				});
 			},
             changeOrder(value, key) {
-                // console.log(key, value);
                 this.order[key] = value;
             },
 			validationForm() {
