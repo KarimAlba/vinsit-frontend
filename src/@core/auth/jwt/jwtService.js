@@ -48,13 +48,12 @@ export default class JwtService {
 			if (!this.isAlreadyFetchingAccessToken) {
 				this.isAlreadyFetchingAccessToken = true
 				this.refreshToken().then(r => {
-				this.isAlreadyFetchingAccessToken = false
+					this.isAlreadyFetchingAccessToken = false
 
-				// Update accessToken in localStorage
-				this.setToken(r.data.accessToken)
-				this.setRefreshToken(r.data.refreshToken)
-
-				this.onAccessTokenFetched(r.data.accessToken)
+					// Update accessToken in localStorage
+					this.setToken(r.data.accessToken)
+					this.setRefreshToken(r.data.refreshToken)
+					this.onAccessTokenFetched(r.data.accessToken)
 				})
 			}
 			const retryOriginalRequest = new Promise(resolve => {
@@ -122,7 +121,7 @@ export default class JwtService {
 
 	refreshToken() {
 		return this.axiosIns.post(this.jwtConfig.refreshEndpoint, {
-		refreshToken: this.getRefreshToken(),
+			refreshToken: this.getRefreshToken(),
 		})
 	}
 }

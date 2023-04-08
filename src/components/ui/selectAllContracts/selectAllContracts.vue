@@ -95,7 +95,7 @@
                         const result = response.data
                             .filter((result) => result.contract.includes(search));
                         vm.contracts = result;
-                        console.log(result);
+                        // console.log(result);
                         if (callback) {
                             console.log('callback');
                             const selected = result.find(res => res.id === vm.value);
@@ -103,7 +103,7 @@
                             callback(selected || defaultValue);
                         }
                         if (initCallback) {
-                            console.log('init callback');
+                            // console.log('init callback');
                             const selected = result.find(res => res.id === vm.value);
                             initCallback(selected || null);
                         }

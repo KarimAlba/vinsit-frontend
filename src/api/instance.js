@@ -51,11 +51,14 @@ export default class Instance {
 		
 				// if (status === 401) {
 				if (response && response.status === 401) {
+					if (location.pathname == '/login') {
+						return response;
+					}
 					if (!this.isAlreadyFetchingAccessToken) {
                         this.isAlreadyFetchingAccessToken = true
                         this.refreshToken().then(r => {
                             if (r.status > 203) {
-                                location.pathname = 'login';
+								location.pathname = 'login';
                                 localStorage.clear();
                                 return;
                             }

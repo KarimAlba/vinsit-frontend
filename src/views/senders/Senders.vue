@@ -23,7 +23,7 @@ export default {
 	},
 	computed: {
 		...mapGetters({
-		loading: "moduleSenders/getLoading",
+			loading: "moduleSenders/getLoading",
 		}),
 	},
 };

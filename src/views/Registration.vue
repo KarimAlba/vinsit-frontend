@@ -263,58 +263,73 @@ export default {
 	},	
 	methods: {
 		validationForm() {
-			this.$refs.registrationValidation.validate().then((success) => {
-				if (!this.status) {
-					this.isChosenCheckbox = false;
-					return;
-				};
-				if (success) {
-					this.$api.auth.signUp({full_name: this.username, password: this.password, password2: this.repeatPassword, role: 'AD'})
-						.then((response) => {
-							if (response.status === 200 || response.status === 201) {
+			this.$refs.registrationValidation.validate()
+				.then((success) => {
+					if (!this.status) {
+						this.isChosenCheckbox = false;
+						return;
+					};
+					if (success) {
+						this.$api.auth.signUp(
+							{
+								full_name: this.username, 
+								password: this.password, 
+								password2: this.repeatPassword, 
+								role: 'AD'
+							})
+							.then((response) => {
+								if (response.status === 200 || response.status === 201) {
+									this.$toast({
+										component: ToastificationContent,
+										props: {
+											title: "Form Submitted",
+											icon: "EditIcon",
+											variant: "success",
+										},
+									});
+									this.$router.push({ name: 'login' });
+									return;
+								} else if (response.status === 400) {
+									let errorText = 'Error: ';
+									// Check error and notify user
+									for (let key in response.data) {
+										errorText = errorText + response.data[key].join(' ') + ' ';
+									};
+									this.$toast({
+										component: ToastificationContent,
+										props: {
+											title: errorText,
+											icon: "EditIcon",
+											variant: "danger",
+										},
+									});
+								} else {
+									for (let key in response.data) {
+										errorText = errorText + response.data[key].join(' ') + ' ';
+									};
+									let errorText = 'Error: ';
+									this.$toast({
+										component: ToastificationContent,
+										props: {
+											title: errorText,
+											icon: "EditIcon",
+											variant: "danger",
+										},
+									});
+								}
+							})
+							.catch((error) => {
 								this.$toast({
 									component: ToastificationContent,
 									props: {
-										title: "Form Submitted",
-										icon: "EditIcon",
-										variant: "success",
-									},
-								});
-								this.$router.push({ name: 'login' });
-								return;
-							} else if (response.status === 400) {
-								console.log(response.data);
-								let errorText = 'Error: ';
-								// Check error and notify user
-								for (let key in response.data) {
-									errorText = errorText + response.data[key].join(' ') + ' ';
-								};
-								this.$toast({
-									component: ToastificationContent,
-									props: {
-										title: errorText,
+										title: error.message,
 										icon: "EditIcon",
 										variant: "danger",
 									},
 								});
-							} else {
-
-							}
-						})
-						
-						.catch((error) => {
-							console.log(error);
-							this.$toast({
-								component: ToastificationContent,
-								props: {
-									title: response.data.detail,
-									icon: "EditIcon",
-									variant: "danger",
-								},
 							});
-						});
 					}
-			});
+				});
 		},
 	},
 };
