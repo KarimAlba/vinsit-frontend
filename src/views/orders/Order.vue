@@ -305,6 +305,8 @@ export default {
   },
   mounted() {
     this.fetchOrder(this.idOrder);
+    console.log('editableOrder', this.editableOrder)
+    console.log('Order', this.order)
   },
 };
 </script>

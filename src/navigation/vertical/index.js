@@ -88,7 +88,7 @@ export default [
                 route: 'accounting-act',
             },
             {
-                title: 'Чеки',
+                title: 'Счета',
                 icon: 'ChevronRightIcon',
                 route: 'accounting-check',
             },

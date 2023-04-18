@@ -33,8 +33,8 @@
             v-model="order.sender_counterparty"
             :disabled="readOnly"
             @input="changeOrder($event, 'sender_counterparty')"
-			@createClient="(name) => handleClientCreation(name)"
-			:clearSearchOnBlur="false"
+            @createClient="(name) => handleClientCreation(name)"
+            :clearSearchOnBlur="false"
           />
         </b-form-group>
       </b-col>
@@ -264,7 +264,7 @@ export default {
   methods: {
 	...mapMutations({
       setSender: "moduleOrders/setOrderSender",
-	  setRecipient: "moduleOrders/setOrderRecipient",
+	    setRecipient: "moduleOrders/setOrderRecipient",
       addOrderPhones: "moduleOrders/addOrderPhones",
       deleteOrderPhones: "moduleOrders/deleteOrderPhones",
     }),
