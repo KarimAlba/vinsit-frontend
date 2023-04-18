@@ -69,7 +69,7 @@ export default [
                 },
             ],
             disabledRoles: [
-                ...Object.keys(RoleConstants).filter(key => key !== RoleConstants.AD)
+                ...Object.keys(RoleConstants).filter(key => (key !== RoleConstants.AD) && (key !== RoleConstants.LG))
             ],
         },
     },

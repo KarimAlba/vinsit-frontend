@@ -182,6 +182,7 @@ export default {
             commit('changeLoading', true)
 
             this._vm.$api.orders.getOrder(idOrder).then((response) => {
+                console.log('orderzresponse - ', response.data)
                 commit('setOrder', response.data)
             })
                 .finally(() => {
