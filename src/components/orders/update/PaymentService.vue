@@ -26,12 +26,12 @@
 
 <script>
 import {
-  BRow,
-  BCol,
-  BFormInput,
-  BFormGroup,
-  BFormRadio,
-  BFormCheckbox,
+    BRow,
+    BCol,
+    BFormInput,
+    BFormGroup,
+    BFormRadio,
+    BFormCheckbox,
 } from "bootstrap-vue";
 
 export default {
@@ -61,7 +61,6 @@ export default {
     .service {
         border-bottom: 1px solid #E7E9EB;
 
-        
         .form-group {
             margin-top: 1rem;
         }
@@ -74,6 +73,5 @@ export default {
         .form-group {
             width: 100%;
         }
-
     }
 </style>

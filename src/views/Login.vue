@@ -211,16 +211,19 @@ export default {
 		},
 	},
 	methods: {
+		setTokens(response) {
+			console.log('tot')
+			useJwt.setToken(response.data.access);
+			useJwt.setRefreshToken(response.data.refresh);
+			useJwt.setTokenLifetime(response.data.access_token_lifetime);
+		},
 		validationForm() {
 			// this.$refs.loginValidation.validate().then((success) => {
 				// if (success) {
 					this.$api.auth.signIn(this.userEmail, this.password)
 						.then((response) => {
-							console.log(response);
 							if (response.status === 200) {
-								useJwt.setToken(response.data.access);
-								useJwt.setRefreshToken(response.data.refresh);
-								useJwt.setTokenLifetime(response.data.access_token_lifetime);
+								this.setTokens(response);
                                 localStorage.setItem('role', response.data.role);
                                 localStorage.setItem('user_name', this.userEmail);
 		                        store.commit('app/UPDATE_USER_DATA', {
@@ -237,22 +240,22 @@ export default {
 								});
 								this.$router.push({ name: 'orders' });
 								return;
+							} else {
+								this.$toast({
+									component: ToastificationContent,
+									props: {
+										title: response.data.detail,
+										icon: "EditIcon",
+										variant: "danger",
+									},
+								});
 							}
-							this.$toast({
-								component: ToastificationContent,
-								props: {
-									title: response.data.detail,
-									icon: "EditIcon",
-									variant: "danger",
-								},
-							});
 						})
 						.catch((error) => {
-							console.log(error)
 							this.$toast({
 								component: ToastificationContent,
 								props: {
-									title: response.data.detail,
+									title: error.message,
 									icon: "EditIcon",
 									variant: "danger",
 								},

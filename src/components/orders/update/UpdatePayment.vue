@@ -1,142 +1,142 @@
 <template>
-  <b-card-actions title="Информация об оплате" actionCollapse>
-    <b-row>
-        <b-col cols="10" class="px-2">
-            <b-form-group>
-                <b-row class="d-flex justify-content-between">
-                    <b-form-radio
-                        id="SC"
-                        v-model="order.payment_type"
-                        name="some-radios"
-                        :value="'SC'"
-                    >
-                        Отправитель нал
-                    </b-form-radio>
-                    <b-form-radio
-                        id="RC"
-                        v-model="order.payment_type"
-                        name="some-radios"
-                        :value="'RC'"
-                    >
-                        Получатель нал
-                    </b-form-radio>
-                    <b-form-radio
-                        id="CS"
-                        v-model="order.payment_type"
-                        name="some-radios"
-                        :value="'CS'"
-                    >
-                        По договору отправителя
-                    </b-form-radio>
-                    <b-form-radio
-                        id="CR"
-                        v-model="order.payment_type"
-                        name="some-radios"
-                        :value="'CR'"
-                    >
-                        По договору получателя
-                    </b-form-radio>
-                </b-row>
-            </b-form-group>
-        </b-col>
-    </b-row>
-    <b-row>
-        <b-col class="my-1" cols="12" md="6">
-            <b-form-group label="Наименование контрагента *">
-            <select-clients
-                :reduce="(client) => client.id"
-                :disabled="true"
-                :value="order.payer_counterparty"
-            />
-            </b-form-group>
-        </b-col>
-        <b-col class="my-1" cols="12" md="6" v-show="order.payment_type === 'CS' || order.payment_type === 'CR'">
-            <b-form-group label="Договор">
-            <!-- <b-form-input v-model="order.contract" :disabled="readOnly"></b-form-input> -->
-                <select-contracts
-                    :disabled="readOnly"
-                    :reduce="(cont) => cont.id"
-                    :value="order.contract"
-                    :payerId="order.payer_counterparty"
-                    @input="changeOrder($event, 'contract')"
-                    @createContract="handleContractCreation"
+    <b-card-actions title="Информация об оплате" actionCollapse>
+        <b-row>
+            <b-col cols="10" class="px-2">
+                <b-form-group>
+                    <b-row class="d-flex justify-content-between">
+                        <b-form-radio
+                            id="SC"
+                            v-model="order.payment_type"
+                            name="some-radios"
+                            :value="'SC'"
+                        >
+                            Отправитель нал
+                        </b-form-radio>
+                        <b-form-radio
+                            id="RC"
+                            v-model="order.payment_type"
+                            name="some-radios"
+                            :value="'RC'"
+                        >
+                            Получатель нал
+                        </b-form-radio>
+                        <b-form-radio
+                            id="CS"
+                            v-model="order.payment_type"
+                            name="some-radios"
+                            :value="'CS'"
+                        >
+                            По договору отправителя
+                        </b-form-radio>
+                        <b-form-radio
+                            id="CR"
+                            v-model="order.payment_type"
+                            name="some-radios"
+                            :value="'CR'"
+                        >
+                            По договору получателя
+                        </b-form-radio>
+                    </b-row>
+                </b-form-group>
+            </b-col>
+        </b-row>
+        <b-row>
+            <b-col class="my-1" cols="12" md="6">
+                <b-form-group label="Наименование контрагента *">
+                <select-clients
+                    :reduce="(client) => client.id"
+                    :disabled="true"
+                    :value="order.payer_counterparty"
                 />
-            </b-form-group>
-        </b-col>
-    </b-row>
-    <!-- <b-row class="">
-        <b-col class="text-start py-1" cols="4">
-            Услуга
-        </b-col>
-        <b-col class="text-start py-1" cols="4">
-            Срок доставки, дни
-        </b-col>
-        <b-col class="text-start py-1" cols="4">
-            Стоимость, руб
-        </b-col>
-    </b-row>
-    <b-row 
-        class="service-table"
-        v-for="(service, i) in services"
-        :key="i"
-    >
-        <b-col  class="py-1" cols="4">
-            {{service.name}}
-        </b-col>
-        <b-col class="py-1" cols="4">
-            {{service.date}}
-        </b-col>
-        <b-col class="py-1" cols="4">
-            {{service.price}}
-        </b-col>
-    </b-row> -->
-    <b-row>
-        <b-col class="mt-2" @click="() => additionalService = additionalService ? false : true">
-            <b-icon-chevron-up v-if="additionalService" variant="primary"/>
-            <b-icon-chevron-down v-if="!additionalService" variant="primary"/>
-            <span class="header-additional-service">Дополнительные услуги</span>
-        </b-col>
-    </b-row>
-    <b-row v-if="additionalService && orderServices.length">
-        <b-col>
-            <!-- <payment-service
-                v-for="service in orderServices"
-                :key="service.id"
-                :orderPaymentService="service"
-            /> -->
-            <b-row class="service"  v-for="(service, index) in orderServices" :key="orderServices[index].id">
-                <b-col cols="12" md="8">
-                    <!-- @change="handleOrderService(service)"
-                    :checked="checkService(service.service)" -->
-                    <input
-                        type="checkbox"
-                        :name="service.name"
-                        :id="String(service.id)"
-                        v-model="service.included"
-                        class="service-checkbox"
-                    >
-                    <span class="service-name">{{ service.name }}</span>
-                    <!-- <b-form-checkbox
-                        :id="String(orderServices[index].id)"
-                        :name="orderServices[index].name"
-                        v-model="orderServices[index].included"
-                    >
-                        {{orderServices[index].name}}
-                    </b-form-checkbox> -->
-                </b-col>
-                <b-col cols="12" md="4">
-                    <b-form-group>
-                        <b-form-input
-                            type="number"
-                            v-model="orderServices[index].price"
-                            debounce="500"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-        </b-col>
-    </b-row>
-  </b-card-actions>
+                </b-form-group>
+            </b-col>
+            <b-col class="my-1" cols="12" md="6" v-show="order.payment_type === 'CS' || order.payment_type === 'CR'">
+                <b-form-group label="Договор">
+                <!-- <b-form-input v-model="order.contract" :disabled="readOnly"></b-form-input> -->
+                    <select-contracts
+                        :disabled="readOnly"
+                        :reduce="(cont) => cont.id"
+                        :value="order.contract"
+                        :payerId="order.payer_counterparty"
+                        @input="changeOrder($event, 'contract')"
+                        @createContract="handleContractCreation"
+                    />
+                </b-form-group>
+            </b-col>
+        </b-row>
+        <!-- <b-row class="">
+            <b-col class="text-start py-1" cols="4">
+                Услуга
+            </b-col>
+            <b-col class="text-start py-1" cols="4">
+                Срок доставки, дни
+            </b-col>
+            <b-col class="text-start py-1" cols="4">
+                Стоимость, руб
+            </b-col>
+        </b-row>
+        <b-row 
+            class="service-table"
+            v-for="(service, i) in services"
+            :key="i"
+        >
+            <b-col  class="py-1" cols="4">
+                {{service.name}}
+            </b-col>
+            <b-col class="py-1" cols="4">
+                {{service.date}}
+            </b-col>
+            <b-col class="py-1" cols="4">
+                {{service.price}}
+            </b-col>
+        </b-row> -->
+        <b-row>
+            <b-col class="mt-2" @click="() => additionalService = additionalService ? false : true">
+                <b-icon-chevron-up v-if="additionalService" variant="primary"/>
+                <b-icon-chevron-down v-if="!additionalService" variant="primary"/>
+                <span class="header-additional-service">Дополнительные услуги</span>
+            </b-col>
+        </b-row>
+        <b-row v-if="additionalService && orderServices.length">
+            <b-col>
+                <!-- <payment-service
+                    v-for="service in orderServices"
+                    :key="service.id"
+                    :orderPaymentService="service"
+                /> -->
+                <b-row class="service"  v-for="(service, index) in orderServices" :key="orderServices[index].id">
+                    <b-col cols="12" md="8">
+                        <!-- @change="handleOrderService(service)"
+                        :checked="checkService(service.service)" -->
+                        <input
+                            type="checkbox"
+                            :name="service.name"
+                            :id="String(service.id)"
+                            v-model="service.included"
+                            class="service-checkbox"
+                        >
+                        <span class="service-name">{{ service.name }}</span>
+                        <!-- <b-form-checkbox
+                            :id="String(orderServices[index].id)"
+                            :name="orderServices[index].name"
+                            v-model="orderServices[index].included"
+                        >
+                            {{orderServices[index].name}}
+                        </b-form-checkbox> -->
+                    </b-col>
+                    <b-col cols="12" md="4">
+                        <b-form-group>
+                            <b-form-input
+                                type="number"
+                                v-model="orderServices[index].price"
+                                debounce="500"
+                            />
+                        </b-form-group>
+                    </b-col>
+                </b-row>
+            </b-col>
+        </b-row>
+    </b-card-actions>
 </template>
 
 <script>
@@ -150,18 +150,18 @@ import { mapMutations } from "vuex";
 import BCardActions from "@/@core/components/b-card-actions/BCardActions.vue";
 
 import {
-  BOverlay,
-  BRow,
-  BCol,
-  BCard,
-  BFormInput,
-  BFormGroup,
-  BFormRadio,
-  BFormCheckbox,
-  BIcon,
-  BIconChevronUp,
-  BIconChevronDown,
-  BTable,
+    BOverlay,
+    BRow,
+    BCol,
+    BCard,
+    BFormInput,
+    BFormGroup,
+    BFormRadio,
+    BFormCheckbox,
+    BIcon,
+    BIconChevronUp,
+    BIconChevronDown,
+    BTable,
 } from "bootstrap-vue";
 
 export default {
