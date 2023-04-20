@@ -152,6 +152,9 @@
 			},
 			
 		},
+		mounted() {
+			this.value ? this.getClient(this.value) : null;
+		}
 	};
 </script>
 

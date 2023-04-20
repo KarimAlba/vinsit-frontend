@@ -37,7 +37,7 @@ export default [
     {
         path: '/accounting/checks',
         name: 'accounting-check',
-        component: () => import('@/views/accounting/Check.vue'),
+        component: () => import('@/views/accounting/Accounts.vue'),
         meta: {
             pageTitle: 'Счета',
             disabledRoles: [
