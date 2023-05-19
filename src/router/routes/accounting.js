@@ -78,5 +78,36 @@ export default [
             ],
         },
     },
+    {
+        path: '/accounting/bank',
+        name: 'accounting-bank',
+        component: () => import('@/views/accounting/Bank.vue'),
+        meta: {
+            pageTitle: 'Банк',
+            disabledRoles: [
+                ...Object.keys(RoleConstants).filter(key => key !== RoleConstants.AD)
+            ],
+        },
+    },
+    {
+        // path: '/accounting/bank/:id(\\d+)',
+        path: '/accounting/bank/payment-order/:type?/:id(\\d+)?',
+        name: 'payment-order',
+
+        component: () => import('@/views/accounting/PaymentOrder.vue'),
+        meta: {
+            navActiveLink: 'orders',
+            breadcrumb: [
+                {
+                    text: 'Банк',
+                    to: "/accounting/bank"
+                },
+                {
+                    text: 'Документ',
+                    active: true,
+                },
+            ],
+        },
+    },
 
 ]

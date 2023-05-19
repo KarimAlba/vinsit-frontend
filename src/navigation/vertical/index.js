@@ -107,6 +107,11 @@ export default [
                 icon: 'ChevronRightIcon',
                 route: 'accounting-debt',
             },
+            {
+                title: 'Банк',
+                icon: 'ChevronRightIcon',
+                route: 'accounting-bank',
+            },
         ],
     },
 ]
