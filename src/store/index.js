@@ -12,6 +12,7 @@ import moduleReconciliationActs from './app-modules/accounting/reconciliation-ac
 import moduleAccountingActs from './app-modules/accounting/acts';
 import moduleAccountingChecks from './app-modules/accounting/checks';
 import moduleAccountingUpds from './app-modules/accounting/upds';
+import moduleAccountingBank from './app-modules/accounting/bank';
 import modulePayers from './app-modules/payers';
 import moduleRecipients from './app-modules/recipients';
 import moduleSenders from './app-modules/senders';
@@ -31,6 +32,7 @@ export default new Vuex.Store({
 		moduleAccountingActs,
         moduleAccountingChecks,
 		moduleAccountingUpds,
+		moduleAccountingBank,
 		modulePayers,
 		moduleRecipients,
 		moduleSenders

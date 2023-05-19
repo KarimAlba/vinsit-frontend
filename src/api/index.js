@@ -15,6 +15,7 @@ import productsModule from "./products";
 import placesModule from "./places";
 import paymentDocumentsModule from "./payment-documents";
 import servicesModule from "./services";
+import accountingBank from "./accounting-bank";
 
 export const instance = new Instance().getAxiosIns();
 
@@ -23,6 +24,7 @@ export default {
     accActs: accountingActsModule(instance),
     checks: accountingChecksModule(instance),
     accUpds: accountingUpdsModule(instance),
+    bank: accountingBank(instance),
     cities: citiesModule(instance),
     clients: clientsModule(instance),
     executors: executorsModule(instance),
