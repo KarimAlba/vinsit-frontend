@@ -214,6 +214,17 @@ export default {
 		validationForm() {
 			// this.$refs.loginValidation.validate().then((success) => {
 				// if (success) {
+					if (this.userEmail == '' || this.password == '') {
+						this.$toast({
+							component: ToastificationContent,
+							props: {
+								title: "Fields cannot be empty",
+								icon: "EditIcon",
+								variant: "danger",
+							},
+						});
+						return
+					}
 					this.$api.auth.signIn(this.userEmail, this.password)
 						.then((response) => {
 							console.log(response);

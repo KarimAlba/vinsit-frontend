@@ -113,7 +113,7 @@ export default {
                     ...response.data,
                     sum: +(response.data.sum) < 0 ? -(+(response.data.sum)) : response.data.sum,
                     contracts: 
-                        response.data.contracts.lendth 
+                        response.data.contracts.length 
                             ? 
                             response.data.contracts.map((item) => ({contract: item, accounts: ['']}))
                             :

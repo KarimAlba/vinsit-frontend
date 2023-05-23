@@ -51,6 +51,9 @@ export default class Instance {
 		
 				// if (status === 401) {
 				if (response && response.status === 401) {
+					if (location.pathname == '/login') {
+						return response;
+					}
 					if (!this.isAlreadyFetchingAccessToken) {
                         this.isAlreadyFetchingAccessToken = true
                         this.refreshToken().then(r => {
@@ -101,6 +104,7 @@ export default class Instance {
 				const originalRequest = config
 		
 				// if (status === 401) {
+				
 				if (response && response.status === 401) {
 					if (!this.isAlreadyFetchingAccessToken) {
                         this.isAlreadyFetchingAccessToken = true

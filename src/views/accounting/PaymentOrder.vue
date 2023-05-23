@@ -111,7 +111,7 @@
 									placeholder="Поставщик"
 									:reduce="(client) => client.id"
 									v-model="editPaymentOrder.counterparty"
-            						@input="handleCounterparty($event)"
+									@input="handleCounterparty($event)"
 									:disabled="readOnly"
 									:clearSearchOnBlur="false"
 								/>
@@ -390,6 +390,8 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { ValidationProvider, ValidationObserver } from "vee-validate";
+import ToastificationContent from "@core/components/toastification/ToastificationContent.vue";
+
 
   
 import {
@@ -468,8 +470,8 @@ export default {
 				is_nds: false,
 				contracts: [
 					{
-						contract: '',
-						accounts: [''],
+						contract: null,
+						accounts: [null],
 					}
 				],
 				is_completed: false,
@@ -492,6 +494,8 @@ export default {
 			},
 			roles: RoleConstants,
 		};
+		},
+		watch: {
 		},
 		computed: {
 			...mapGetters({
@@ -582,7 +586,10 @@ export default {
 					...this.editPaymentOrder,
 					contracts: [
 						...this.editPaymentOrder.contracts.slice(0, index),
-						id,
+						{
+							...this.editPaymentOrder.contracts[index],
+							contract: id,
+						},
 						...this.editPaymentOrder.contracts.slice(index + 1),
 					],
 				};
@@ -681,7 +688,7 @@ export default {
 					financial_transaction: this.editPaymentOrder.financial_transaction,
 					executor: this.editPaymentOrder.executor,
 					date_created: this.editPaymentOrder.date_created || this.date + "T" + this.time,
-					contracts: this.editPaymentOrder.contracts,
+					contracts: this.editPaymentOrder.contracts.contract ? this.editPaymentOrder.contracts.map((item) => item.contract) : [],
 				};
 
 				console.log('newOrder', newOrder)
@@ -750,7 +757,10 @@ export default {
 			},
 		},
 		mounted() {
-			this.idPaymentOrder ? this.fetchPaymentOrder(this.idPaymentOrder) : null;
+			if (this.idPaymentOrder) {
+				this.fetchPaymentOrder(this.idPaymentOrder);
+				this.handleCounterparty(this.editPaymentOrder.counterparty)
+			};
 			this.fetchFinancialTransactions();
 			this.fetchExecutors();
 		},
