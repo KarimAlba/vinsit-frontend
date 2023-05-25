@@ -104,6 +104,7 @@ export default class Instance {
 				const originalRequest = config
 		
 				// if (status === 401) {
+				
 				if (response && response.status === 401) {
 					if (!this.isAlreadyFetchingAccessToken) {
                         this.isAlreadyFetchingAccessToken = true

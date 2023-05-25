@@ -91,7 +91,7 @@ export default [
     },
     {
         // path: '/accounting/bank/:id(\\d+)',
-        path: '/accounting/bank/payment-order/:type?/:id(\\d+)?',
+        path: '/accounting/bank/payment-order/:type?/:id?',
         name: 'payment-order',
 
         component: () => import('@/views/accounting/PaymentOrder.vue'),

@@ -111,7 +111,7 @@
 									placeholder="Поставщик"
 									:reduce="(client) => client.id"
 									v-model="editPaymentOrder.counterparty"
-            						@input="handleCounterparty($event)"
+									@input="handleCounterparty($event)"
 									:disabled="readOnly"
 									:clearSearchOnBlur="false"
 								/>
@@ -264,6 +264,9 @@
 									@input="changeOrderContract($event, i)"
 									:payerId="editPaymentOrder.counterparty"
 									@createContract="handleContractCreation($event, i)"
+									:clearSearchOnBlur="false"
+									:disabledDefaultValue="true"
+									:debounceOff="true"
 								/>
 							</b-form-group>
 						</b-col>
@@ -271,7 +274,7 @@
 						<b-col class="" cols="3">
 							<b-form-group label="Сумма, Р">
 								<b-form-input
-									v-model="editPaymentOrder.contracts[i].contract"
+									v-model="contractSum"
 								></b-form-input>
 							</b-form-group>
 						</b-col>
@@ -279,7 +282,7 @@
 						<b-col class="" cols="4">
 							<b-form-group label="Сумма договора, Р">
 								<b-form-input
-									v-model="editPaymentOrder.contracts[i].contract"
+									v-model="contractSum"
 								></b-form-input>
 							</b-form-group>
 						</b-col>
@@ -290,22 +293,31 @@
 					</b-row>
 					<b-row
 						class="d-flex justify-content-end"
-						v-for="(account, index) in contract.accounts"
+						v-for="(check, index) in contract.checks"
 						:key="index"
 					>
 						<b-col class="border-left-dark" cols="3">
 							<b-form-group label="Счет">
-								<b-form-input
+								<v-select
+									:id="index"
+									label="id"
+									:reduce="(mode) => mode.id"
 									placeholder="Номер"
-									v-model="editPaymentOrder.contracts[i].accounts[index]"
-								></b-form-input>
+									@input="changeOrderCheck($event, i, index)"
+									:options="selectBank.checks[i]"
+									:value="editPaymentOrder.contracts[i].checks[index].id"
+								/>
+								<!-- <b-form-input
+									placeholder="Номер"
+									v-model="editPaymentOrder.contracts[i].checks[index].id"
+								></b-form-input> -->
 							</b-form-group>
 						</b-col>
 
 						<b-col class="" cols="3">
 							<b-form-group label="Сумма, Р">
 								<b-form-input
-									v-model="editPaymentOrder.contracts[i].accounts[index]"
+									v-model="editPaymentOrder.contracts[i].checks[index].total_price"
 								></b-form-input>
 							</b-form-group>
 						</b-col>
@@ -313,16 +325,16 @@
 						<b-col class="" cols="3">
 							<b-form-group label="Сумма счета, Р">
 								<b-form-input
-									v-model="editPaymentOrder.contracts[i].accounts[index]"
+									v-model="editPaymentOrder.contracts[i].checks[index].total_price"
 								></b-form-input>
 							</b-form-group>
 						</b-col>
 
 						<b-col cols="2" class="d-flex aligin-items-center">
-							<b-icon icon="trash" @click="deleteAccount(i, index)"/>
+							<b-icon icon="trash" @click="deleteChecks(i, index)"/>
 						</b-col>
 					</b-row>
-					<span class="add-account" @click="addAccount(i)">+ Счет</span>
+					<span class="add-account" @click="addChecks(i)">+ Счет</span>
 				</b-col>
 				<span class="add-contract" @click="addContract()">+ Договор</span>
 
@@ -390,6 +402,8 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { ValidationProvider, ValidationObserver } from "vee-validate";
+import ToastificationContent from "@core/components/toastification/ToastificationContent.vue";
+
 
   
 import {
@@ -454,6 +468,7 @@ export default {
 	},
 	data() {
 		return {
+			contractSum: null,
 			executors: [],
 			financialTransactions: [],
 			date: null,
@@ -468,8 +483,8 @@ export default {
 				is_nds: false,
 				contracts: [
 					{
-						contract: '',
-						accounts: [''],
+						contract: null,
+						checks: [{act: null, total_price: null}],
 					}
 				],
 				is_completed: false,
@@ -479,10 +494,8 @@ export default {
 				payment_type: '',
 			},
 			selectBank: {
-				operation: [
-					{id: 1, title: 'Оплата поставщикам авансом 1'}, 
-					{id: 2, title: 'Оплата поставщикам авансом 2'}
-				],
+				checks: [],
+				contracts: [],
 				financial_transactions: [],
 				checking_accounts: [],
 				nds: [
@@ -493,6 +506,34 @@ export default {
 			roles: RoleConstants,
 		};
 		},
+		watch: {
+			'paymentOrder'(nextValue) {
+				if (this.idPaymentOrder) {
+					this.bank = nextValue;
+				}
+			},
+			'selectBank.checks': {
+				handler(newValue, oldValue) {
+					console.log('change select bank checks', oldValue)
+					// console.log('selectBank checks ', oldValue, newValue)
+				},
+				deep: true
+			},
+			'editPaymentOrder.contracts': {
+				
+				handler(newValue, oldValue) {
+					console.log('change contracts', oldValue[0].checks)
+				},
+				deep: true
+			}
+			// 'editPaymentOrder.contracts': {
+			// 	handler(newValue, oldValue) {
+			// 		console.log('watcher', newValue)
+			// 		this.getChecks()
+			// 	},
+			// 	deep: true
+			// },
+		},
 		computed: {
 			...mapGetters({
 				loading: "moduleAccountingBank/getLoading",
@@ -500,10 +541,10 @@ export default {
 			}),
 			editPaymentOrder: {
 				get() {
-					return this.idPaymentOrder ? this.paymentOrder : this.bank;
+					return this.bank;
 				},
 				set(value) {
-					this.idPaymentOrder ? this.paymentOrder = value : this.bank = value;
+					this.bank = value;
 				}
 			},
 			financial_transactions() {
@@ -573,41 +614,65 @@ export default {
 			...mapMutations({
 				changeLoading: "moduleAccountingBank/changeLoading",
 			}),
-			addAccount(i) {
-				this.editPaymentOrder.contracts[i].accounts.push('');
+			addChecks(i) {
+				this.editPaymentOrder.contracts[i].checks.push('');
 			},
 			changeOrderContract(id, index) {
-				console.log(id, index, this.editPaymentOrder.contracts)
+				// console.log('tut', id, index, this.editPaymentOrder.contracts)
 				this.editPaymentOrder = {
 					...this.editPaymentOrder,
 					contracts: [
 						...this.editPaymentOrder.contracts.slice(0, index),
-						id,
+						{
+							...this.editPaymentOrder.contracts[index],
+							contract: id,
+						},
 						...this.editPaymentOrder.contracts.slice(index + 1),
 					],
 				};
+				console.log('1');
+				this.getChecks(id, index);
+			},
+			changeOrderCheck(id, indexContract, indexCheck) {
+				console.log('5', this.selectBank.checks)
+				this.$api.checks.getCheck(id).then(response => {
+					this.editPaymentOrder.contracts = [
+						...this.editPaymentOrder.contracts.slice(0, indexContract),
+						{
+							...this.editPaymentOrder.contracts[indexContract],
+							checks: [
+								...this.editPaymentOrder.contracts[indexContract].checks.slice(0, indexCheck),
+								response.data,
+								...this.editPaymentOrder.contracts[indexContract].checks.slice(indexCheck + 1),
+							],
+						},
+						...this.editPaymentOrder.contracts.slice(indexContract + 1),
+					];
+					console.log('check', this.editPaymentOrder.contracts)
+				});
 			},
 			addContract(i) {
+				console.log('6')
 				this.editPaymentOrder.contracts.push(
 					{
-						contract: '',
-						accounts: [''],
+						contract: null,
+						checks: [null],
 					}
 				);
 			},
-			deleteAccount(i, index) {
-				if (this.editPaymentOrder.contracts[i].accounts.length == 1) {
-					this.editPaymentOrder.contracts[i].accounts = [''];
+			deleteChecks(i, index) {
+				if (this.editPaymentOrder.contracts[i].checks.length == 1) {
+					this.editPaymentOrder.contracts[i].checks = [''];
 					return
 				}
-				this.editPaymentOrder.contracts[i].accounts.splice(index, 1);
+				this.editPaymentOrder.contracts[i].checks.splice(index, 1);
 			},
 			deleteContract(i) {
 				if (this.editPaymentOrder.contracts.length == 1) {
 					this.editPaymentOrder.contracts = [
 						{
-							contract: '',
-							accounts: [''],
+							contract: null,
+							checks: [null],
 						}
 					];
 					return
@@ -638,9 +703,45 @@ export default {
 				? this.dayjs(date).format("YYYY-MM-DD")
 				: "Отсутствует";
 			},
+			getChecks(id, index) {
+				console.log('2', 'id - ', id)
+				this.$api.checks.getChecks({offset: 0, limit: 100, contract: id}).then(response => {
+				console.log('3', response)
+					this.selectBank.checks = [
+						...this.selectBank.checks.slice(0, index),
+						response.data.results,
+						...this.selectBank.checks.slice(index + 1),
+					];
+					// console.log('select bank', this.selectBank.checks);
+
+					this.filterChecks(index)
+				});
+			},
+			filterChecks(index) {
+				if (this.idPaymentOrder) {
+
+					const selectedChecks = this.selectBank.checks[index].filter(item => this.editPaymentOrder.checks.includes(item.id));
+					// console.log('filter' , this.selectBank)
+					this.editPaymentOrder.contracts = [
+						...this.editPaymentOrder.contracts.slice(0, index),
+						{
+							...this.editPaymentOrder.contracts[index],
+							checks: [...selectedChecks],
+						},
+						...this.editPaymentOrder.contracts.slice(index + 1),
+					];
+					// console.log('filter' , this.editPaymentOrder.contracts)
+					// console.log('filter tut' , this.selectBank.checks)
+				}
+			},
+			handleChecks() {
+				// console.log('handleChecks', this.editPaymentOrder);
+				console.log('4')
+				this.editPaymentOrder.contracts.forEach((item, index) => this.getChecks(item.contract, index));
+			},
 			handleCounterparty(value) {
 				this.$api.clients.getClient(value).then(response => {
-					this.bank_account = response.data.bank_account
+					this.bank_account = response.data.bank_account;
 				});
 			},
 			async handlePdfDownload() {
@@ -666,7 +767,7 @@ export default {
 				})
 			},
 			handleSave() {
-				console.log('this.editPaymentOrder', this.editPaymentOrder)
+				// console.log('this.editPaymentOrder', this.editPaymentOrder)
 				
 				const newOrder = {
 					number: this.editPaymentOrder.number,
@@ -681,15 +782,23 @@ export default {
 					financial_transaction: this.editPaymentOrder.financial_transaction,
 					executor: this.editPaymentOrder.executor,
 					date_created: this.editPaymentOrder.date_created || this.date + "T" + this.time,
-					contracts: this.editPaymentOrder.contracts,
+					contracts: this.editPaymentOrder.contracts[0].contract ? this.editPaymentOrder.contracts.map((item) => item.contract) : [],
+					checks: this.editPaymentOrder.contracts[0].checks 
+						? 
+						this.editPaymentOrder.contracts.map(
+							item => item.checks.map(
+								check => check.id
+							)).reduce((checks, id) => checks.concat(id), []).filter(check => check !== undefined)
+						
+						: [],
 				};
 
-				console.log('newOrder', newOrder)
+				// console.log('newOrder', newOrder)
 
 				if(!this.idPaymentOrder) {
 					this.createPaymentOrder(newOrder);
 				} else {
-					console.log('oooo')
+					// console.log('oooo')
 					this.updatePaymentOrder(newOrder);
 				}
 
@@ -750,7 +859,13 @@ export default {
 			},
 		},
 		mounted() {
-			this.idPaymentOrder ? this.fetchPaymentOrder(this.idPaymentOrder) : null;
+			if (this.$route.params.id) {
+				this.fetchPaymentOrder(this.$route.params.id);
+				setTimeout(() => {
+					this.handleCounterparty(this.editPaymentOrder.counterparty);
+					this.handleChecks();
+				}, 1000)
+			};
 			this.fetchFinancialTransactions();
 			this.fetchExecutors();
 		},
