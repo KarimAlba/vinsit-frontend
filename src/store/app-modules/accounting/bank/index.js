@@ -115,9 +115,9 @@ export default {
                     contracts: 
                         response.data.contracts.length 
                             ? 
-                            response.data.contracts.map((item) => ({contract: item, accounts: ['']}))
+                            response.data.contracts.map((item) => ({contract: item, checks: [{act: null, total_price: null}]}))
                             :
-                            [{contract: '', accounts: ['']}]
+                            [{contract: null, checks: [{act: null, total_price: null}]}]
                 })
                 console.log('orderzresponse - ', state.paymentOrder)
             })

@@ -48,7 +48,7 @@
                 <template #cell(number)="data">
                     <router-link
                         style="border-bottom: 1px dotted blue"
-                        :to="{ name: 'payment-order', params: { id: data.item.id }  }"
+                        :to="{ name: 'payment-order', params: { type: getType(data.item.type), id: data.item.id }  }"
                     >
                         {{ data.item.number }}
                     </router-link>
@@ -202,6 +202,9 @@
             ...mapMutations({
                 changeCurPage: "moduleAccountingBank/changePage",
             }),
+            getType(type) {
+                return type ? (type.includes('Исходящее') ? 'O' : 'I') : 'O'
+            },
             getColorStatus(status) {
                 return (
                 this.orderStatus.find((x) => x.title === status)?.color || "secondary"
