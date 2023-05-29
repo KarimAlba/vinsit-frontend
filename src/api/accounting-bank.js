@@ -24,5 +24,8 @@ export default function (instance) {
         updatePaymentOrder(id, data) {
             return instance.put(`api/v1/bank/payment_order/${id}/`, data);
         },
+        createPaymentOrderFile(data) {
+            return instance.post(`api/v1/bank/payment_order_file/upload/`, data);
+        },
     };
 }
