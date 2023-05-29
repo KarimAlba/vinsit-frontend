@@ -212,7 +212,6 @@ export default {
 	},
 	methods: {
 		setTokens(response) {
-			console.log('tot')
 			useJwt.setToken(response.data.access);
 			useJwt.setRefreshToken(response.data.refresh);
 			useJwt.setTokenLifetime(response.data.access_token_lifetime);

@@ -1,30 +1,33 @@
 <template>
-        <div class="block-bank">
-            <div class="mb-4 d-flex align-items-center justify-content-between">
-        <span
-            >Найдено: <b>{{ count }}</b></span
-        >
-
-        <div>
-            <b-button variant="primary" v-if="!readOnly" :disabled="readOnly">
-                Создать по выписке
-            </b-button
-            >
-        </div>
-
-        <div>
-            <b-button variant="primary" :to="{ name: 'payment-order',  params: { type: 'I' } }" v-if="!readOnly" :disabled="readOnly">
-                Создать входящее поручение
-            </b-button
-            >
-        </div>
-
-        <div>
-            <b-button variant="primary" :to="{ name: 'payment-order',  params: { type: 'O' }  }" v-if="!readOnly" :disabled="readOnly">
-                Создать исходящее поручение
-            </b-button
-            >
-        </div>
+    <div class="block-bank">
+        <b-modal v-model="showModal" :hide-footer="true">
+            <h1 class="">Загрузка выписки из банка</h1>
+            <h5>Выберите файл выписки для загрузки документов</h5>
+            <div class="modal-btn-container">
+                <b-form-file v-model="file" plain accept=".txt" v-bind:class="{notSelected: !checkFile}"></b-form-file>
+                <b-button variant="primary" @click="createPaymentOrder">
+                    Создать
+                </b-button>
+            </div>
+        </b-modal>
+        <div class="mb-4 d-flex align-items-center justify-content-between">
+            <span >Найдено: <b>{{ count }}</b></span >
+            <div>
+                <b-button variant="primary" v-if="!readOnly" :disabled="readOnly" @click="showModal = !showModal">
+                    Создать по выписке
+                </b-button>
+            </div>
+            <div>
+                <b-button variant="primary" :to="{ name: 'payment-order',  params: { type: 'I' } }" v-if="!readOnly" :disabled="readOnly">
+                    Создать входящее поручение
+                </b-button>
+            </div>
+            <div>
+                <b-button variant="primary" :to="{ name: 'payment-order',  params: { type: 'O' }  }" v-if="!readOnly" :disabled="readOnly">
+                    Создать исходящее поручение
+                </b-button
+                >
+            </div>
         </div>
         <b-card>
             <b-table
@@ -126,6 +129,8 @@
         BCard,
         BTable,
         BButton,
+        BModal,
+        BFormFile,
         BBadge,
         BFormCheckbox,
         BPagination,
@@ -133,6 +138,7 @@
 
     import { RoleConstants } from '@/utils/role';
     import store from "@/store/index";
+    import ToastificationContent from "@core/components/toastification/ToastificationContent.vue";
 
     export default {
         data() {
@@ -147,7 +153,9 @@
                     { key: "write_offs", label: "Списания, ₽" },
                     { key: "comment", label: "Комментарий" },
                 ],
-
+                showModal: false,
+                file: null,
+                checkFile: true,
             };
         },
         components: {
@@ -156,6 +164,8 @@
             BCard,
             BTable,
             BButton,
+            BModal,
+            BFormFile,
             BBadge,
             BFormCheckbox,
             BPagination,
@@ -194,6 +204,8 @@
                 return result
             },
         },
+        watch: {
+        },
         methods: {
             ...mapActions({
                 fetchPaymentOrders: "moduleAccountingBank/fetchPaymentOrders",
@@ -221,6 +233,51 @@
             rowClass(item, type) {
                 if (!item || type !== 'row') return
                 if (item.counterparty === 'ИТОГО') return 'end-row-style'
+            },
+            createPaymentOrder() {
+                if (!this.file) {
+                    this.checkFile = false;
+                    return;
+                };
+                const formData = new FormData();
+                formData.append('file', this.file, this.file.name);
+                this.showModal = false;
+                this.checkFile = true;
+                this.$api.bank.createPaymentOrderFile(formData)
+                    .then((response) => {
+                        if (response.status === 200) {
+                            this.$toast({
+                                component: ToastificationContent,
+                                props: {
+                                    title: "Form Submitted",
+                                    icon: "EditIcon",
+                                    variant: "success",
+                                },
+                            });
+                            this.changePage(1);
+                            return;
+                        } else {
+                            this.$toast({
+                                component: ToastificationContent,
+                                props: {
+                                    title: response.data.detail,
+                                    icon: "EditIcon",
+                                    variant: "danger",
+                                },
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        this.$toast({
+                            component: ToastificationContent,
+                            props: {
+                                title: error.message,
+                                icon: "EditIcon",
+                                variant: "danger",
+                            },
+                        });
+                    });
+                this.file = null;
             },
         },
         mounted() {
@@ -279,6 +336,17 @@ p {
     font-weight: normal;
     font-size: 12px;
     color: #8B8B8B;
+}
+
+.modal-btn-container {
+    margin-top: 20px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.notSelected {
+    color: red;
 }
 
 </style>
