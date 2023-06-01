@@ -199,7 +199,7 @@ export default {
         }, 500),
         fetchExecutors: _.debounce((loading, vm) => {
             vm.$api.executors.getExecutors({ limit: 100 }).then((response) => {
-                vm.executors = response.data.results;
+                vm.executors = response.data;
                 loading ? loading(false) : null;
             });
         }, 500),
@@ -264,6 +264,7 @@ export default {
                     bank_account: this.form.bank_account || undefined,
                     company: this.form.company || undefined,
                 }).then((response) => {
+
                     if (response.status > 203) {
                         this.$toast({
                             component: ToastificationContent,
@@ -297,11 +298,12 @@ export default {
                 company: this.form.company || undefined,
             }).then((response) => {
 				if (response.status > 203) {
+                    console.log('response - ', response)
                     this.$toast({
                         component: ToastificationContent,
                         props: {
                             title: "Ошибка",
-                            text: "Не удалось сформировать",
+                            text: "Не удалось сформировать. " + response.data.non_field_errors,
                             icon: "XIcon",
                             variant: "danger",
                         },

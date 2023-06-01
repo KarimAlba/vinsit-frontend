@@ -195,6 +195,18 @@
 					},
 				);
 			}
+			this.payerId 
+				? this.fetchContracts(
+                    '',
+                    null,
+                    this,
+                    (contract) => {
+                        this.contract = contract;
+                        this.input(contract ? contract.id : null);
+                    },
+                )
+				: null;
+
 		}
 	};
 </script>

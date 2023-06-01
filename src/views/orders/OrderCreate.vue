@@ -210,11 +210,23 @@
 											:invalid-feedback="errors[0]"
 											label="Телефоны *"
 										>
-											<b-row class="">
+											<!-- <b-row class="">
+												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
+                            					</b-col>
 												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
 													Номер телефона
 												</b-col>
 												<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('sender')">
+													+
+												</b-col>
+											</b-row> -->
+											<b-row class="">
+												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
+												</b-col>
+												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
+													Номер телефона
+												</b-col>
+												<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="2" @click="addPhone('sender')">
 													+
 												</b-col>
 											</b-row>
@@ -222,6 +234,17 @@
 												v-for="(phone, i) in order.sender_phones"
 												:key="i"
 											>
+												<b-col
+													class="d-flex text-center border border-secondary"
+													cols="2"
+												>
+													<b-form-checkbox
+														:id="phone + phone.phone_number + ''"
+														:name="phone.phone_number"
+														class="align-self-center justify-self-center"
+														@change="onPhoneSelect('sender_phones', i)"
+													></b-form-checkbox>
+												</b-col>
 												<b-col class=" border border-secondary px-0" cols="8">
 													<!-- <b-form-input
 														v-model="phone.phone_number"
@@ -236,7 +259,7 @@
 														type="tel"
 													/>
 												</b-col>
-												<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('sender', i)">
+												<b-col class="text-center border border-secondary" cols="2" @click="deletePhone('sender', i)">
 													<b-icon icon="trash"></b-icon>
 												</b-col>
 											</b-row>
@@ -330,10 +353,12 @@
 											label="Телефоны *"
 										>
 											<b-row class="">
+												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
+												</b-col>
 												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
 													Номер телефона
 												</b-col>
-												<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('recipient')">
+												<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="2" @click="addPhone('recipient')">
 													+
 												</b-col>
 											</b-row>
@@ -341,6 +366,14 @@
 												v-for="(phone, i) in order.recipient_phones"
 												:key="i"
 											>
+												<b-col class="d-flex text-center border border-secondary" cols="2">
+													<b-form-checkbox
+														:id="phone + phone.phone_number + ''"
+														:name="phone.phone_number"
+														class="align-self-center justify-self-center"
+														@change="onPhoneSelect('recipient_phones', i)"
+													></b-form-checkbox>
+												</b-col>
 												<b-col class=" border border-secondary px-0" cols="8">
 													<!-- <b-form-input
 														v-model="phone.phone_number"
@@ -355,7 +388,7 @@
 														type="tel"
 													/>
 												</b-col>
-												<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('recipient', i)">
+												<b-col class="text-center border border-secondary" cols="2" @click="deletePhone('recipient', i)">
 													<b-icon icon="trash"></b-icon>
 												</b-col>
 											</b-row>
@@ -1059,6 +1092,13 @@
             changeOrder(value, key) {
                 this.order[key] = value;
             },
+			onPhoneSelect(counterparty, index) {
+				if (!this.order[counterparty][index].to_print) {
+					this.order[counterparty][index].to_print = true;
+					return;
+				}
+				this.order[counterparty][index].to_print = false;
+			},
 			validationForm() {
 				this.$refs.simpleRules.validate().then((success) => {
 					if (success) {
@@ -1177,13 +1217,15 @@
             // },
 			addPhone(name) {
 				if (this.order[name + '_phones'][0].phone_number){
-					this.order[name + '_phones'].unshift({});
+					// this.order[name + '_phones'].unshift({});
+					this.order[name + '_phones'].push({});
 				}
 			},
 			deletePhone(name, id) {
-				this.order[name + '_phones'].splice(id, 1);
-				if (this.order[name + '_phones'].length == 0){
-					this.order[name + '_phones'].unshift({});
+				// this.order[name + '_phones'].splice(id, 1);
+				if (this.order[name + '_phones'].length !== 0){
+					// this.order[name + '_phones'].unshift({});
+					this.order[name + '_phones'].pop({});
 				}
             },
 			addClient(propName) {
