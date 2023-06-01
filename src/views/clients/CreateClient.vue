@@ -147,7 +147,7 @@
                         </validation-provider>
                     </td>
                     </tr>
-                    <tr>
+                    <tr v-if="client.type !== 'E'">
                     <td class="pb-1">Серия паспорта</td>
                     <td>
                         <validation-provider #default="{ errors }">
@@ -166,7 +166,7 @@
                         </validation-provider>
                     </td>
                     </tr>
-                    <tr>
+                    <tr v-if="client.type !== 'E'">
                     <td class="pb-1">Номер паспорта</td>
                     <td>
                         <validation-provider #default="{ errors }">
@@ -202,22 +202,39 @@
                         </validation-provider>
                     </td>
                     </tr>
-                    <tr>
-                    <td class="pb-1">Должность</td>
-                    <td>
-                        <validation-provider #default="{ errors }">
-                            <b-form-group
-                                :invalid-feedback="errors[0]"
-                                :state="!errors.length"
-                            >
-                                <b-form-input
-                                    v-model="client.position"
-                                    type="text"
-                                    :state="errors.length > 0 ? false : null"
-                                ></b-form-input>
-                            </b-form-group>
-                        </validation-provider>
-                    </td>
+                    <tr v-if="client.type !== 'E'">
+                        <td class="pb-1">Должность</td>
+                        <td>
+                            <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="client.position"
+                                        type="text"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                            </validation-provider>
+                        </td>
+                    </tr>
+                    <tr v-if="client.type === 'E'">
+                        <td class="pb-1">Статус</td>
+                        <td>
+                            <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="client.position"
+                                        type="text"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                            </validation-provider>
+                        </td>
                     </tr>
                 </table>
                 </b-card>
@@ -242,22 +259,52 @@
                                 >{{ i + 1 }}. {{ phone.phone_number }}</a
                             > -->
                                 <validation-provider #default="{ errors }">
+                                    <span v-if="client.type == 'E' && client.client_phones.length > 1" style="margin-bottom: 15px;">{{ i + 1 }})</span>
                                     <b-form-input
                                         v-model="phone.phone_number"
                                         :state="errors.length > 0 ? false : null"
                                         :disabled="readOnly"
                                         type="tel"
-                                        style="padding-right: 30px; box-sizing: border-box;"
+                                        style="padding-right: 30px; box-sizing: border-box; margin-bottom: 15px; margin-top: 5px;"
+                                        placeholder="Номер телефона"
                                     />
-                                    <!-- @blur="changeOrder(phones, 'sender_phones')" -->
-                                </validation-provider>
-                                <span
-                                    class="delete-phone-btn"
-                                    v-if="client.client_phones.length > 1"
-                                    @click="deletePhoneNumber(i)"
-                                >
+                                    <span
+                                        class="delete-phone-btn"
+                                        v-if="client.client_phones.length > 1"
+                                        @click="deletePhoneNumber(i)"
+                                        :style="client.type == 'E' ? 'margin-top: 27px' : null"
+                                    >
                                     <b-icon icon="trash"></b-icon>
                                 </span>
+                                    <!-- @blur="changeOrder(phones, 'sender_phones')" -->
+                                </validation-provider>
+                                
+                                <validation-provider #default="{ errors }" v-if="client.type == 'E'">
+                                    <b-form-group
+                                        :invalid-feedback="errors[0]"
+                                        :state="!errors.length"
+                                    >
+                                        <b-form-input
+                                            v-model="client.client_phones[i].position"
+                                            type="text"
+                                            :state="errors.length > 0 ? false : null"
+                                            placeholder="Должность"
+                                        ></b-form-input>
+                                    </b-form-group>
+                                </validation-provider>
+                                <validation-provider #default="{ errors }" v-if="client.type == 'E'">
+                                    <b-form-group
+                                        :invalid-feedback="errors[0]"
+                                        :state="!errors.length"
+                                    >
+                                        <b-form-input
+                                            v-model="client.client_phones[i].fullname"
+                                            type="text"
+                                            :state="errors.length > 0 ? false : null"
+                                            placeholder="ФИО"
+                                        ></b-form-input>
+                                    </b-form-group>
+                                </validation-provider>
                             </p>
                         </td>
                     </tr>
@@ -311,8 +358,6 @@
             </b-row>
 
             <b-button variant="primary" @click="createClient">Создать</b-button>
-
-        <b-button variant="primary" @click="createClient()">Создать</b-button>
 
       </template>
     </b-overlay>
@@ -382,7 +427,9 @@ export default {
             client: {
                 client_phones: [
                     {
-                        phone_number: ''
+                        phone_number: '',
+                        fullname: '',
+                        position: '',
                     }
                 ],
                 type: null,
@@ -412,7 +459,12 @@ export default {
             return store.state.app.user.role !== RoleConstants.AD && store.state.app.user.role !== RoleConstants.LG;
         },
     },
-  methods: {
+    watch: {
+        'client.type'(newValue, oldValue) {
+           console.log(newValue, oldValue)
+        },
+    },
+    methods: {
     ...mapMutations({
       changeLoading: "moduleClients/changeLoading",
     }),
@@ -443,60 +495,110 @@ export default {
     getClientType(type) {
       return this.clientType.find((x) => x.id === type)?.title || "Не задан";
     },
+    enumerationResponse(obj) {
+        for (let key in obj) {
+            console.log('key - ', key)
+            if (key === 'web') {
+                return 'Поле \'Сайт\' - ' + obj[key] + ' ';
+            };
+            if (key === 'type') {
+                return 'Поле \'Тип\' ' + obj.key + ' ';
+            };
+        }
+    },
+    
     createClient() {
-      console.log('client create', this.client);
+        if (!this.client.name && !this.client.type) {
+            this.$toast({
+                component: ToastificationContent,
+                props: {
+                    title: "Ошибка",
+                    text: "Заполните поля \"Название / ФИО\" и \"Тип\"",
+                    icon: "XIcon",
+                    variant: "danger",
+                },
+            });
+            return;
+        };
+
+        if (!this.client.name) {
+            this.$toast({
+                component: ToastificationContent,
+                props: {
+                    title: "Ошибка",
+                    text: "Заполните поле \"Название / ФИО\"",
+                    icon: "XIcon",
+                    variant: "danger",
+                },
+            });
+            return;
+        };
+
+        if (!this.client.type) {
+            this.$toast({
+                component: ToastificationContent,
+                props: {
+                    title: "Ошибка",
+                    text: "Заполните поле \"Тип\"",
+                    icon: "XIcon",
+                    variant: "danger",
+                },
+            });
+            return;
+        };
+
         this.changeLoading(true);
 
         this.$api.clients
             .addNewClient(this.client)
             .then((response) => {
                 if (response.status > 203) {
-                  this.message = response.data.message;
+                 
+                  console.log('response - ', response.data);
                   this.$toast({
-											component: ToastificationContent,
-											props: {
-												title: "Ошибка",
-												text: "Контрагент не создан",
-												icon: "XIcon",
-												variant: "danger",
-											},
-										});
+                    component: ToastificationContent,
+                    props: {
+                        title: "Ошибка",
+                        text: "Контрагент не создан. " + this.enumerationResponse(response.data),
+                        icon: "XIcon",
+                        variant: "danger",
+                    },
+                });
                 } else {
-                  this.changeLoading(false);
-                  this.createContracts(response.data.id);
-                  this.$toast({
-											component: ToastificationContent,
-											props: {
-												title: "Успешно",
-												text: "Контрагент создан",
-												icon: "CheckCircleIcon",
-												variant: "success",
-											},
-										});
+                    this.changeLoading(false);
+                    this.createContracts(response.data.id);
+                    this.$toast({
+                        component: ToastificationContent,
+                        props: {
+                            title: "Успешно",
+                            text: "Контрагент создан",
+                            icon: "CheckCircleIcon",
+                            variant: "success",
+                        },
+                    });
                 };
             })
             .catch(() => {
-              this.$toast({
-                component: ToastificationContent,
-                props: {
-                  title: "Ошибка",
-                  text: "Контрагент не создан",
-                  icon: "XIcon",
-                  variant: "danger",
-                },
-              });
+                this.$toast({
+                    component: ToastificationContent,
+                    props: {
+                        title: "Ошибка",
+                        text: "Контрагент не создан",
+                        icon: "XIcon",
+                        variant: "danger",
+                    },
+                });
             })
             .finally(() => this.changeLoading(false));
-    },
-    createContracts(id) {
-        const allPromises = this.contracts.map(c => c.value).filter(c => c).map((client) => {
-            return this.$api.clients.createClientContract(id, client)
-                .then(response => {
+        },
+        createContracts(id) {
+            const allPromises = this.contracts.map(c => c.value).filter(c => c).map((client) => {
+                return this.$api.clients.createClientContract(id, client).then(response => {
                     if (response.status >= 203) {
                         this.message = response.data;
                         return;
-                        }
-                    })
+                    }
+                })
             });
             Promise.all(allPromises)
                 .then(values => {
@@ -506,10 +608,10 @@ export default {
         },
         addPhoneNumber() {
             if (this.client.client_phones) {
-                this.client.client_phones.push({phone_number: ''});
+                this.client.client_phones.push({phone_number: '', fullname: '', position: ''});
                 return;
             }
-            this.client.client_phones = [{phone_number: ''}];
+            this.client.client_phones = [{phone_number: '', fullname: '', position: ''}];
         },
         deletePhoneNumber(index) {
             if (this.client.client_phones && this.client.client_phones.length) {
