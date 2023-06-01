@@ -118,13 +118,11 @@
                             .filter((result) => result.contract.includes(search));
                         vm.contracts = result;
                         if (callback) {
-                            console.log('callback');
                             const selected = result.find(res => res.id === vm.value);
                             const defaultValue = result.length ? result[0] : null;
                             callback(selected || (!vm.disabledDefaultValue ? defaultValue : null));
                         }
                         if (initCallback) {
-                            console.log('init callback');
                             const selected = result.find(res => res.id === vm.value);
                             initCallback(selected || null);
                         }

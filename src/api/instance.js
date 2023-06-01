@@ -58,7 +58,7 @@ export default class Instance {
                         this.isAlreadyFetchingAccessToken = true
                         this.refreshToken().then(r => {
                             if (r.status > 203) {
-                                location.pathname = 'login';
+								location.pathname = 'login';
                                 localStorage.clear();
                                 return;
                             }
