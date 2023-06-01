@@ -312,12 +312,15 @@
 
             <b-button variant="primary" @click="createClient">Создать</b-button>
 
-        </template>
-        </b-overlay>
-    </section>
+        <b-button variant="primary" @click="createClient()">Создать</b-button>
+
+      </template>
+    </b-overlay>
+  </section>
 </template>
 
 <script>
+import ToastificationContent from "@core/components/toastification/ToastificationContent.vue";
 import { mapGetters, mapMutations } from "vuex";
 import { ValidationProvider, ValidationObserver } from "vee-validate";
 import { required, email, confirmed, password } from "@validations";
@@ -409,55 +412,89 @@ export default {
             return store.state.app.user.role !== RoleConstants.AD && store.state.app.user.role !== RoleConstants.LG;
         },
     },
-    methods: {
-        ...mapMutations({
-            changeLoading: "moduleClients/changeLoading",
-        }),
-        isValidHttpUrl(string) {
-            var pattern = new RegExp(
-                "^(https?:\\/\\/)?" + // protocol
-                "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
-                "((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
-                "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
-                "(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
-                "(\\#[-a-z\\d_]*)?$",
-                "i"
-            );
-            return !!pattern.test(string);
-        },
-        serieFormatter(value) {
+  methods: {
+    ...mapMutations({
+      changeLoading: "moduleClients/changeLoading",
+    }),
+    isValidHttpUrl(string) {
+      var pattern = new RegExp(
+        "^(https?:\\/\\/)?" + // protocol
+          "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
+          "((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
+          "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
+          "(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
+          "(\\#[-a-z\\d_]*)?$",
+        "i"
+      );
+      return !!pattern.test(string);
+    },
+    serieFormatter(value) {
+        if (!value) {
+            return null;
+        }
+        return Number(String(value).substring(0, 4));
+    },
+    passportNumberFormatter(value) {
             if (!value) {
-                return null;
-            }
-            return Number(String(value).substring(0, 4));
-        },
-        passportNumberFormatter(value) {
-                if (!value) {
-                return null;
-            }
-            return Number(String(value).substring(0, 6));
-        },
-        getClientType(type) {
-            return this.clientType.find((x) => x.id === type)?.title || "Не задан";
-        },
-        createClient() {
-            this.changeLoading(true);
-            this.$api.clients
-                .addNewClient(this.client)
-                .then((response) => {
-                    if (response.status > 203) this.message = response.data.message;
-                    this.changeLoading(false);
-                    this.createContracts(response.data.id);
-                })
-                .finally(() => this.changeLoading(false));
-        },
-        createContracts(id) {
-            const allPromises = this.contracts.map(c => c.value).filter(c => c).map((client) => {
-                return this.$api.clients.createClientContract(id, client)
-                    .then(response => {
-                        if (response.status >= 203) {
-                            this.message = response.data;
-                            return;
+            return null;
+        }
+        return Number(String(value).substring(0, 6));
+    },
+    getClientType(type) {
+      return this.clientType.find((x) => x.id === type)?.title || "Не задан";
+    },
+    createClient() {
+      console.log('client create', this.client);
+        this.changeLoading(true);
+
+        this.$api.clients
+            .addNewClient(this.client)
+            .then((response) => {
+                if (response.status > 203) {
+                  this.message = response.data.message;
+                  this.$toast({
+											component: ToastificationContent,
+											props: {
+												title: "Ошибка",
+												text: "Контрагент не создан",
+												icon: "XIcon",
+												variant: "danger",
+											},
+										});
+                } else {
+                  this.changeLoading(false);
+                  this.createContracts(response.data.id);
+                  this.$toast({
+											component: ToastificationContent,
+											props: {
+												title: "Успешно",
+												text: "Контрагент создан",
+												icon: "CheckCircleIcon",
+												variant: "success",
+											},
+										});
+                };
+            })
+            .catch(() => {
+              this.$toast({
+                component: ToastificationContent,
+                props: {
+                  title: "Ошибка",
+                  text: "Контрагент не создан",
+                  icon: "XIcon",
+                  variant: "danger",
+                },
+              });
+            })
+            .finally(() => this.changeLoading(false));
+    },
+    createContracts(id) {
+        const allPromises = this.contracts.map(c => c.value).filter(c => c).map((client) => {
+            return this.$api.clients.createClientContract(id, client)
+                .then(response => {
+                    if (response.status >= 203) {
+                        this.message = response.data;
+                        return;
                         }
                     })
             });
