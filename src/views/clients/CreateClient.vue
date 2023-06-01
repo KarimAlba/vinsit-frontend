@@ -310,7 +310,7 @@
           </b-col>
         </b-row>
 
-        <b-button variant="primary" @click="createClient">Создать</b-button>
+        <b-button variant="primary" @click="createClient()">Создать</b-button>
 
       </template>
     </b-overlay>
@@ -318,6 +318,7 @@
 </template>
 
 <script>
+import ToastificationContent from "@core/components/toastification/ToastificationContent.vue";
 import { mapGetters, mapMutations } from "vuex";
 import { ValidationProvider, ValidationObserver } from "vee-validate";
 import { required, email, confirmed, password } from "@validations";
@@ -441,14 +442,47 @@ export default {
       return this.clientType.find((x) => x.id === type)?.title || "Не задан";
     },
     createClient() {
+      console.log('client create', this.client);
         this.changeLoading(true);
 
         this.$api.clients
             .addNewClient(this.client)
             .then((response) => {
-                if (response.status > 203) this.message = response.data.message;
-                this.changeLoading(false);
-                this.createContracts(response.data.id);
+                if (response.status > 203) {
+                  this.message = response.data.message;
+                  this.$toast({
+											component: ToastificationContent,
+											props: {
+												title: "Ошибка",
+												text: "Контрагент не создан",
+												icon: "XIcon",
+												variant: "danger",
+											},
+										});
+                } else {
+                  this.changeLoading(false);
+                  this.createContracts(response.data.id);
+                  this.$toast({
+											component: ToastificationContent,
+											props: {
+												title: "Успешно",
+												text: "Контрагент создан",
+												icon: "CheckCircleIcon",
+												variant: "success",
+											},
+										});
+                };
+            })
+            .catch(() => {
+              this.$toast({
+                component: ToastificationContent,
+                props: {
+                  title: "Ошибка",
+                  text: "Контрагент не создан",
+                  icon: "XIcon",
+                  variant: "danger",
+                },
+              });
             })
             .finally(() => this.changeLoading(false));
     },
