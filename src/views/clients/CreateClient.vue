@@ -298,7 +298,7 @@
                                         :state="!errors.length"
                                     >
                                         <b-form-input
-                                            v-model="client.client_phones[i].fullname"
+                                            v-model="client.client_phones[i].full_name"
                                             type="text"
                                             :state="errors.length > 0 ? false : null"
                                             placeholder="ФИО"
@@ -428,7 +428,7 @@ export default {
                 client_phones: [
                     {
                         phone_number: '',
-                        fullname: '',
+                        full_name: '',
                         position: '',
                     }
                 ],
@@ -608,10 +608,10 @@ export default {
         },
         addPhoneNumber() {
             if (this.client.client_phones) {
-                this.client.client_phones.push({phone_number: '', fullname: '', position: ''});
+                this.client.client_phones.push({phone_number: '', full_name: '', position: ''});
                 return;
             }
-            this.client.client_phones = [{phone_number: '', fullname: '', position: ''}];
+            this.client.client_phones = [{phone_number: '', full_name: '', position: ''}];
         },
         deletePhoneNumber(index) {
             if (this.client.client_phones && this.client.client_phones.length) {

@@ -148,8 +148,38 @@
                                     :state="errors.length > 0 ? false : null"
                                     :disabled="readOnly"
                                     type="tel"
-                                    @blur="changeOrder(phones, 'sender_phones')"
+                                    @blur="changeOrder(phones, 'recipient_phones')"
+                                    :style="order.recipient_counterparty_type == 'E' ? 'margin-top: 15px' : null"
                                 />
+                                <validation-provider #default="{ errors }" v-if="order.recipient_counterparty_type == 'E'">
+                                    <b-form-group
+                                        :invalid-feedback="errors[0]"
+                                        :state="!errors.length"
+                                    >
+                                        <b-form-input
+                                            v-model="phones[i].position"
+                                            type="text"
+                                            :state="errors.length > 0 ? false : null"
+                                            placeholder="Должность"
+                                            @blur="changeOrder(phones, 'recipient_phones')"
+                                            style="margin-top: 15px;"
+                                        ></b-form-input>
+                                    </b-form-group>
+                                </validation-provider>
+                                <validation-provider #default="{ errors }" v-if="order.recipient_counterparty_type == 'E'">
+                                    <b-form-group
+                                        :invalid-feedback="errors[0]"
+                                        :state="!errors.length"
+                                    >
+                                        <b-form-input
+                                            v-model="phones[i].full_name"
+                                            type="text"
+                                            :state="errors.length > 0 ? false : null"
+                                            @blur="changeOrder(phones, 'recipient_phones')"
+                                            placeholder="ФИО"
+                                        ></b-form-input>
+                                    </b-form-group>
+                                </validation-provider>
                             </b-col>
                             <b-col class="text-center border border-secondary" cols="2" @click="deletePhone(i)">
                                 <b-icon icon="trash"></b-icon>

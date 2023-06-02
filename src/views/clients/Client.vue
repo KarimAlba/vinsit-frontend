@@ -27,7 +27,7 @@
                                             :value="true"
                                             :disabled="readOnly"
                                             :unchecked-value="false"
-                                            @change="updateClient('is_company', $event)"
+                                            @change="updateClient('is_company', $event, this)"
                                         ></b-form-checkbox>
                                     </td>
                                 </tr>
@@ -45,7 +45,7 @@
                                                     type="text"
                                                     :disabled="readOnly"
                                                     :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('name', $event)"
+                                                    @change="updateClient('name', $event, this)"
                                                 ></b-form-input>
                                             </b-form-group>
                                         </validation-provider>
@@ -75,7 +75,7 @@
                                             <select-cities
                                                 v-model="client.city"
                                                 :disabled="readOnly"
-                                                @input="updateClient('city', $event)"
+                                                @input="updateClient('city', $event, this)"
                                             />
                                             <!-- @input="changeOrder($event, 'sender_city')" -->
                                         </b-form-group>
@@ -95,7 +95,7 @@
                                                     type="text"
                                                     :disabled="readOnly"
                                                     :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('address', $event)"
+                                                    @change="updateClient('address', $event, this)"
                                                 ></b-form-input>
                                             </b-form-group>
                                         </validation-provider>
@@ -133,7 +133,7 @@
                                                     type="text"
                                                     :disabled="readOnly"
                                                     :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('bank_account', $event)"
+                                                    @change="updateClient('bank_account', $event, this)"
                                                 ></b-form-input>
                                             </b-form-group>
                                         </validation-provider>
@@ -153,7 +153,7 @@
                                                     type="number"
                                                     max="4"
                                                     :formatter="serieFormatter"
-                                                    @change="updateClient('passport_series', $event)"
+                                                    @change="updateClient('passport_series', $event, this)"
                                                 />
                                             </b-form-group>
                                         </validation-provider>
@@ -173,7 +173,7 @@
                                                     type="number"
                                                     max="6"
                                                     :formatter="passportNumberFormatter"
-                                                    @change="updateClient('passport_no', $event)"
+                                                    @change="updateClient('passport_no', $event, this)"
                                                 ></b-form-input>
                                             </b-form-group>
                                         </validation-provider>
@@ -192,7 +192,7 @@
                                                     type="text"
                                                     :disabled="readOnly"
                                                     :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('INN', $event)"
+                                                    @change="updateClient('INN', $event, this)"
                                                 ></b-form-input>
                                             </b-form-group>
                                         </validation-provider>
@@ -211,7 +211,7 @@
                                                     type="text"
                                                     :disabled="readOnly"
                                                     :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('position', $event)"
+                                                    @change="updateClient('position', $event, this)"
                                                 ></b-form-input>
                                             </b-form-group>
                                         </validation-provider>
@@ -265,7 +265,7 @@
                                                     :disabled="readOnly"
                                                     type="tel"
                                                     style="padding-right: 30px; box-sizing: border-box; margin-bottom: 15px; margin-top: 5px;"
-                                                     placeholder="Номер телефона"
+                                                    placeholder="Номер телефона"
                                                 />
                                                 <span
                                                     class="delete-phone-btn"
@@ -296,7 +296,7 @@
                                                     :state="!errors.length"
                                                 >
                                                     <b-form-input
-                                                        v-model="client.client_phones[i].fullname"
+                                                        v-model="client.client_phones[i].full_name"
                                                         type="text"
                                                         :state="errors.length > 0 ? false : null"
                                                         placeholder="ФИО"
@@ -321,7 +321,7 @@
                                                 type="email"
                                                 :disabled="readOnly"
                                                 :state="errors.length > 0 ? false : null"
-                                                @change="updateClient('email', $event)"
+                                                @change="updateClient('email', $event, this)"
                                             ></b-form-input>
                                         </b-form-group>
                                     </validation-provider>
@@ -348,7 +348,7 @@
                                                 type="text"
                                                 :disabled="readOnly"
                                                 :state="errors.length > 0 ? false : null"
-                                                @change="updateClient('web', $event)"
+                                                @change="updateClient('web', $event, this)"
                                             ></b-form-input>
                                         </b-form-group>
                                     </validation-provider>
@@ -452,7 +452,7 @@ export default {
                 if (!this.initialized) {
                     return;
                 }
-                this.updateClient('client_phones', this.client.client_phones.filter(p => p.phone_number));
+                this.updateClient('client_phones', this.client.client_phones.filter(p => p.phone_number), this);
             },
             deep: true,
         },
@@ -460,7 +460,7 @@ export default {
             if (!this.initialized) {
                 return;
             }
-            this.updateClient('type', this.client.type);
+            this.updateClient('type', this.client.type, this);
         }
     },
     computed: {
@@ -526,15 +526,24 @@ export default {
                 })
                 .finally(() => this.changeLoading(false));
         },
-        updateClient(propName, value) {
-            if (this.readOnly) {
+        // fetchCompanies: _.debounce((search, loading, vm) => {
+        //     vm.$api.clients
+        //         .getClients({ search, limit: 100, is_company: true }).then((response) => {
+        //             vm.companies = response.data.results;
+        //             loading ? loading(false) : null;
+        //         });
+        // }, 500),
+        
+        updateClient: _.debounce((propName, value, vm = this) => {
+        // (propName, value) {
+            if (vm.readOnly) {
                 return;
             }
-            this.changeLoading(true);
+            vm.changeLoading(true);
             
-            this.$api.clients
+            vm.$api.clients
                 .changeClient(
-                    this.idClient,
+                    vm.idClient,
                     {
                         [propName]: value
                     }
@@ -544,7 +553,7 @@ export default {
                         const text = response.data.client_phones
                             ? 'Не удалось обновить. ' + response.data.client_phones[0].phone_number
                             : 'Не удалось обновить';
-                        this.$toast({
+                        vm.$toast({
                             component: ToastificationContent,
                             props: {
                                 title: "Ошибка",
@@ -555,8 +564,8 @@ export default {
                         });
                         return;
                     };
-                    this.changeLoading(false);
-                    this.$toast({
+                    vm.changeLoading(false);
+                    vm.$toast({
                         component: ToastificationContent,
                         props: {
                             title: "Успешно",
@@ -566,8 +575,8 @@ export default {
                         },
                     });
                 })
-                .finally(() => this.changeLoading(false));
-        },
+                .finally(() => vm.changeLoading(false));
+        }, 1000),
         deleteClient() {
             if (this.readOnly) {
                 return;
