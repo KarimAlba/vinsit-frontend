@@ -53,7 +53,7 @@
                         style="border-bottom: 1px dotted blue"
                         :to="{ name: 'payment-order', params: { type: getType(data.item.type), id: data.item.id }  }"
                     >
-                        {{ data.item.number }}
+                        {{ data.item.number}}
                     </router-link>
                 </template>
         
@@ -62,8 +62,11 @@
                 </template>
 
                 <template #cell(counterparty)="data">
-                    <p>{{ data.item.counterparty }}</p>
-                    <p v-if="data.item.count" class="small-text">по {{count}} документам</p>
+                    <div style="max-width: 320px;">
+                        <p style="white-space: pre-line;">{{ data.item.counterparty }}</p>
+                        <p v-if="data.item.count" class="small-text">по {{count}} документам</p>
+                    </div>
+                    
                 </template>
 
                 <template #cell(income)="data">
