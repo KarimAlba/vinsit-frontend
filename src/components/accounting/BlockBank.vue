@@ -62,8 +62,8 @@
                 </template>
 
                 <template #cell(counterparty)="data">
-                    <div style="max-width: 320px;">
-                        <p style="white-space: pre-line;">{{ data.item.counterparty }}</p>
+                    <div style="max-width: 400px;">
+                        <p style="white-space: pre-line;">{{ data.item.counterparty.split(',').join(',\n')}}</p>
                         <p v-if="data.item.count" class="small-text">по {{count}} документам</p>
                     </div>
                     
