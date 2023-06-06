@@ -79,13 +79,13 @@
 						</b-col>
 
 						<b-col cols="12">
-							<b-form-group label="Исполнитель">
+							<b-form-group label="Ваш расчетный счет">
 								<v-select
 									label="full_name_and_type"
 									:reduce="(executor) => executor.id"
 									v-model="editPaymentOrder.executor"
 									:options="executors"
-									:placeholder="'Исполнитель'"
+									:placeholder="'Ваш расчетный счет'"
 								>
 								</v-select>
 							</b-form-group>
@@ -106,9 +106,9 @@
 						</b-col> -->
 
 						<b-col class="mb-1">
-							<b-form-group label="Поставщик">
+							<b-form-group :label="typePaymentOrder === 'O' ? 'Поставщик' : 'Получатель'">
 								<select-clients
-									placeholder="Поставщик"
+									:placeholder="typePaymentOrder === 'O' ? 'Поставщик' : 'Получатель'"
 									:reduce="(client) => client.id"
 									v-model="editPaymentOrder.counterparty"
 									@input="handleCounterparty($event)"
@@ -752,7 +752,7 @@ export default {
 			},
 			fetchExecutors() { 
 				this.$api.executors.getExecutors({ limit: 100 }).then((response) => {
-					this.executors = response.data.results;
+					this.executors = response.data;
 				});
 			},
 			fetchFinancialTransactions() { 

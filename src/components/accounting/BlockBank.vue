@@ -36,18 +36,23 @@
                 striped
                 responsive
                 :tbody-tr-class="rowClass"
+                thead-tr-class="table-custom-header"
                 @row-clicked="(item) => $set(item, '_showDetails', !item._showDetails)"
+
+                :sort-by.sync="sortBy"
+                :sort-desc.sync="sortDesc"
+                :no-local-sorting="true"
             >
                 <template #cell(show_details)="data">
                     <b-form-checkbox v-if="!data.item.count" plain class="vs-checkbox-con">
-                    <span class="vs-checkbox">
-                        <span class="vs-checkbox--check">
-                        <i class="vs-icon feather icon-check" />
-                        </span>
-                    </span>
+                        <span class="vs-checkbox">
+                            <span class="vs-checkbox--check">
+                            <i class="vs-icon feather icon-check" />
+                            </span>
+                        </span> 
                     </b-form-checkbox>
                 </template>
-        
+                
                 <template #cell(number)="data">
                     <router-link
                         style="border-bottom: 1px dotted blue"
@@ -137,6 +142,9 @@
         BBadge,
         BFormCheckbox,
         BPagination,
+        BIcon,
+        BIconSortDown,
+        BIconSortUp,
     } from "bootstrap-vue";
 
     import { RoleConstants } from '@/utils/role';
@@ -148,17 +156,20 @@
             return {
                 fields: [
                     { key: "show_details", label: "" },
-                    { key: "number", label: "Номер" },
-                    { key: "date_created", label: "Дата" },
-                    { key: "financial_transaction", label: "Документ" },
-                    { key: "counterparty", label: "Контрагент" },
-                    { key: "income", label: "Поступления, ₽" },
-                    { key: "write_offs", label: "Списания, ₽" },
-                    { key: "comment", label: "Комментарий" },
+                    { key: "number", label: "Номер", sortable: true},
+                    { key: "date_created", label: "Дата", sortable: true},
+                    { key: "financial_transaction", label: "Документ", sortable: true },
+                    { key: "counterparty", label: "Контрагент", sortable: true },
+                    { key: "income", label: "Поступления, ₽", sortable: true },
+                    { key: "write_offs", label: "Списания, ₽", sortable: true },
+                    { key: "comment", label: "Комментарий", sortable: true },
                 ],
                 showModal: false,
                 file: null,
                 checkFile: true,
+
+                sortBy: 'date_created',
+                sortDesc: false,
             };
         },
         components: {
@@ -172,11 +183,15 @@
             BBadge,
             BFormCheckbox,
             BPagination,
+            BIcon,
+            BIconSortDown,
+            BIconSortUp,
         },
         computed: {
             ...mapGetters({
                 loading: "moduleAccountingBank/getLoading",
                 count: "moduleAccountingBank/getCount",
+                ordering: "moduleAccountingBank/getOrdering",
                 total_income: "moduleAccountingBank/getTotalIncome",
                 total_outcome: "moduleAccountingBank/getTotalOutcome",
                 perPage: "moduleAccountingBank/getCountPerPage",
@@ -203,11 +218,19 @@
                         comment: null,
                         count: 1,
                     });
-                    console.log('res', result)
-                return result
+                    // console.log('res', result)
+                return result;
             },
         },
         watch: {
+            'sortBy'(newValue) {
+                console.log('newValue - ', newValue);
+                this.sortTable();
+            },
+            'sortDesc'(newValue) {
+                console.log('newValue - ', newValue);
+                this.sortTable();
+            }
         },
         methods: {
             ...mapActions({
@@ -216,17 +239,42 @@
             }),
             ...mapMutations({
                 changeCurPage: "moduleAccountingBank/changePage",
+                changeOrdering: "moduleAccountingBank/changeOrdering",
             }),
             getType(type) {
                 return type ? (type.includes('Исходящее') ? 'O' : 'I') : 'O'
             },
             getColorStatus(status) {
                 return (
-                this.orderStatus.find((x) => x.title === status)?.color || "secondary"
+                    this.orderStatus.find((x) => x.title === status)?.color || "secondary"
                 );
             },
             formatDate(date) {
                     return this.dayjs(date).format("DD.MM.YYYY");
+            },
+            sortTable() {
+                let ordering = 'date_created';
+
+                if (this.sortBy === 'number') {
+                    ordering = 'number';
+                };
+                if (this.sortBy === 'counterparty') {
+                    ordering = 'counterparty_name';
+                };
+                if (this.sortBy === 'financial_transaction') {
+                    ordering = 'financial_transaction_name';
+                };
+
+                if (this.sortDesc) {
+                    this.changeOrdering(ordering);
+                } else {
+                    this.changeOrdering(`-${ordering}`);
+                }
+
+                this.resetPagination();
+                setTimeout(() => {
+                    this.fetchPaymentOrders();
+                }, 0);
             },
             changePage(page) {
                 this.changeCurPage(page);
@@ -353,6 +401,11 @@ p {
 
 .notSelected {
     color: red;
+}
+
+.table-custom-header {
+    color: '#ffffff';
+    user-select: none;
 }
 
 </style>

@@ -191,7 +191,6 @@
 		watch: {
 			filters: {
 				handler(val) {
-					console.log('fffffff')
 					this.resetPagination();
 					this.fetchPaymentOrders();
 				},

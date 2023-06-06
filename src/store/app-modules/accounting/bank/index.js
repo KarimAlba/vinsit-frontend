@@ -16,6 +16,8 @@ export default {
 			counterparty: null,
         },
 
+        ordering: '-date_created',
+
         total_income: null,
         total_outcome: null,
     },
@@ -41,6 +43,9 @@ export default {
         getFilters: (state) => {
             return state.filters
         },
+        getOrdering: (state) => {
+            return state.ordering
+        },
         getTotalIncome: (state) => {
             return state.total_income
         },
@@ -65,6 +70,9 @@ export default {
         setTotalOutcome(state, payload) {
             state.total_outcome = payload
         },
+        changeOrdering(state, payload) {
+            state.ordering = payload
+        },
         changePage(state, payload) {
             state.curPage = payload
         },
@@ -86,6 +94,9 @@ export default {
                 counterparty: null,
             }
         },
+        resetOrdering(state) {
+            state.ordering = null
+        },
     },
     actions: {
         fetchPaymentOrders({ commit, state }) {
@@ -94,6 +105,7 @@ export default {
 
             this._vm.$api.bank.getPaymentOrders({
                 ...state.filters,
+                ordering: state.ordering,
                 offset: ((state.curPage - 1) * state.countPerPage),
                 limit: state.countPerPage
             }).then((response) => {
@@ -130,6 +142,9 @@ export default {
         },
         resetFilters({ commit, state }) {
             commit('resetFilters')
+        },
+        resetOrdering({ commit, state }) {
+            commit('resetOrdering')
         }
     },
 }

@@ -74,7 +74,7 @@ export default {
         }),
         transformedChecks() {
             return this.checks.map(ch => {
-                ch.orders = ch.orders.join(', ');
+                ch.orders = ch.orders.length ? ch.orders[0] : '';
                 return ch;
             });
         },
