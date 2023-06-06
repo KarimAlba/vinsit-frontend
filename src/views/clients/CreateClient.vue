@@ -130,7 +130,7 @@
                     <td class="pb-1">{{ client.address }}</td>
                     </tr> -->
 
-                    <tr>
+                    <!-- <tr>
                     <td class="pb-1">Банковский Счет</td>
                     <td>
                         <validation-provider #default="{ errors }">
@@ -146,7 +146,7 @@
                             </b-form-group>
                         </validation-provider>
                     </td>
-                    </tr>
+                    </tr> -->
                     <tr v-if="client.type !== 'E'">
                     <td class="pb-1">Серия паспорта</td>
                     <td>
@@ -236,6 +236,166 @@
                             </validation-provider>
                         </td>
                     </tr>
+                    <tr v-if="client.type === 'E'">
+                        <td class="pb-1">Расчетный счет</td>
+                        <td>
+                            <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="client.bank_account"
+                                        type="text"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                            </validation-provider>
+                        </td>
+                    </tr>
+                    <tr v-if="client.type === 'E'">
+                        <td class="pb-1">ОКПО</td>
+                        <td>
+                            <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="client.OKPO"
+                                        type="text"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                            </validation-provider>
+                        </td>
+                    </tr>
+                    <tr v-if="client.type === 'E'">
+                        <td class="pb-1">Банк</td>
+                        <td>
+                            <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="client.bank"
+                                        type="text"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                            </validation-provider>
+                        </td>
+                    </tr>
+                    <tr v-if="client.type === 'E'">
+                        <td class="pb-1">ОКВЭД</td>
+                        <td>
+                            <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="client.OKVED"
+                                        type="text"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                            </validation-provider>
+                        </td>
+                    </tr>
+                    <tr v-if="client.type === 'E' && client.name.includes('ИП')">
+                        <td class="pb-1">КПП</td>
+                        <td>
+                            <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="client.KPP"
+                                        type="text"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                            </validation-provider>
+                        </td>
+                    </tr>
+                    <tr v-if="client.type === 'E'">
+                        <td class="pb-1">БИК</td>
+                        <td>
+                            <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="client.BIK"
+                                        type="text"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                            </validation-provider>
+                        </td>
+                    </tr>
+                    <tr v-if="client.type === 'E'">
+                        <td class="pb-1">ОГРН</td>
+                        <td>
+                            <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="client.OGRN"
+                                        type="text"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                            </validation-provider>
+                        </td>
+                    </tr>
+                    <tr v-if="client.type === 'E'">
+                        <td class="pb-1">Корр. счет</td>
+                        <td>
+                            <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="client.correspondent_account"
+                                        type="text"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                            </validation-provider>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="pb-1">Сайт</td>
+                        <td>
+                            <!-- <a
+                            v-if="isValidHttpUrl(client.web)"
+                            :href="client.web"
+                            target="_blank"
+                            >{{ client.web }}</a
+                            >
+                            <span v-else>{{ client.web }}</span> -->
+                            <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="client.web"
+                                        type="text"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                            </validation-provider>
+                        </td>
+                    </tr>
                 </table>
                 </b-card>
             </b-col>
@@ -246,7 +406,8 @@
                 <table class="w-100">
                     <tr>
                         <td class="d-flex flex-column align-items-start" style="padding-top: 10px">
-                            Номера телефонов
+                            <!-- Номера телефонов -->
+                            Сотрудники
                             <p class="add-phone-btn" @click="addPhoneNumber">Добавить</p>
                         </td>
                         <td>
@@ -259,7 +420,7 @@
                                 >{{ i + 1 }}. {{ phone.phone_number }}</a
                             > -->
                                 <validation-provider #default="{ errors }">
-                                    <span v-if="client.type == 'E' && client.client_phones.length > 1" style="margin-bottom: 15px;">{{ i + 1 }})</span>
+                                    <span v-if="client.client_phones.length > 1" style="margin-bottom: 15px;">{{ i + 1 }})</span>
                                     <b-form-input
                                         v-model="phone.phone_number"
                                         :state="errors.length > 0 ? false : null"
@@ -272,14 +433,13 @@
                                         class="delete-phone-btn"
                                         v-if="client.client_phones.length > 1"
                                         @click="deletePhoneNumber(i)"
-                                        :style="client.type == 'E' ? 'margin-top: 27px' : null"
+                                        style="margin-top: 17px; padding: 3px;"
                                     >
-                                    <b-icon icon="trash"></b-icon>
+                                    <b-icon icon="trash" style="width: 20px;"></b-icon>
                                 </span>
                                     <!-- @blur="changeOrder(phones, 'sender_phones')" -->
                                 </validation-provider>
-                                
-                                <validation-provider #default="{ errors }" v-if="client.type == 'E'">
+                                <validation-provider #default="{ errors }">
                                     <b-form-group
                                         :invalid-feedback="errors[0]"
                                         :state="!errors.length"
@@ -292,7 +452,7 @@
                                         ></b-form-input>
                                     </b-form-group>
                                 </validation-provider>
-                                <validation-provider #default="{ errors }" v-if="client.type == 'E'">
+                                <validation-provider #default="{ errors }">
                                     <b-form-group
                                         :invalid-feedback="errors[0]"
                                         :state="!errors.length"
@@ -305,53 +465,40 @@
                                         ></b-form-input>
                                     </b-form-group>
                                 </validation-provider>
+                                <validation-provider #default="{ errors }">
+                                    <b-form-group
+                                        :invalid-feedback="errors[0]"
+                                        :state="!errors.length"
+                                    >
+                                        <b-form-input
+                                            v-model="client.client_phones[i].email"
+                                            type="email"
+                                            :state="errors.length > 0 ? false : null"
+                                            placeholder="Email"
+                                        ></b-form-input>
+                                    </b-form-group>
+                                </validation-provider>
                             </p>
                         </td>
                     </tr>
 
-                    <tr>
-                    <td class="pb-1">Email</td>
-                    <td>
-                        <!-- <a :href="`mailto:${client.email}`">{{ client.email }}</a> -->
-                        <validation-provider #default="{ errors }">
-                            <b-form-group
-                                :invalid-feedback="errors[0]"
-                                :state="!errors.length"
-                            >
-                                <b-form-input
-                                    v-model="client.email"
-                                    type="email"
-                                    :state="errors.length > 0 ? false : null"
-                                ></b-form-input>
-                            </b-form-group>
-                        </validation-provider>
-                    </td>
-                    </tr>
-
-                    <tr>
-                    <td class="pb-1">Сайт</td>
-                    <td>
-                        <!-- <a
-                        v-if="isValidHttpUrl(client.web)"
-                        :href="client.web"
-                        target="_blank"
-                        >{{ client.web }}</a
-                        >
-                        <span v-else>{{ client.web }}</span> -->
-                        <validation-provider #default="{ errors }">
-                            <b-form-group
-                                :invalid-feedback="errors[0]"
-                                :state="!errors.length"
-                            >
-                                <b-form-input
-                                    v-model="client.web"
-                                    type="text"
-                                    :state="errors.length > 0 ? false : null"
-                                ></b-form-input>
-                            </b-form-group>
-                        </validation-provider>
-                    </td>
-                    </tr>
+                    <!-- <tr>
+                        <td class="pb-1">Email</td>
+                        <td>
+                            <validation-provider #default="{ errors }">
+                                <b-form-group
+                                    :invalid-feedback="errors[0]"
+                                    :state="!errors.length"
+                                >
+                                    <b-form-input
+                                        v-model="client.email"
+                                        type="email"
+                                        :state="errors.length > 0 ? false : null"
+                                    ></b-form-input>
+                                </b-form-group>
+                            </validation-provider>
+                        </td>
+                    </tr> -->
                 </table>
                 </b-card>
             </b-col>
@@ -430,6 +577,7 @@ export default {
                         phone_number: '',
                         full_name: '',
                         position: '',
+                        email: '',
                     }
                 ],
                 type: null,
@@ -445,6 +593,15 @@ export default {
                 is_company: false,
                 city: null,
                 company: null,
+
+                bank: null,
+                KPP: null,
+                BIK: null,
+                correspondent_account: null,
+                bank_account: null,
+                OKPO: null,
+                OKVED: null,
+                OGRN: null,
             },
             message: null,
             contracts: [{ value: '' }],

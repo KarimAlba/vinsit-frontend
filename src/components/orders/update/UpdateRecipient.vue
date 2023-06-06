@@ -60,7 +60,7 @@
             </b-form-group>
         </b-col>
 
-        <b-col cols="12" md="4">
+        <b-col cols="12" md="4" v-if="order.recipient_counterparty_type !== 'E'">
             <b-form-group label="Серия паспорта">
                 <b-form-input
                     v-model="order.recipient_passport_series"
@@ -73,7 +73,7 @@
             </b-form-group>
         </b-col>
 
-        <b-col cols="12" md="4">
+        <b-col cols="12" md="4" v-if="order.recipient_counterparty_type !== 'E'">
             <b-form-group label="Номер паспорта">
                 <b-form-input
                     v-model="order.recipient_passport_no"
@@ -86,7 +86,88 @@
             </b-form-group>
         </b-col>
 
-        <b-col cols="12" md="4">
+        <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="Расчетный счет">
+                    <b-form-input
+                        v-model="order.recipient_bank_account"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_bank_account')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="ОКПО">
+                    <b-form-input
+                        v-model="order.recipient_okpo"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_okpo')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="Банк">
+                    <b-form-input
+                        v-model="order.recipient_bank"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_bank')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="ОКВЭД">
+                    <b-form-input
+                        v-model="order.recipient_okved"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_okved')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <!-- Добавить доп проверку -->
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="КПП">
+                    <b-form-input
+                        v-model="order.recipient_KPP"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_KPP')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="БИК">
+                    <b-form-input
+                        v-model="order.recipient_BIC"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_BIC')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="ОГРН">
+                    <b-form-input
+                        v-model="order.recipient_OGRN"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_OGRN')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="Корр. счет">
+                    <b-form-input
+                        v-model="order.recipient_correspondent_account"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_correspondent_account')"
+                    />
+                </b-form-group>
+            </b-col>
+
+        <!-- <b-col cols="12" md="4" >
             <b-form-group label="Email">
             <b-form-input
                 type="email"
@@ -95,7 +176,7 @@
                 @change="changeOrder($event, 'recipient_email')"
             />
             </b-form-group>
-        </b-col>
+        </b-col> -->
 
         <b-col
             cols="12"
@@ -110,7 +191,7 @@
                             <b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
                             </b-col>
                             <b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
-                                Номер телефона
+                                Сотрудники
                             </b-col>
                             <b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="2" @click="addPhone">
                                 +
@@ -148,10 +229,11 @@
                                     :state="errors.length > 0 ? false : null"
                                     :disabled="readOnly"
                                     type="tel"
+                                    placeholder="Номер телефона"
                                     @blur="changeOrder(phones, 'recipient_phones')"
-                                    :style="order.recipient_counterparty_type == 'E' ? 'margin-top: 15px' : null"
+                                    style="margin-top: 15px"
                                 />
-                                <validation-provider #default="{ errors }" v-if="order.recipient_counterparty_type == 'E'">
+                                <validation-provider #default="{ errors }">
                                     <b-form-group
                                         :invalid-feedback="errors[0]"
                                         :state="!errors.length"
@@ -166,7 +248,7 @@
                                         ></b-form-input>
                                     </b-form-group>
                                 </validation-provider>
-                                <validation-provider #default="{ errors }" v-if="order.recipient_counterparty_type == 'E'">
+                                <validation-provider #default="{ errors }" >
                                     <b-form-group
                                         :invalid-feedback="errors[0]"
                                         :state="!errors.length"
@@ -177,6 +259,19 @@
                                             :state="errors.length > 0 ? false : null"
                                             @blur="changeOrder(phones, 'recipient_phones')"
                                             placeholder="ФИО"
+                                        ></b-form-input>
+                                    </b-form-group>
+                                </validation-provider>
+                                <validation-provider #default="{ errors }">
+                                    <b-form-group
+                                        :invalid-feedback="errors[0]"
+                                        :state="!errors.length"
+                                    >
+                                        <b-form-input
+                                            v-model="phones[i].email"
+                                            type="email"
+                                            :state="errors.length > 0 ? false : null"
+                                            placeholder="Email"
                                         ></b-form-input>
                                     </b-form-group>
                                 </validation-provider>
