@@ -237,6 +237,23 @@
                                 </validation-provider>
                             </td>
                         </tr>
+                        <tr v-if="client.type !== 'E'">
+                            <td class="pb-1">Почта для<br>бухгалтерских<br>документов</td>
+                            <td>
+                                <validation-provider #default="{ errors }">
+                                    <b-form-group
+                                        :invalid-feedback="errors[0]"
+                                        :state="!errors.length"
+                                    >
+                                        <b-form-input
+                                            v-model="client.fin_docs_email"
+                                            type="text"
+                                            :state="errors.length > 0 ? false : null"
+                                        ></b-form-input>
+                                    </b-form-group>
+                                </validation-provider>
+                            </td>
+                        </tr>
                         <tr>
                             <td class="pb-1">Сайт</td>
                             <td>
@@ -368,6 +385,18 @@
                     <b-card v-if="client.type === 'E'" >
                         <b-card-title>Реквизиты</b-card-title>
                         <table class="w-100">
+                            <tr>
+                                <td class="pb-1">ЭДО</td>
+                                <td class="pb-1">
+                                    <b-form-checkbox
+                                        id="edo"
+                                        v-model="client.EDO"
+                                        name="edo"
+                                        :value="true"
+                                        :unchecked-value="false"
+                                    ></b-form-checkbox>
+                                </td>
+                            </tr>
                             <tr>
                                 <td class="pb-1">ИНН</td>
                                 <td>
@@ -522,15 +551,37 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="pb-1">ЭДО</td>
-                                <td class="pb-1">
-                                    <b-form-checkbox
-                                        id="edo"
-                                        v-model="client.EDO"
-                                        name="edo"
-                                        :value="true"
-                                        :unchecked-value="false"
-                                    ></b-form-checkbox>
+                                <td class="pb-1">Расчетный счет</td>
+                                <td>
+                                    <validation-provider #default="{ errors }">
+                                        <b-form-group
+                                            :invalid-feedback="errors[0]"
+                                            :state="!errors.length"
+                                        >
+                                            <b-form-input
+                                                v-model="client.bank_account"
+                                                type="text"
+                                                :state="errors.length > 0 ? false : null"
+                                            ></b-form-input>
+                                        </b-form-group>
+                                    </validation-provider>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pb-1">Почта для<br>бухгалтерских<br>документов</td>
+                                <td>
+                                    <validation-provider #default="{ errors }">
+                                        <b-form-group
+                                            :invalid-feedback="errors[0]"
+                                            :state="!errors.length"
+                                        >
+                                            <b-form-input
+                                                v-model="client.fin_docs_email"
+                                                type="text"
+                                                :state="errors.length > 0 ? false : null"
+                                            ></b-form-input>
+                                        </b-form-group>
+                                    </validation-provider>
                                 </td>
                             </tr>
                         </table>
@@ -636,8 +687,9 @@ export default {
                 OKPO: null,
                 OKVED: null,
                 OGRN: null,
-                EDO: null,
+                EDO: false,
                 form_of_ownership: null,
+                fin_docs_email: null,
             },
             message: null,
             contracts: [{ value: '' }],
