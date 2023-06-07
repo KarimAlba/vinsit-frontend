@@ -34,9 +34,18 @@
                 />
             </b-col>
 		</b-row>
-		<!-- <b-collapse v-model="visible" id="filters-collapse">
+		<b-collapse v-model="visible" id="filters-collapse">
 			<b-row>
-                <b-col class="mb-1" cols="12" md="4">
+				<b-col class="mb-1" cols="12" md="4">
+					<v-select
+						label="type"
+						placeholder="Тип поручения"
+						v-model="filters.type"
+						:reduce="(type) => orderType.find(item => item.name === type).key"
+						:options="orderType.map((item) => item.name)"
+					/>
+				</b-col>
+                <!-- <b-col class="mb-1" cols="12" md="4">
                     <v-select
                         label="title"
                         :reduce="(mode) => mode.id"
@@ -44,8 +53,8 @@
                         :options="orderMode"
                         v-model="filters.mode"
                     />
-                </b-col>
-				<b-col class="mb-1" cols="12" md="4">
+                </b-col> -->
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<select-clients
 						:disabled="false"
 						:disabledAddBtn="true"
@@ -55,8 +64,8 @@
 						placeholder="Контрагент"
 						:clearable="false"
 					/>
-				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
+				</b-col> -->
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<v-select
 						label="name"
 						@search="onSearchCities"
@@ -70,8 +79,8 @@
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
 						</template>
 					</v-select>
-				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
+				</b-col> -->
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<v-select
 						label="name"
 						@search="onSearchCities"
@@ -85,8 +94,8 @@
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
 						</template>
 					</v-select>
-				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
+				</b-col> -->
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<v-select
 						label="status"
 						:reduce="(status) => status.id"
@@ -94,21 +103,20 @@
 						:options="orderStatus"
 						v-model="filters.status"
 					/>
-
-				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
+				</b-col> -->
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<app-datepicker
 						placeholder="Дата проставления статуса"
 						@selectedDates="changeDatesStatus"
 					/>
-				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
+				</b-col> -->
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<app-datepicker
 						placeholder="Период заказа"
 						@selectedDates="changeDatesCreated"
 					/>
-				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
+				</b-col> -->
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<b-form-checkbox
 						value="true"
 						:unchecked-value="null"
@@ -116,9 +124,9 @@
 					>
 						Просрочка
 					</b-form-checkbox>
-				</b-col>
+				</b-col> -->
 			</b-row>
-		</b-collapse> -->
+		</b-collapse>
 		<template #footer>
 			<a class="filter-orders__btn mr-1" v-b-toggle="'filters-collapse'">
 				<feather-icon
@@ -168,6 +176,16 @@
 				number: null,
 				counterparty: null,
 				search: null,
+				orderType: [
+					{
+						name: 'Исходящие банковские платежные поручения',
+						key: 'O'
+					}, 
+					{
+						name: 'Входящие банковские платежные поручения',
+						key: 'I'
+					}, 
+				],
 			};
 		},
 		components: {

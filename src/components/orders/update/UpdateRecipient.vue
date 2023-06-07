@@ -60,6 +60,15 @@
             </b-form-group>
         </b-col>
 
+        <b-col cols="12">
+            <b-form-group label="Email *">
+                <b-form-input 
+                    v-model="order.recipient_email"
+                    @change="changeOrder($event, 'recipient_email')"
+                />
+            </b-form-group>
+        </b-col>
+
         <b-col cols="12" md="4" v-if="order.recipient_counterparty_type !== 'E'">
             <b-form-group label="Серия паспорта">
                 <b-form-input
@@ -86,7 +95,7 @@
             </b-form-group>
         </b-col>
 
-        <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+        <!-- <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
                 <b-form-group label="Расчетный счет">
                     <b-form-input
                         v-model="order.recipient_bank_account"
@@ -124,10 +133,10 @@
                         @change="changeOrder($event, 'recipient_okved')"
                     />
                 </b-form-group>
-            </b-col>
+            </b-col> -->
 
             <!-- Добавить доп проверку -->
-            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+            <!-- <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
                 <b-form-group label="КПП">
                     <b-form-input
                         v-model="order.recipient_KPP"
@@ -140,9 +149,9 @@
             <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
                 <b-form-group label="БИК">
                     <b-form-input
-                        v-model="order.recipient_BIC"
+                        v-model="order.recipient_BIK"
                         :disabled="readOnly"
-                        @change="changeOrder($event, 'recipient_BIC')"
+                        @change="changeOrder($event, 'recipient_BIK')"
                     />
                 </b-form-group>
             </b-col>
@@ -165,7 +174,7 @@
                         @change="changeOrder($event, 'recipient_correspondent_account')"
                     />
                 </b-form-group>
-            </b-col>
+            </b-col> -->
 
         <!-- <b-col cols="12" md="4" >
             <b-form-group label="Email">
@@ -185,7 +194,7 @@
                 <validation-provider #default="{ errors }" rules="required">
                     <b-form-group
                         :invalid-feedback="errors[0]"
-                        label="Телефоны *"
+                        label="Сотрудники *"
                     >
                         <b-row class="">
                             <b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">

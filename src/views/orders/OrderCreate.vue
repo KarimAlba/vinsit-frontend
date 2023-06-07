@@ -182,7 +182,12 @@
 										<b-form-input v-model="order.sender_address"/>
 									</b-form-group>
 								</b-col>
-								<b-col cols="12" md="4">
+								<b-col cols="12">
+									<b-form-group label="Email *">
+										<b-form-input v-model="order.sender_email"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4" v-if="order.sender_counterparty_type !== 'E'">
 									<b-form-group label="Серия паспорта">
 										<b-form-input
                                             v-model="order.sender_passport_series"
@@ -192,7 +197,7 @@
                                         />
 									</b-form-group>
 								</b-col>
-								<b-col cols="12" md="4">
+								<b-col cols="12" md="4" v-if="order.sender_counterparty_type !== 'E'">
 									<b-form-group label="Номер паспорта">
 										<b-form-input
                                             v-model="order.sender_passport_no"
@@ -202,13 +207,79 @@
                                         />
 									</b-form-group>
 								</b-col>
+
+								<!-- <b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="Расчетный счет">
+										<b-form-input
+											v-model="order.sender_bank_account"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="ОКПО">
+										<b-form-input
+											v-model="order.sender_OKPO"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="Банк">
+										<b-form-input
+											v-model="order.sender_bank"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="ОКВЭД">
+										<b-form-input
+											v-model="order.sender_OKVED"
+										/>
+									</b-form-group>
+								</b-col> -->
+
+								<!-- Добавить доп проверку -->
+								<!-- <b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="КПП">
+										<b-form-input
+											v-model="order.sender_KPP"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="БИК">
+										<b-form-input
+											v-model="order.sender_BIK"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="ОГРН">
+										<b-form-input
+											v-model="order.sender_OGRN"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="Корр. счет">
+										<b-form-input
+											v-model="order.sender_correspondent_account"
+										/>
+									</b-form-group>
+								</b-col> -->
+
 								<b-col
 									cols="12"
 								>
 									<validation-provider #default="{ errors }" rules="required">
 										<b-form-group
 											:invalid-feedback="errors[0]"
-											label="Телефоны *"
+											label="Сотрудники *"
 										>
 											<!-- <b-row class="">
 												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
@@ -224,7 +295,7 @@
 												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
 												</b-col>
 												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
-													Номер телефона
+													Сотрудники
 												</b-col>
 												<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="2" @click="addPhone('sender')">
 													+
@@ -257,10 +328,33 @@
 														v-model="phone.phone_number"
 														:state="errors.length > 0 ? false : null"
 														type="tel"
+														placeholder="Номер телефона"
+														style="margin-top: 15px;"
+													/>
+													<b-form-input
+														v-model="order.sender_phones[i].position"
+														type="text"
+														:state="errors.length > 0 ? false : null"
+														placeholder="Должность"
+														style="margin-top: 15px;"
+													/>
+													<b-form-input
+														v-model="order.sender_phones[i].full_name"
+														type="text"
+														:state="errors.length > 0 ? false : null"
+														placeholder="ФИО"
+														style="margin-top: 15px;"
+													/>
+													<b-form-input
+														v-model="order.sender_phones[i].email"
+														type="email"
+														:state="errors.length > 0 ? false : null"
+														placeholder="Email"
+														style="margin-top: 15px; margin-bottom: 15px;"
 													/>
 												</b-col>
 												<b-col class="text-center border border-secondary" cols="2" @click="deletePhone('sender', i)">
-													<b-icon icon="trash"></b-icon>
+													<b-icon icon="trash" style="margin-top: 50px;"></b-icon>
 												</b-col>
 											</b-row>
 										</b-form-group>
@@ -316,7 +410,12 @@
 										<b-form-input v-model="order.recipient_address"/>
 									</b-form-group>
 								</b-col>
-								<b-col cols="12" md="4">
+								<b-col cols="12">
+									<b-form-group label="Email *">
+										<b-form-input v-model="order.recipient_email"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4" v-if="order.recipient_counterparty_type !== 'E'">
 									<b-form-group label="Серия паспорта">
 										<b-form-input
                                             v-model="order.recipient_passport_series"
@@ -326,7 +425,7 @@
                                         />
 									</b-form-group>
 								</b-col>
-								<b-col cols="12" md="4">
+								<b-col cols="12" md="4" v-if="order.recipient_counterparty_type !== 'E'">
 									<b-form-group label="Номер паспорта">
 										<b-form-input
                                             v-model="order.recipient_passport_no"
@@ -336,27 +435,86 @@
                                         />
 									</b-form-group>
 								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group label="Email">
+								
+
+								<!-- <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="Расчетный счет">
 										<b-form-input
-										type="email"
-										v-model="order.recipient_email"
-										></b-form-input>
+											v-model="order.recipient_bank_account"
+										/>
 									</b-form-group>
 								</b-col>
+
+								<b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="ОКПО">
+										<b-form-input
+											v-model="order.recipient_OKPO"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="Банк">
+										<b-form-input
+											v-model="order.recipient_bank"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="ОКВЭД">
+										<b-form-input
+											v-model="order.recipient_OKVED"
+										/>
+									</b-form-group>
+								</b-col> -->
+
+								<!-- Добавить доп проверку -->
+								<!-- <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="КПП">
+										<b-form-input
+											v-model="order.recipient_KPP"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="БИК">
+										<b-form-input
+											v-model="order.recipient_BIK"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="ОГРН">
+										<b-form-input
+											v-model="order.recipient_OGRN"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="Корр. счет">
+										<b-form-input
+											v-model="order.recipient_correspondent_account"
+										/>
+									</b-form-group>
+								</b-col> -->
+
 								<b-col
 									cols="12"
 								>
 									<validation-provider #default="{ errors }" rules="required">
 										<b-form-group
 											:invalid-feedback="errors[0]"
-											label="Телефоны *"
+											label="Сотрудники *"
 										>
 											<b-row class="">
 												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
 												</b-col>
 												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
-													Номер телефона
+													Сотрудники
 												</b-col>
 												<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="2" @click="addPhone('recipient')">
 													+
@@ -386,10 +544,33 @@
 														v-model="phone.phone_number"
 														:state="errors.length > 0 ? false : null"
 														type="tel"
+														placeholder="Номер телефона"
+														style="margin-top: 15px;"
+													/>
+													<b-form-input
+														v-model="order.recipient_phones[i].position"
+														type="text"
+														:state="errors.length > 0 ? false : null"
+														placeholder="Должность"
+														style="margin-top: 15px;"
+													/>
+													<b-form-input
+														v-model="order.recipient_phones[i].full_name"
+														type="text"
+														:state="errors.length > 0 ? false : null"
+														placeholder="ФИО"
+														style="margin-top: 15px;"
+													/>
+													<b-form-input
+														v-model="order.recipient_phones[i].email"
+														type="email"
+														:state="errors.length > 0 ? false : null"
+														placeholder="Email"
+														style="margin-top: 15px; margin-bottom: 15px;"
 													/>
 												</b-col>
 												<b-col class="text-center border border-secondary" cols="2" @click="deletePhone('recipient', i)">
-													<b-icon icon="trash"></b-icon>
+													<b-icon icon="trash" style="margin-top: 50px;"></b-icon>
 												</b-col>
 											</b-row>
 										</b-form-group>
@@ -939,7 +1120,7 @@
 					payment_type: 'SC',
                     payer_counterparty: null,
                     sender_counterparty: null,
-                    sender_counterparty_type: 'E',
+                    sender_counterparty_type: '',
 					sender_phones: [{}],
                     sender_address: '',
                     sender_passport_series: '',
@@ -947,7 +1128,7 @@
                     sender_city: null,
                     recipient_city: null,
                     recipient_counterparty: null,
-                    recipient_counterparty_type: 'E',
+                    recipient_counterparty_type: '',
 					recipient_phones: [{}],
                     recipient_address: '',
                     recipient_email: '',
@@ -970,7 +1151,7 @@
 				newUser: {
 					INN: '',
 					address: '',
-					bank_account: '',
+					// bank_account: '',
 					city: '',
 					client_phones: [],
 					email: '',
@@ -981,6 +1162,16 @@
 					position: '',
 					type: null,
 					web: '',
+
+					bank: null,
+					KPP: null,
+					BIK: null,
+					correspondent_account: null,
+					bank_account: null,
+					OKPO: null,
+					OKVED: null,
+					OGRN: null,
+					EDO: null,
 				},
 				creationError: {
 					creationErrorSender: false,
@@ -990,6 +1181,7 @@
 		},
 		watch: {
 			'order.recipient_counterparty'() {
+				console.log('watch 1 - ', this.order.sender_counterparty)
 				if (Number.isFinite(this.order.recipient_counterparty)) {
 					const id = this.order.recipient_counterparty;
 					this.addCounterparty(id, 'recipient');
@@ -1001,6 +1193,7 @@
 			},
 			'order.sender_counterparty'() {
 				if (Number.isFinite(this.order.sender_counterparty)) {
+					console.log('watch 2 - ', this.order.sender_counterparty)
 					const id = this.order.sender_counterparty;
 					this.addCounterparty(id, 'sender');
 					if (this.order.payment_type == 'SC' || this.order.payment_type == 'CS') {
@@ -1011,6 +1204,7 @@
 			},
 			'order.payer_counterparty'() {
 				if (Number.isFinite(this.order.payer_counterparty)) {
+					console.log('watch 3 - ', this.order.sender_counterparty)
 					const id = this.order.payer_counterparty;
 					this.addCounterparty(id, 'payer');
                     // this.addPayerContracts(id);
@@ -1184,21 +1378,30 @@
 				};
 			},
 			changeCounterpartyParams(data, name) {
+				// console.log('data - ', data)
 				for (let key in data) {
 					if (data[key] && key === 'id') {
-						this.order[name + '_counterparty'] = data.id;
+						this.order = {...this.order, [name + '_counterparty']: data.id};
+						continue;
+					};
+					if (data[key] && key === 'type') {
+						this.order = {...this.order, [name + '_counterparty_type']: data.type};
+						continue;
+					};
+					if (data[key] && key === 'name') {
+						this.order = {...this.order, [name + '_full_name']: data.name};
 						continue;
 					};
 					if (data[key] && key === 'client_phones') {
                         if (data.client_phones && data.client_phones.length) {
-                            this.order[name + '_phones'] = data.client_phones.map((it) => ({phone_number: it.phone_number}));
+                            this.order = {...this.order, [name + '_phones']: data.client_phones.map((it) => ({...it}))}
                         } else {
-                            this.order[name + '_phones'] = [{phone_number: ''}];
+                            this.order = {...this.order, [name + '_phones']: [{phone_number: ''}]};
                         }
 						continue;
 					};
 					if (data[key]) {
-						this.order[name + '_' + key] = data[key];
+						this.order = {...this.order, [name + '_' + key]: data[key]};
 					};
 				}
 			},
