@@ -179,7 +179,7 @@
                                         </validation-provider>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr v-if="client.type !== 'E'">
                                     <td class="pb-1">ИНН</td>
                                     <td>
                                         <validation-provider #default="{ errors }">
@@ -198,8 +198,9 @@
                                         </validation-provider>
                                     </td>
                                 </tr>
-                                <tr v-if="client.type !== 'E'">
-                                    <td class="pb-1">Должность</td>
+                                <tr>
+                                    <td class="pb-1" v-if="client.type !== 'E'">Должность</td>
+                                    <td class="pb-1" v-if="client.type === 'E'">Статус</td>
                                     <td>
                                         <validation-provider #default="{ errors }">
                                             <b-form-group
@@ -218,7 +219,7 @@
                                     </td>
                                 </tr>
                                 <tr v-if="client.type === 'E'">
-                                    <td class="pb-1">Статус</td>
+                                    <td class="pb-1" >Форма<br>собственности</td>
                                     <td>
                                         <validation-provider #default="{ errors }">
                                             <b-form-group
@@ -226,163 +227,10 @@
                                                 :state="!errors.length"
                                             >
                                                 <b-form-input
-                                                    v-model="client.position"
+                                                    v-model="client.form_of_ownership"
                                                     type="text"
-                                                    :disabled="readOnly"
                                                     :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('position', $event)"
-                                                ></b-form-input>
-                                            </b-form-group>
-                                        </validation-provider>
-                                    </td>
-                                </tr>
-                                <tr v-if="client.type === 'E'">
-                                    <td class="pb-1">Расчетный счет</td>
-                                    <td>
-                                        <validation-provider #default="{ errors }">
-                                            <b-form-group
-                                                :invalid-feedback="errors[0]"
-                                                :state="!errors.length"
-                                            >
-                                                <b-form-input
-                                                    v-model="client.bank_account"
-                                                    type="text"
-                                                    :disabled="readOnly"
-                                                    :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('bank_account', $event)"
-                                                ></b-form-input>
-                                            </b-form-group>
-                                        </validation-provider>
-                                    </td>
-                                </tr>
-                                <tr v-if="client.type === 'E'">
-                                    <td class="pb-1">ОКПО</td>
-                                    <td>
-                                        <validation-provider #default="{ errors }">
-                                            <b-form-group
-                                                :invalid-feedback="errors[0]"
-                                                :state="!errors.length"
-                                            >
-                                                <b-form-input
-                                                    v-model="client.OKPO"
-                                                    type="text"
-                                                    :disabled="readOnly"
-                                                    :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('OKPO', $event)"
-                                                ></b-form-input>
-                                            </b-form-group>
-                                        </validation-provider>
-                                    </td>
-                                </tr>
-                                <tr v-if="client.type === 'E'">
-                                    <td class="pb-1">Банк</td>
-                                    <td>
-                                        <validation-provider #default="{ errors }">
-                                            <b-form-group
-                                                :invalid-feedback="errors[0]"
-                                                :state="!errors.length"
-                                            >
-                                                <b-form-input
-                                                    v-model="client.bank"
-                                                    type="text"
-                                                    :disabled="readOnly"
-                                                    :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('bank', $event)"
-                                                ></b-form-input>
-                                            </b-form-group>
-                                        </validation-provider>
-                                    </td>
-                                </tr>
-                                <tr v-if="client.type === 'E'">
-                                    <td class="pb-1">ОКВЭД</td>
-                                    <td>
-                                        <validation-provider #default="{ errors }">
-                                            <b-form-group
-                                                :invalid-feedback="errors[0]"
-                                                :state="!errors.length"
-                                            >
-                                                <b-form-input
-                                                    v-model="client.OKVED"
-                                                    type="text"
-                                                    :disabled="readOnly"
-                                                    :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('OKVED', $event)"
-                                                ></b-form-input>
-                                            </b-form-group>
-                                        </validation-provider>
-                                    </td>
-                                </tr>
-                                <tr v-if="client.type === 'E' && client.name.includes('ИП')">
-                                    <td class="pb-1">КПП</td>
-                                    <td>
-                                        <validation-provider #default="{ errors }">
-                                            <b-form-group
-                                                :invalid-feedback="errors[0]"
-                                                :state="!errors.length"
-                                            >
-                                                <b-form-input
-                                                    v-model="client.KPP"
-                                                    type="text"
-                                                    :disabled="readOnly"
-                                                    :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('KPP', $event)"
-                                                ></b-form-input>
-                                            </b-form-group>
-                                        </validation-provider>
-                                    </td>
-                                </tr>
-                                <tr v-if="client.type === 'E'">
-                                    <td class="pb-1">БИК</td>
-                                    <td>
-                                        <validation-provider #default="{ errors }">
-                                            <b-form-group
-                                                :invalid-feedback="errors[0]"
-                                                :state="!errors.length"
-                                            >
-                                                <b-form-input
-                                                    v-model="client.BIK"
-                                                    type="text"
-                                                    :disabled="readOnly"
-                                                    :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('BIK', $event)"
-                                                ></b-form-input>
-                                            </b-form-group>
-                                        </validation-provider>
-                                    </td>
-                                </tr>
-                                <tr v-if="client.type === 'E'">
-                                    <td class="pb-1">ОГРН</td>
-                                    <td>
-                                        <validation-provider #default="{ errors }">
-                                            <b-form-group
-                                                :invalid-feedback="errors[0]"
-                                                :state="!errors.length"
-                                            >
-                                                <b-form-input
-                                                    v-model="client.OGRN"
-                                                    type="text"
-                                                    :disabled="readOnly"
-                                                    :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('OGRN', $event)"
-                                                ></b-form-input>
-                                            </b-form-group>
-                                        </validation-provider>
-                                    </td>
-                                </tr>
-                                <tr v-if="client.type === 'E'">
-                                    <td class="pb-1">Корр. счет</td>
-                                    <td>
-                                        <validation-provider #default="{ errors }">
-                                            <b-form-group
-                                                :invalid-feedback="errors[0]"
-                                                :state="!errors.length"
-                                            >
-                                                <b-form-input
-                                                    v-model="client.correspondent_account"
-                                                    type="text"
-                                                    :disabled="readOnly"
-                                                    :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('correspondent_account', $event)"
+                                                    @change="updateClient('form_of_ownership', $event)"
                                                 ></b-form-input>
                                             </b-form-group>
                                         </validation-provider>
@@ -391,13 +239,6 @@
                                 <tr>
                                     <td class="pb-1">Сайт</td>
                                     <td>
-                                        <!-- <a
-                                        v-if="isValidHttpUrl(client.web)"
-                                        :href="client.web"
-                                        target="_blank"
-                                        >{{ client.web }}</a
-                                        >
-                                        <span v-else>{{ client.web }}</span> -->
                                         <validation-provider #default="{ errors }">
                                             <b-form-group
                                                 :invalid-feedback="errors[0]"
@@ -414,13 +255,13 @@
                                         </validation-provider>
                                     </td>
                                 </tr>
+                                
                             </table>
                             </b-card>
                         </b-col>
                         <b-col>
                             <b-card>
                             <b-card-title>Контакты</b-card-title>
-
                             <table class="w-100">
                                 <tr>
                                     <td class="d-flex flex-column align-items-start" style="padding-top: 10px">
@@ -522,23 +363,212 @@
 
                                 
                             </table>
-                        </b-card>
+                            </b-card>
+                            <b-card v-if="client.type === 'E'" >
+                                <b-card-title>Реквизиты</b-card-title>
+                                <table class="w-100">
+                                    <tr>
+                                        <td class="pb-1">ИНН</td>
+                                        <td>
+                                            <validation-provider #default="{ errors }">
+                                                <b-form-group
+                                                    :invalid-feedback="errors[0]"
+                                                    :state="!errors.length"
+                                                >
+                                                    <b-form-input
+                                                        v-model="client.INN"
+                                                        type="text"
+                                                        :disabled="readOnly"
+                                                        :state="errors.length > 0 ? false : null"
+                                                        @change="updateClient('INN', $event)"
+                                                    ></b-form-input>
+                                                </b-form-group>
+                                            </validation-provider>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pb-1">Расчетный счет</td>
+                                        <td>
+                                            <validation-provider #default="{ errors }">
+                                                <b-form-group
+                                                    :invalid-feedback="errors[0]"
+                                                    :state="!errors.length"
+                                                >
+                                                    <b-form-input
+                                                        v-model="client.bank_account"
+                                                        type="text"
+                                                        :disabled="readOnly"
+                                                        :state="errors.length > 0 ? false : null"
+                                                        @change="updateClient('bank_account', $event)"
+                                                    ></b-form-input>
+                                                </b-form-group>
+                                            </validation-provider>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pb-1">ОКПО</td>
+                                        <td>
+                                            <validation-provider #default="{ errors }">
+                                                <b-form-group
+                                                    :invalid-feedback="errors[0]"
+                                                    :state="!errors.length"
+                                                >
+                                                    <b-form-input
+                                                        v-model="client.OKPO"
+                                                        type="text"
+                                                        :disabled="readOnly"
+                                                        :state="errors.length > 0 ? false : null"
+                                                        @change="updateClient('OKPO', $event)"
+                                                    ></b-form-input>
+                                                </b-form-group>
+                                            </validation-provider>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pb-1">Банк</td>
+                                        <td>
+                                            <validation-provider #default="{ errors }">
+                                                <b-form-group
+                                                    :invalid-feedback="errors[0]"
+                                                    :state="!errors.length"
+                                                >
+                                                    <b-form-input
+                                                        v-model="client.bank"
+                                                        type="text"
+                                                        :disabled="readOnly"
+                                                        :state="errors.length > 0 ? false : null"
+                                                        @change="updateClient('bank', $event)"
+                                                    ></b-form-input>
+                                                </b-form-group>
+                                            </validation-provider>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pb-1">ОКВЭД</td>
+                                        <td>
+                                            <validation-provider #default="{ errors }">
+                                                <b-form-group
+                                                    :invalid-feedback="errors[0]"
+                                                    :state="!errors.length"
+                                                >
+                                                    <b-form-input
+                                                        v-model="client.OKVED"
+                                                        type="text"
+                                                        :disabled="readOnly"
+                                                        :state="errors.length > 0 ? false : null"
+                                                        @change="updateClient('OKVED', $event)"
+                                                    ></b-form-input>
+                                                </b-form-group>
+                                            </validation-provider>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="client.name.includes('ИП')">
+                                        <td class="pb-1">КПП</td>
+                                        <td>
+                                            <validation-provider #default="{ errors }">
+                                                <b-form-group
+                                                    :invalid-feedback="errors[0]"
+                                                    :state="!errors.length"
+                                                >
+                                                    <b-form-input
+                                                        v-model="client.KPP"
+                                                        type="text"
+                                                        :disabled="readOnly"
+                                                        :state="errors.length > 0 ? false : null"
+                                                        @change="updateClient('KPP', $event)"
+                                                    ></b-form-input>
+                                                </b-form-group>
+                                            </validation-provider>
+                                        </td>
+                                    </tr>
+                                    <tr >
+                                        <td class="pb-1">БИК</td>
+                                        <td>
+                                            <validation-provider #default="{ errors }">
+                                                <b-form-group
+                                                    :invalid-feedback="errors[0]"
+                                                    :state="!errors.length"
+                                                >
+                                                    <b-form-input
+                                                        v-model="client.BIK"
+                                                        type="text"
+                                                        :disabled="readOnly"
+                                                        :state="errors.length > 0 ? false : null"
+                                                        @change="updateClient('BIK', $event)"
+                                                    ></b-form-input>
+                                                </b-form-group>
+                                            </validation-provider>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pb-1">ОГРН</td>
+                                        <td>
+                                            <validation-provider #default="{ errors }">
+                                                <b-form-group
+                                                    :invalid-feedback="errors[0]"
+                                                    :state="!errors.length"
+                                                >
+                                                    <b-form-input
+                                                        v-model="client.OGRN"
+                                                        type="text"
+                                                        :disabled="readOnly"
+                                                        :state="errors.length > 0 ? false : null"
+                                                        @change="updateClient('OGRN', $event)"
+                                                    ></b-form-input>
+                                                </b-form-group>
+                                            </validation-provider>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pb-1">Корр. счет</td>
+                                        <td>
+                                            <validation-provider #default="{ errors }">
+                                                <b-form-group
+                                                    :invalid-feedback="errors[0]"
+                                                    :state="!errors.length"
+                                                >
+                                                    <b-form-input
+                                                        v-model="client.correspondent_account"
+                                                        type="text"
+                                                        :disabled="readOnly"
+                                                        :state="errors.length > 0 ? false : null"
+                                                        @change="updateClient('correspondent_account', $event)"
+                                                    ></b-form-input>
+                                                </b-form-group>
+                                            </validation-provider>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pb-1">ЭДО</td>
+                                        <td class="pb-1">
+                                            <b-form-checkbox
+                                                id="edo"
+                                                v-model="client.EDO"
+                                                name="edo"
+                                                :value="true"
+                                                :unchecked-value="false"
+                                                @change="updateClient('EDO', $event)"
+                                            ></b-form-checkbox>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </b-card>
                     </b-col>
                 </b-row>
-
-                <b-button v-b-modal.modal-delete variant="danger">Удалить</b-button>
-
+                <b-col :style="client.type === 'E' ? 'display: flex; justify-content: end;' : null">
+                    <b-button v-b-modal.modal-delete variant="danger">Удалить</b-button>
+                </b-col>
                 <b-modal
-                id="modal-delete"
-                title="Удалить?"
-                @ok="deleteClient"
-                ok-title="Удалить"
-                ok-variant="danger"
-                header-bg-variant="danger"
-                cancel-title="Отмена"
-                size="sm"
+                    id="modal-delete"
+                    title="Удалить?"
+                    @ok="deleteClient"
+                    ok-title="Удалить"
+                    ok-variant="danger"
+                    header-bg-variant="danger"
+                    cancel-title="Отмена"
+                    size="sm"
                 >
-                <p>Удалить клиента?</p>
+                    <p>Удалить клиента?</p>
                 </b-modal>
             </template>
         </b-overlay>

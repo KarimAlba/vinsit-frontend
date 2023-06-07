@@ -14,7 +14,9 @@ export default {
             date_created_before: null,
             number: null,
 			counterparty: null,
+            type: null,
         },
+
 
         ordering: '-date_created',
 
