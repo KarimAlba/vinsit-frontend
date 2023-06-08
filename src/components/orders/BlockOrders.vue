@@ -112,7 +112,7 @@
                     </tr>
 
                     <tr>
-                        <td class="pb-1">Пасспорт</td>
+                        <td class="pb-1">Паспорт</td>
                         <td class="pb-1">
                             {{ data.item.recipient_passport_series }}
                             {{ data.item.recipient_passport_no }}

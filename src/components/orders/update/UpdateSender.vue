@@ -64,7 +64,7 @@
                 <b-form-group label="Email *">
                     <b-form-input 
                         v-model="order.sender_email"
-                        @change="changeOrder($event, 'recipient_email')"
+                        @change="changeOrder($event, 'sender_email')"
                     />
                 </b-form-group>
             </b-col>
@@ -271,6 +271,7 @@
                                                 type="email"
                                                 :state="errors.length > 0 ? false : null"
                                                 placeholder="Email"
+                                                @blur="changeOrder(phones, 'sender_phones')"
                                             ></b-form-input>
                                         </b-form-group>
                                     </validation-provider>

@@ -24,7 +24,7 @@
 									<td class="pb-1">{{ sender.city.name }}</td>
 								</tr>
 								<tr>
-									<td class="pb-1">Пасспортные данные</td>
+									<td class="pb-1">Паспортные данные</td>
 									<td class="pb-1">{{ sender.passport_series }} {{ sender.passport_no }}</td>
 								</tr>
 								<tr>
