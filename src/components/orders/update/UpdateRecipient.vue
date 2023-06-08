@@ -215,9 +215,9 @@
                                 cols="2"
                             >
                                 <b-form-checkbox
-                                    id="checkbox-1"
+                                    :id="`checkbox-${[i]}-recipient`"
                                     v-model="phone.to_print"
-                                    name="checkbox-1"
+                                    :name="`checkbox-${[i]}-recipient`"
                                     class="align-self-center justify-self-center"
                                     :disabled="readOnly"
                                     @change="onPhoneSelect(i)"
@@ -281,6 +281,7 @@
                                             type="email"
                                             :state="errors.length > 0 ? false : null"
                                             placeholder="Email"
+                                            @blur="changeOrder(phones, 'recipient_phones')"
                                         ></b-form-input>
                                     </b-form-group>
                                 </validation-provider>

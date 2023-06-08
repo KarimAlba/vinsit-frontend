@@ -199,8 +199,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="pb-1" v-if="client.type !== 'E'">Должность</td>
-                                    <td class="pb-1" v-if="client.type === 'E'">Статус</td>
+                                    <td class="pb-1">Должность</td>
                                     <td>
                                         <validation-provider #default="{ errors }">
                                             <b-form-group
@@ -823,7 +822,7 @@ export default {
         },
         updatePhone: _.debounce((vm) => {
             vm.updateClient('client_phones', vm.client.client_phones.filter(p => p.phone_number));
-        }, 500),
+        }, 1500),
         addPhoneNumber() {
             if (this.readOnly) {
                 return;

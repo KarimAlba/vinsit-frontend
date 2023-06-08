@@ -203,8 +203,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="pb-1" v-if="client.type !== 'E'">Должность</td>
-                            <td class="pb-1" v-if="client.type === 'E'">Статус</td>
+                            <td class="pb-1">Должность</td>
                             <td>
                                 <validation-provider #default="{ errors }">
                                     <b-form-group
@@ -551,23 +550,6 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="pb-1">Расчетный счет</td>
-                                <td>
-                                    <validation-provider #default="{ errors }">
-                                        <b-form-group
-                                            :invalid-feedback="errors[0]"
-                                            :state="!errors.length"
-                                        >
-                                            <b-form-input
-                                                v-model="client.bank_account"
-                                                type="text"
-                                                :state="errors.length > 0 ? false : null"
-                                            ></b-form-input>
-                                        </b-form-group>
-                                    </validation-provider>
-                                </td>
-                            </tr>
-                            <tr>
                                 <td class="pb-1">Почта для<br>бухгалтерских<br>документов</td>
                                 <td>
                                     <validation-provider #default="{ errors }">
@@ -706,7 +688,7 @@ export default {
     },
     watch: {
         'client.type'(newValue, oldValue) {
-           console.log(newValue, oldValue)
+            if (newValue === 'E') this.client.fin_docs_email = null;
         },
     },
     methods: {
@@ -740,14 +722,19 @@ export default {
     getClientType(type) {
       return this.clientType.find((x) => x.id === type)?.title || "Не задан";
     },
-    enumerationResponse(obj) {
-        for (let key in obj) {
-            console.log('key - ', key)
+    enumerationResponse(error) {
+        for (let key in error) {
             if (key === 'web') {
-                return 'Поле \'Сайт\' - ' + obj[key] + ' ';
+                return 'Поле \'Сайт\' - ' + error[key] + ' ';
             };
             if (key === 'type') {
-                return 'Поле \'Тип\' ' + obj.key + ' ';
+                return 'Поле \'Тип\' - ' + error[key] + ' ';
+            };
+            if (key === 'client_phones') {
+                return 'Поле \'Email сотрудников\' - ' + error[key][0].email + ' ';
+            };
+            if (key === 'fin_docs_email') {
+                return 'Поле \'Почта для бухгалтерских документов\' - ' + error[key] + ' ';
             };
         }
     },
