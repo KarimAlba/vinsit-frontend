@@ -202,7 +202,7 @@
                                 </validation-provider>
                             </td>
                         </tr>
-                        <tr>
+                        <tr v-if="client.type !== 'E'">
                             <td class="pb-1">Должность</td>
                             <td>
                                 <validation-provider #default="{ errors }">
@@ -212,6 +212,23 @@
                                     >
                                         <b-form-input
                                             v-model="client.position"
+                                            type="text"
+                                            :state="errors.length > 0 ? false : null"
+                                        ></b-form-input>
+                                    </b-form-group>
+                                </validation-provider>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pb-1">Почта</td>
+                            <td>
+                                <validation-provider #default="{ errors }">
+                                    <b-form-group
+                                        :invalid-feedback="errors[0]"
+                                        :state="!errors.length"
+                                    >
+                                        <b-form-input
+                                            v-model="client.email"
                                             type="text"
                                             :state="errors.length > 0 ? false : null"
                                         ></b-form-input>
@@ -300,7 +317,7 @@
                                         >{{ i + 1 }}. {{ phone.phone_number }}</a
                                     > -->
                                         <validation-provider #default="{ errors }">
-                                            <span v-if="client.client_phones.length > 1" style="margin-bottom: 15px;">{{ i + 1 }})</span>
+                                            <span v-if="client.client_phones.length > 1" style="text-align: left; margin-bottom: 15px;">{{ i + 1 }})</span>
                                             <b-form-input
                                                 v-model="phone.phone_number"
                                                 :state="errors.length > 0 ? false : null"
@@ -319,7 +336,7 @@
                                         </span>
                                             <!-- @blur="changeOrder(phones, 'sender_phones')" -->
                                         </validation-provider>
-                                        <validation-provider #default="{ errors }">
+                                        <!-- <validation-provider #default="{ errors }">
                                             <b-form-group
                                                 :invalid-feedback="errors[0]"
                                                 :state="!errors.length"
@@ -331,7 +348,7 @@
                                                     placeholder="Должность"
                                                 ></b-form-input>
                                             </b-form-group>
-                                        </validation-provider>
+                                        </validation-provider> -->
                                         <validation-provider #default="{ errors }">
                                             <b-form-group
                                                 :invalid-feedback="errors[0]"
@@ -345,7 +362,7 @@
                                                 ></b-form-input>
                                             </b-form-group>
                                         </validation-provider>
-                                        <validation-provider #default="{ errors }">
+                                        <!-- <validation-provider #default="{ errors }">
                                             <b-form-group
                                                 :invalid-feedback="errors[0]"
                                                 :state="!errors.length"
@@ -357,7 +374,7 @@
                                                     placeholder="Email"
                                                 ></b-form-input>
                                             </b-form-group>
-                                        </validation-provider>
+                                        </validation-provider> -->
                                     </p>
                                 </td>
                             </tr>
@@ -481,7 +498,7 @@
                                     </validation-provider>
                                 </td>
                             </tr>
-                            <tr v-if="client.name.includes('ИП')">
+                            <tr v-if="!client.name.trim().toLowerCase().slice(0, 2).includes('ип')">
                                 <td class="pb-1">КПП</td>
                                 <td>
                                     <validation-provider #default="{ errors }">
@@ -725,16 +742,16 @@ export default {
     enumerationResponse(error) {
         for (let key in error) {
             if (key === 'web') {
-                return 'Поле \'Сайт\' - ' + error[key] + ' ';
+                return 'Поле \'Сайт\' - ' + error[key] + '. ';
             };
             if (key === 'type') {
-                return 'Поле \'Тип\' - ' + error[key] + ' ';
+                return 'Поле \'Тип\' - ' + error[key] + '. ';
             };
             if (key === 'client_phones') {
-                return 'Поле \'Email сотрудников\' - ' + error[key][0].email + ' ';
+                return 'Поле \'Email сотрудников\' - ' + error[key][0].email + '. ';
             };
             if (key === 'fin_docs_email') {
-                return 'Поле \'Почта для бухгалтерских документов\' - ' + error[key] + ' ';
+                return 'Поле \'Почта для бухгалтерских документов\' - ' + error[key] + '. ';
             };
         }
     },
