@@ -91,7 +91,7 @@
             </b-col>
         </b-row> -->
         <b-row>
-            <b-col class="mt-2" @click="() => additionalService = additionalService ? false : true">
+            <b-col class="mt-2" @click="() => additionalService = !additionalService">
                 <b-icon-chevron-up v-if="additionalService" variant="primary"/>
                 <b-icon-chevron-down v-if="!additionalService" variant="primary"/>
                 <span class="header-additional-service">Дополнительные услуги</span>
@@ -104,18 +104,22 @@
                     :key="service.id"
                     :orderPaymentService="service"
                 /> -->
-                <b-row class="service"  v-for="(service, index) in orderServices" :key="orderServices[index].id">
+                <b-row 
+                    class="service"  
+                    v-for="(service, index) in orderServices" 
+                    :key="service.id"
+                >
                     <b-col cols="12" md="8">
                         <!-- @change="handleOrderService(service)"
                         :checked="checkService(service.service)" -->
                         <input
                             type="checkbox"
-                            :name="service.name"
-                            :id="String(service.id)"
-                            v-model="service.included"
+                            :id="`${[index]}-service-name`"
+                            :name="`${[index]}-service-name`"
+                            v-model="orderServices[index].included"
                             class="service-checkbox"
                         >
-                        <span class="service-name">{{ service.name }}</span>
+                        <span class="service-name">{{ orderServices[index].name }}</span>
                         <!-- <b-form-checkbox
                             :id="String(orderServices[index].id)"
                             :name="orderServices[index].name"
@@ -128,8 +132,9 @@
                         <b-form-group>
                             <b-form-input
                                 type="number"
+                                :id="`${[index]}-service-price`"
+                                :name="`${[index]}-service-price`"
                                 v-model="orderServices[index].price"
-                                debounce="500"
                             />
                         </b-form-group>
                     </b-col>
@@ -225,7 +230,9 @@ export default {
             }
         },
         'order.order_services'() {
-            if (this.order.order_services && !this.orderServices.length && !this.initialized) {
+            setTimeout(() => {
+            // console.log('5');
+                if (this.order.order_services && !this.orderServices.length && !this.initialized) {
                 const results = this.services.map((service) => {
                     const serviceFromOrder = this.order.order_services.find(orderService =>
                         orderService.service === service.name
@@ -240,12 +247,34 @@ export default {
                         included: this.order.order_services.map(elem => elem.service).includes(service.name),
                     };
                 });
+                // console.log('orderServices - ', results)
                 this.orderServices = results;
                 setTimeout(() => this.initialized = true, 500);
             }
+            }, 0)
+            // if (this.order.order_services && !this.orderServices.length && !this.initialized) {
+            //     const results = this.services.map((service) => {
+            //         const serviceFromOrder = this.order.order_services.find(orderService =>
+            //             orderService.service === service.name
+            //         );
+            //         const servicePrice = serviceFromOrder && Number(serviceFromOrder.price)
+            //             ? Number(serviceFromOrder.price)
+            //             : null;
+            //         return {
+            //             id: service.id,
+            //             name: service.name,
+            //             price: servicePrice,
+            //             included: this.order.order_services.map(elem => elem.service).includes(service.name),
+            //         };
+            //     });
+            //     // console.log('orderServices - ', results)
+            //     this.orderServices = results;
+            //     setTimeout(() => this.initialized = true, 500);
+            // }
         },
         'orderServices': {
             handler() {
+                // console.log('6');
                 if (!this.initialized) return;
                 const body = this.orderServices.filter(orderService => orderService.included).map(orderService => ({
                     service: orderService.id,
@@ -255,6 +284,9 @@ export default {
             },
             deep: true,
         },
+        'services'(newVal, oldVal) {
+            // console.log('4');
+        }
     },
     methods: {
         ...mapMutations({
@@ -324,19 +356,23 @@ export default {
                 })
         },
         addServicesList() {
+            // console.log('2');
             this.$api.services.getServices(0, 30)
                 .then(response => {
                     if (response.status > 203) {
                         return;
                     }
+                    // console.log('3');
                     this.services = response.data;
                 })
         },
         checkService(serviceId) {
+            // console.log('7');
             const serviceIndex = this.order?.order_services.findIndex(serv => serv.service === serviceId);
             return serviceIndex !== -1 ? true : false;
         },
         handleOrderService(service) {
+            // console.log('8');
             const serviceIndex = this.order.order_services?.findIndex(item => item.service === service.service);
             if (serviceIndex === -1) {
                 this.order.order_services.push(service);
@@ -348,6 +384,7 @@ export default {
         },
     },
     mounted() {
+        // console.log('1');
         this.addServicesList();
     }
 };

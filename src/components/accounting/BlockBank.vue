@@ -224,11 +224,11 @@
         },
         watch: {
             'sortBy'(newValue) {
-                console.log('newValue - ', newValue);
+                // console.log('newValue - ', newValue);
                 this.sortTable();
             },
             'sortDesc'(newValue) {
-                console.log('newValue - ', newValue);
+                // console.log('newValue - ', newValue);
                 this.sortTable();
             }
         },

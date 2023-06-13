@@ -60,7 +60,7 @@ export default {
             state.paymentOrders = payload
         },
         setPaymentOrder(state, payload) {
-            console.log(payload);
+            // console.log(payload);
             state.paymentOrder = payload;
         },
         setCount(state, payload) {
@@ -133,7 +133,7 @@ export default {
                             :
                             [{contract: null, checks: [{act: null, total_price: null}]}]
                 })
-                console.log('orderzresponse - ', state.paymentOrder)
+                // console.log('orderzresponse - ', state.paymentOrder)
             })
                 .finally(() => {
                     commit('changeLoading', false)

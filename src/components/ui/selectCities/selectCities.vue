@@ -44,10 +44,10 @@ export default {
     },
     watch: {
         'value'() {
-            console.log('tut');
-            console.log('value', this.value);
+            // console.log('tut');
+            // console.log('value', this.value);
             if (!this.value) {
-                console.log('no city');
+                // console.log('no city');
                 this.city = null;
                 return;
             }
@@ -64,7 +64,7 @@ export default {
         },
         fetchCities: _.debounce((search, loading, vm) => {
         vm.$api.cities.getCities({ search, limit: 100 }).then((response) => {
-            console.log('i am dsfds')
+            // console.log('i am dsfds')
             vm.cities = response.data.results;
 
             loading ? loading(false) : null;
@@ -72,8 +72,8 @@ export default {
         }, 500),
         getCityById(id) {
             this.$api.cities.getCity(id).then((response) => {
-                console.log('zdes kosyak')
-                console.log(response.data)
+                // console.log('zdes kosyak')
+                // console.log(response.data)
                 this.cities = [response.data];
                 this.city = response.data;
             });
@@ -83,7 +83,7 @@ export default {
         },
     },
     mounted() {
-        console.log('city value - ', this.value);
+        // console.log('city value - ', this.value);
         this.value ? this.getCityById(this.value) : null;
     },
 };

@@ -65,7 +65,7 @@
 		},
         watch: {
             'value'() {
-                console.log(this.value);
+                // console.log(this.value);
                 this.fetchContracts(
                     '',
                     null,
@@ -97,7 +97,7 @@
                         vm.contracts = result;
                         // console.log(result);
                         if (callback) {
-                            console.log('callback');
+                            // console.log('callback');
                             const selected = result.find(res => res.id === vm.value);
                             const defaultValue = result.length ? result[0] : null;
                             callback(selected || defaultValue);
