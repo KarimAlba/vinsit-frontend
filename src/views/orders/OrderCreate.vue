@@ -331,27 +331,27 @@
 														placeholder="Номер телефона"
 														style="margin-top: 15px;"
 													/>
-													<b-form-input
+													<!-- <b-form-input
 														v-model="order.sender_phones[i].position"
 														type="text"
 														:state="errors.length > 0 ? false : null"
 														placeholder="Должность"
 														style="margin-top: 15px;"
-													/>
+													/> -->
 													<b-form-input
 														v-model="order.sender_phones[i].full_name"
 														type="text"
 														:state="errors.length > 0 ? false : null"
 														placeholder="ФИО"
-														style="margin-top: 15px;"
+														style="margin-top: 15px; margin-bottom: 15px;"
 													/>
-													<b-form-input
+													<!-- <b-form-input
 														v-model="order.sender_phones[i].email"
 														type="email"
 														:state="errors.length > 0 ? false : null"
 														placeholder="Email"
 														style="margin-top: 15px; margin-bottom: 15px;"
-													/>
+													/> -->
 												</b-col>
 												<b-col class="text-center border border-secondary" cols="2" @click="deletePhone('sender', i)">
 													<b-icon icon="trash" style="margin-top: 50px;"></b-icon>
@@ -547,27 +547,27 @@
 														placeholder="Номер телефона"
 														style="margin-top: 15px;"
 													/>
-													<b-form-input
+													<!-- <b-form-input
 														v-model="order.recipient_phones[i].position"
 														type="text"
 														:state="errors.length > 0 ? false : null"
 														placeholder="Должность"
 														style="margin-top: 15px;"
-													/>
+													/> -->
 													<b-form-input
 														v-model="order.recipient_phones[i].full_name"
 														type="text"
 														:state="errors.length > 0 ? false : null"
 														placeholder="ФИО"
-														style="margin-top: 15px;"
+														style="margin-top: 15px; margin-bottom: 15px;"
 													/>
-													<b-form-input
+													<!-- <b-form-input
 														v-model="order.recipient_phones[i].email"
 														type="email"
 														:state="errors.length > 0 ? false : null"
 														placeholder="Email"
 														style="margin-top: 15px; margin-bottom: 15px;"
-													/>
+													/> -->
 												</b-col>
 												<b-col class="text-center border border-secondary" cols="2" @click="deletePhone('recipient', i)">
 													<b-icon icon="trash" style="margin-top: 50px;"></b-icon>

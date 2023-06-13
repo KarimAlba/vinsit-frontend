@@ -9,6 +9,7 @@
 					<b-form-group>
 						<b-form-input
 							v-model="editPaymentOrder.number"
+							placeholder="№ поручения"
 						></b-form-input>
 					</b-form-group>
 				</b-col>
@@ -824,7 +825,7 @@ export default {
 						component: ToastificationContent,
 						props: {
 						title: "Ошибка",
-						text: "Не удалось обновить",
+						text: "Не удалось обновить. " + this.enumerationResponse(response.data),
 						icon: "XIcon",
 						variant: "danger",
 						},
@@ -849,13 +850,36 @@ export default {
 						component: ToastificationContent,
 						props: {
 						title: "Ошибка",
-						text: "Не удалось обновить",
+						text: "Не удалось обновить. " + this.enumerationResponse(response.data),
 						icon: "XIcon",
 						variant: "danger",
 						},
 					});
 					}
 				});
+			},
+			enumerationResponse(error) {
+				for (let key in error) {
+					if (key === 'number') {
+						return 'Поле \'Номер поручения\' - ' + error[key] + '. ';
+					};
+					if (key === 'date_created') {
+						return 'Поле \'Дата поручения\' - ' + error[key] + '. ';
+					};
+					if (key === 'counterparty') {
+						const counterparty = this.typePaymentOrder === 'O' ? 'Поставщик' : 'Получатель'
+						return `Поле \'${counterparty}\' - ` + error[key] + '. ';
+					};
+					if (key === 'executor') {
+						return 'Поле \'Ваш расчетный счет\' - ' + error[key] + '. ';
+					};
+					if (key === 'payment_details') {
+						return 'Поле \'Назначение платежа\' - ' + error[key] + '. ';
+					};
+					if (key === 'sum') {
+						return 'Поле \'Всего\' - ' + error[key] + ' ';
+					};
+				}
 			},
 		},
 		mounted() {

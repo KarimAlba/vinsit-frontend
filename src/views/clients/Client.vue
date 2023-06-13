@@ -198,7 +198,7 @@
                                         </validation-provider>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr v-if="client.type !== 'E'">
                                     <td class="pb-1">Должность</td>
                                     <td>
                                         <validation-provider #default="{ errors }">
@@ -212,6 +212,24 @@
                                                     :disabled="readOnly"
                                                     :state="errors.length > 0 ? false : null"
                                                     @change="updateClient('position', $event)"
+                                                ></b-form-input>
+                                            </b-form-group>
+                                        </validation-provider>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pb-1">Почта</td>
+                                    <td>
+                                        <validation-provider #default="{ errors }">
+                                            <b-form-group
+                                                :invalid-feedback="errors[0]"
+                                                :state="!errors.length"
+                                            >
+                                                <b-form-input
+                                                    v-model="client.email"
+                                                    type="text"
+                                                    :state="errors.length > 0 ? false : null"
+                                                    @change="updateClient('email', $event)"
                                                 ></b-form-input>
                                             </b-form-group>
                                         </validation-provider>
@@ -295,7 +313,7 @@
                                             >{{ i + 1 }}. {{ phone.phone_number }}</a
                                         > -->
                                             <validation-provider #default="{ errors }">
-                                                <span v-if="client.client_phones.length > 1" style="margin-bottom: 15px;">{{ i + 1 }})</span>
+                                                <span v-if="client.client_phones.length > 1" style="text-align: left; margin-bottom: 15px;">{{ i + 1 }})</span>
                                                 <b-form-input
                                                     debounce="500"
                                                     v-model="phone.phone_number"
@@ -315,7 +333,7 @@
                                                 </span>
                                                 <!-- @blur="changeOrder(phones, 'sender_phones')" -->
                                             </validation-provider>
-                                            <validation-provider #default="{ errors }">
+                                            <!-- <validation-provider #default="{ errors }">
                                                 <b-form-group
                                                     :invalid-feedback="errors[0]"
                                                     :state="!errors.length"
@@ -327,7 +345,7 @@
                                                         placeholder="Должность"
                                                     ></b-form-input>
                                                 </b-form-group>
-                                            </validation-provider>
+                                            </validation-provider> -->
                                             <validation-provider #default="{ errors }">
                                                 <b-form-group
                                                     :invalid-feedback="errors[0]"
@@ -341,7 +359,7 @@
                                                     ></b-form-input>
                                                 </b-form-group>
                                             </validation-provider>
-                                            <validation-provider #default="{ errors }">
+                                            <!-- <validation-provider #default="{ errors }">
                                                 <b-form-group
                                                     :invalid-feedback="errors[0]"
                                                     :state="!errors.length"
@@ -353,7 +371,7 @@
                                                         placeholder="Email"
                                                     ></b-form-input>
                                                 </b-form-group>
-                                            </validation-provider>
+                                            </validation-provider> -->
                                         </p>
                                     </td>
                                 </tr>
@@ -492,7 +510,7 @@
                                             </validation-provider>
                                         </td>
                                     </tr>
-                                    <tr v-if="client.name.includes('ИП')">
+                                    <tr v-if="!client.name.trim().toLowerCase().slice(0, 2).includes('ип')">
                                         <td class="pb-1">КПП</td>
                                         <td>
                                             <validation-provider #default="{ errors }">
@@ -771,6 +789,18 @@ export default {
             if (this.readOnly) {
                 return;
             }
+            if (!this.client.name) {
+                this.$toast({
+                    component: ToastificationContent,
+                    props: {
+                        title: "Ошибка",
+                        text: "Заполните поле \"Название / ФИО\"",
+                        icon: "XIcon",
+                        variant: "danger",
+                    },
+                });
+                return;
+            };
             this.changeLoading(true);
             
             this.$api.clients

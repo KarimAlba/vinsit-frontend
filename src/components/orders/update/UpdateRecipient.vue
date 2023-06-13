@@ -234,6 +234,8 @@
                                     @blur="changeOrder(phones, 'recipient_phones')"
                                 /> -->
                                 <b-form-input
+                                    :id="`phone_number-${[i]}-sender`"
+                                    :name="`phone_number-${[i]}-sender`"
                                     v-model="phone.phone_number"
                                     :state="errors.length > 0 ? false : null"
                                     :disabled="readOnly"
@@ -242,7 +244,7 @@
                                     @blur="changeOrder(phones, 'recipient_phones')"
                                     style="margin-top: 15px"
                                 />
-                                <validation-provider #default="{ errors }">
+                                <!-- <validation-provider #default="{ errors }">
                                     <b-form-group
                                         :invalid-feedback="errors[0]"
                                         :state="!errors.length"
@@ -256,22 +258,25 @@
                                             style="margin-top: 15px;"
                                         ></b-form-input>
                                     </b-form-group>
-                                </validation-provider>
+                                </validation-provider> -->
                                 <validation-provider #default="{ errors }" >
                                     <b-form-group
                                         :invalid-feedback="errors[0]"
                                         :state="!errors.length"
                                     >
                                         <b-form-input
+                                            :id="`full_name-${[i]}-sender`"
+                                            :name="`full_name-${[i]}-sender`"
                                             v-model="phones[i].full_name"
                                             type="text"
                                             :state="errors.length > 0 ? false : null"
                                             @blur="changeOrder(phones, 'recipient_phones')"
                                             placeholder="ФИО"
+                                            style="margin-top: 15px;"
                                         ></b-form-input>
                                     </b-form-group>
                                 </validation-provider>
-                                <validation-provider #default="{ errors }">
+                                <!-- <validation-provider #default="{ errors }">
                                     <b-form-group
                                         :invalid-feedback="errors[0]"
                                         :state="!errors.length"
@@ -284,7 +289,7 @@
                                             @blur="changeOrder(phones, 'recipient_phones')"
                                         ></b-form-input>
                                     </b-form-group>
-                                </validation-provider>
+                                </validation-provider> -->
                             </b-col>
                             <b-col class="text-center border border-secondary" cols="2" @click="deletePhone(i)">
                                 <b-icon icon="trash"></b-icon>
@@ -506,7 +511,7 @@ export default {
         },
         addPhone() {
             // this.order[name + '_phones'].unshift({});
-            this.phones.unshift({phone_number: ''});
+            this.phones.push({phone_number: ''});
         },
         deletePhone(index) {
             this.phones.splice(index, 1);
