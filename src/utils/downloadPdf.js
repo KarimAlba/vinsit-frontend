@@ -13,7 +13,7 @@ const downloadPdf = async(url, fileName) => {
         responseType: 'blob'
     });
     downloadLinkElem.href = window.URL.createObjectURL(res.data);
-    console.log(downloadLinkElem);
+    // console.log(downloadLinkElem);
     document.documentElement.append(downloadLinkElem);
     const elem = document.documentElement.querySelector('#download-pdf-link');
     elem.click();

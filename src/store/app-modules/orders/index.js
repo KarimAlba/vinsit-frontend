@@ -86,7 +86,7 @@ export default {
             state.orders = payload
         },
         setOrder(state, payload) {
-            console.log(payload);
+            // console.log(payload);
             state.order = payload;
             state.editableOrder = {
                 ...payload,
@@ -103,7 +103,7 @@ export default {
             state.editableOrder = payload;
         },
 		setOrderSender(state, payload) {
-			console.log(payload);
+			// console.log(payload);
 			if (!state.order.sender_counterparty) return;
 			state.order.sender_counterparty.id = payload.id
 			state.order.sender_counterparty.name = payload.name
@@ -171,7 +171,7 @@ export default {
                 offset: ((state.curPage - 1) * state.countPerPage),
                 limit: state.countPerPage
             }).then((response) => {
-				console.log('response - ', response);
+				// console.log('response - ', response);
                 commit('setOrders', response.data.results)
                 commit('setCount', response.data.count)
             }).finally(() => {
@@ -182,7 +182,7 @@ export default {
             commit('changeLoading', true)
 
             this._vm.$api.orders.getOrder(idOrder).then((response) => {
-                console.log('orderzresponse - ', response.data)
+                // console.log('orderzresponse - ', response.data)
                 commit('setOrder', response.data)
             })
                 .finally(() => {

@@ -317,7 +317,7 @@
 			fetchStatus() {
 				this.$api.orderStatus.getOrderStatusList({limit: 10, offset: 0})
 					.then((response) => {
-						console.log('response status - ', response);
+						// console.log('response status - ', response);
 						this.orderStatus = response.data.results;
 				});
 			},

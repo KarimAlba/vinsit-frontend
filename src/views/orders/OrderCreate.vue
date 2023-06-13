@@ -667,19 +667,23 @@
 						</b-col>
 					</b-row> -->
 					<b-row>
-						<b-col cols="5" class="mt-2" @click="() => additionalService = additionalService ? false : true">
+						<b-col cols="5" class="mt-2" @click="() => additionalService = !additionalService">
 							<b-icon-chevron-up v-if="additionalService" variant="primary"/>
 							<b-icon-chevron-down v-if="!additionalService" variant="primary"/>
 							<span class="header-additional-service">Дополнительные услуги</span>
 						</b-col>
 					</b-row>
-					<b-row v-if="additionalService">
+					<b-row v-if="additionalService && services.length">
 						<b-col>
-							<b-row class="service"  v-for="(service) in services" :key="service.id">
+							<b-row 
+								class="service" 
+								v-for="(service) in services" 
+								:key="service.id"
+							>
 								<b-col cols="12" md="8">
 									<b-form-checkbox
-                                        :id="service + service.id + ''"
-                                        :name="service.name"
+										:id="`checkbox-${[i]}-service`"
+                                        :name="`checkbox-${[i]}-service`"
                                         @change="handleOrderService(service)"
 									>
 										{{service.name}}
@@ -689,7 +693,8 @@
 									<b-form-group>
 										<b-form-input
 											type="number"
-                                            :id="service.price + service.id + ''"
+                                            :id="`checkbox-${[i]}-service-price`"
+											:name="`checkbox-${[i]}-service-price`"
                                             @input="handleOrderServicePrice($event, service)"
 										/>
 									</b-form-group>
@@ -1181,7 +1186,7 @@
 		},
 		watch: {
 			'order.recipient_counterparty'() {
-				console.log('watch 1 - ', this.order.sender_counterparty)
+				// console.log('watch 1 - ', this.order.sender_counterparty)
 				if (Number.isFinite(this.order.recipient_counterparty)) {
 					const id = this.order.recipient_counterparty;
 					this.addCounterparty(id, 'recipient');
@@ -1193,7 +1198,7 @@
 			},
 			'order.sender_counterparty'() {
 				if (Number.isFinite(this.order.sender_counterparty)) {
-					console.log('watch 2 - ', this.order.sender_counterparty)
+					// console.log('watch 2 - ', this.order.sender_counterparty)
 					const id = this.order.sender_counterparty;
 					this.addCounterparty(id, 'sender');
 					if (this.order.payment_type == 'SC' || this.order.payment_type == 'CS') {
@@ -1204,7 +1209,7 @@
 			},
 			'order.payer_counterparty'() {
 				if (Number.isFinite(this.order.payer_counterparty)) {
-					console.log('watch 3 - ', this.order.sender_counterparty)
+					// console.log('watch 3 - ', this.order.sender_counterparty)
 					const id = this.order.payer_counterparty;
 					this.addCounterparty(id, 'payer');
                     // this.addPayerContracts(id);
@@ -1279,9 +1284,10 @@
                 return Number(String(value).substring(0, 6));
             },
 			fetchStatus() {
-				this.$api.orderStatus.getOrderStatusList().then((response) => {
-					this.orderStatus = response.data.results;
-				});
+				this.$api.orderStatus.getOrderStatusList()
+					.then((response) => {
+						this.orderStatus = response.data.results;
+					});
 			},
             changeOrder(value, key) {
                 this.order[key] = value;
@@ -1354,7 +1360,7 @@
 				this.order.products.push({});
 			},
             handleOrderService(currentService) {
-                console.log('currentService - ', currentService)
+                // console.log('currentService - ', currentService)
                 const serviceIndex = this.order.order_services.findIndex(serv => serv.service === currentService.id);
                 if (serviceIndex === -1) {
                     const newService = {
@@ -1434,7 +1440,7 @@
 			addClient(propName) {
 				this.$api.clients.addNewClient(this.newUser)
 					.then((response) => {
-						console.log('response - ', response);
+						// console.log('response - ', response);
                         if (response.status > 203) {
                             return;
                         }
@@ -1501,9 +1507,7 @@
             addServicesList() {
                 this.$api.services.getServices(0, 30)
                     .then(response => {
-                        if (response.status > 203) {
-                            return;
-                        }
+                        if (response.status > 203) return;
                         this.services = response.data;
                     })
             },

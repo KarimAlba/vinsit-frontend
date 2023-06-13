@@ -240,7 +240,7 @@
 				if (key === 'counterparty') {
 					value ? this.counterparty = value.id : null;
 					this.filters[key] = value ? value.id : null;
-					console.log('counterparty fil', value.name, value.id)
+					// console.log('counterparty fil', value.name, value.id)
 					return;
 				}
                 this[key] = value;

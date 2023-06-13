@@ -515,7 +515,7 @@ export default {
 			},
 			'selectBank.checks': {
 				handler(newValue, oldValue) {
-					console.log('change select bank checks', oldValue)
+					// console.log('change select bank checks', oldValue)
 					// console.log('selectBank checks ', oldValue, newValue)
 				},
 				deep: true
@@ -523,7 +523,7 @@ export default {
 			'editPaymentOrder.contracts': {
 				
 				handler(newValue, oldValue) {
-					console.log('change contracts', oldValue[0].checks)
+					// console.log('change contracts', oldValue[0].checks)
 				},
 				deep: true
 			}
@@ -631,11 +631,11 @@ export default {
 						...this.editPaymentOrder.contracts.slice(index + 1),
 					],
 				};
-				console.log('1');
+				// console.log('1');
 				this.getChecks(id, index);
 			},
 			changeOrderCheck(id, indexContract, indexCheck) {
-				console.log('5', this.selectBank.checks)
+				// console.log('5', this.selectBank.checks)
 				this.$api.checks.getCheck(id).then(response => {
 					this.editPaymentOrder.contracts = [
 						...this.editPaymentOrder.contracts.slice(0, indexContract),
@@ -649,11 +649,11 @@ export default {
 						},
 						...this.editPaymentOrder.contracts.slice(indexContract + 1),
 					];
-					console.log('check', this.editPaymentOrder.contracts)
+					// console.log('check', this.editPaymentOrder.contracts)
 				});
 			},
 			addContract(i) {
-				console.log('6')
+				// console.log('6')
 				this.editPaymentOrder.contracts.push(
 					{
 						contract: null,
@@ -705,9 +705,9 @@ export default {
 				: "Отсутствует";
 			},
 			getChecks(id, index) {
-				console.log('2', 'id - ', id)
+				// console.log('2', 'id - ', id)
 				this.$api.checks.getChecks({offset: 0, limit: 100, contract: id}).then(response => {
-				console.log('3', response)
+				// console.log('3', response)
 					this.selectBank.checks = [
 						...this.selectBank.checks.slice(0, index),
 						response.data.results,
@@ -737,7 +737,7 @@ export default {
 			},
 			handleChecks() {
 				// console.log('handleChecks', this.editPaymentOrder);
-				console.log('4')
+				// console.log('4')
 				this.editPaymentOrder.contracts.forEach((item, index) => this.getChecks(item.contract, index));
 			},
 			handleCounterparty(value) {

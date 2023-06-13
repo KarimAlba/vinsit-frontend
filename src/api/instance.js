@@ -70,7 +70,7 @@ export default class Instance {
             
                             this.onAccessTokenFetched(r.data.accessToken)
                         }).catch((err) => {
-                            console.log(err);
+                            // console.log(err);
                         })
 					}
 					const retryOriginalRequest = new Promise(resolve => {
