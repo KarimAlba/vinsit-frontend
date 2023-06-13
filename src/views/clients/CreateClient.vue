@@ -742,16 +742,16 @@ export default {
     enumerationResponse(error) {
         for (let key in error) {
             if (key === 'web') {
-                return 'Поле \'Сайт\' - ' + error[key] + '. ';
+                return 'Поле \'Сайт\' - ' + error[key] + ' ';
             };
             if (key === 'type') {
-                return 'Поле \'Тип\' - ' + error[key] + '. ';
+                return 'Поле \'Тип\' - ' + error[key] + ' ';
             };
             if (key === 'client_phones') {
-                return 'Поле \'Email сотрудников\' - ' + error[key][0].email + '. ';
+                return 'Поле \'Email сотрудников\' - ' + error[key][0].email + ' ';
             };
             if (key === 'fin_docs_email') {
-                return 'Поле \'Почта для бухгалтерских документов\' - ' + error[key] + '. ';
+                return 'Поле \'Почта для бухгалтерских документов\' - ' + error[key] + ' ';
             };
         }
     },

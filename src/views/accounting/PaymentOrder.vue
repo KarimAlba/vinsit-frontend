@@ -861,20 +861,20 @@ export default {
 			enumerationResponse(error) {
 				for (let key in error) {
 					if (key === 'number') {
-						return 'Поле \'Номер поручения\' - ' + error[key] + '. ';
+						return 'Поле \'Номер поручения\' - ' + error[key] + ' ';
 					};
 					if (key === 'date_created') {
-						return 'Поле \'Дата поручения\' - ' + error[key] + '. ';
+						return 'Поле \'Дата поручения\' - ' + error[key] + ' ';
 					};
 					if (key === 'counterparty') {
 						const counterparty = this.typePaymentOrder === 'O' ? 'Поставщик' : 'Получатель'
 						return `Поле \'${counterparty}\' - ` + error[key] + '. ';
 					};
 					if (key === 'executor') {
-						return 'Поле \'Ваш расчетный счет\' - ' + error[key] + '. ';
+						return 'Поле \'Ваш расчетный счет\' - ' + error[key] + ' ';
 					};
 					if (key === 'payment_details') {
-						return 'Поле \'Назначение платежа\' - ' + error[key] + '. ';
+						return 'Поле \'Назначение платежа\' - ' + error[key] + ' ';
 					};
 					if (key === 'sum') {
 						return 'Поле \'Всего\' - ' + error[key] + ' ';
