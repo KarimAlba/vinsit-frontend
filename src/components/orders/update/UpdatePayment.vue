@@ -150,7 +150,7 @@ import ToastificationContent from "@core/components/toastification/Toastificatio
 import SelectCities from "@/components/ui/selectCities/selectCities.vue";
 import SelectClients from "@/components/ui/selectClients/selectClients.vue";
 import SelectContracts from "@/components/ui/selectContracts/selectContracts.vue";
-import { mapMutations } from "vuex";
+import { mapActions, mapMutations } from "vuex";
 
 import BCardActions from "@/@core/components/b-card-actions/BCardActions.vue";
 
@@ -205,10 +205,13 @@ export default {
     },
     watch: {
         'order.payer_counterparty'() {
-            // this.payer = this.order.payer_counterparty;
+            // setTimeout(() => this.changeOrder(this.order.payment_type, 'payment_type'), 0);
+            console.log('tut1');
+            // this.changeOrder();
         },
         'order.payment_type'() {
             if (!this.initialized) return;
+            // console.log('tut2');
             setTimeout(() => this.changeOrder(this.order.payment_type, 'payment_type'), 1000);
             if (this.order.payment_type[0] !== 'C') {
                 this.changeOrder(null, 'contract');
@@ -292,6 +295,9 @@ export default {
         ...mapMutations({
             setEditableOrder: "moduleOrders/setEditableOrder",
         }),
+        ...mapActions({
+            fetchTotalPrice: "moduleOrders/fetchTotalPrice",
+        }),
         changeOrder(newVal, key) {
             let payload = {};
             payload[key] = newVal;
@@ -324,6 +330,7 @@ export default {
                             total_price: response.data.total_price,
                         });
                     }
+                    this.fetchTotalPrice(this.order.id),
                     this.$toast({
                         component: ToastificationContent,
                         props: {

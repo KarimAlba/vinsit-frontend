@@ -7,6 +7,9 @@ export default {
         loading: false,
         curPage: 1,
         countPerPage: 20,
+        filters: {
+            type: null,
+        }
 
     },
     getters: {
@@ -24,6 +27,9 @@ export default {
         },
         getLoading: (state) => {
             return state.loading
+        },
+        getFilters: (state) => {
+            return state.filters
         }
     },
     mutations: {
@@ -39,6 +45,11 @@ export default {
         resetPagination(state) {
             state.curPage = 1;
         },
+        resetFilters(state) {
+            state.filters = {
+                type: null,
+            };
+        },
         resetData(state) {
             state.invoices = []
             state.count = 0
@@ -52,9 +63,13 @@ export default {
             commit('changeLoading', true)
             commit('resetData')
 
-            this._vm.$api.reconciliationActs.getReconciliationActs({ limit: state.countPerPage, offset: ((state.curPage - 1) * state.countPerPage) }).then((response) => {
-                commit('setReconciliationActs', response.data.results)
-                commit('setCount', response.data.count)
+            this._vm.$api.reconciliationActs.getReconciliationActs({ 
+                limit: state.countPerPage, 
+                offset: ((state.curPage - 1) * state.countPerPage), 
+                ...state.filters })
+                    .then((response) => {
+                    commit('setReconciliationActs', response.data.results)
+                    commit('setCount', response.data.count)
             })
                 .finally(() => {
                     commit('changeLoading', false)
@@ -62,6 +77,9 @@ export default {
         },
         resetPagination({ commit, state }) {
             commit('resetPagination')
+        },
+        resetFilters({ commit, state }) {
+            commit('resetFilters')
         },
     },
 }
