@@ -64,6 +64,16 @@
 							</b-form-group>
 						</validation-provider>
 					</b-col>
+                    <b-col cols="12" md="4" v-if="type === 'reconciliation_act'">
+						<validation-provider #default="{ errors }" rules="required">
+							<b-form-group :invalid-feedback="errors[0]" label="Ответственное лицо">
+								<b-form-input
+                                    type="text"
+                                    v-model="form.responsible_party"
+                                />
+							</b-form-group>
+						</validation-provider>
+					</b-col>
                     <b-col cols="12" md="4" v-if="type !== 'reconciliation_act'">
                         <b-form-group label="Банковский счет">
                             <b-form-input
@@ -181,6 +191,7 @@ export default {
                 is_consider_saldo: false,
                 type: 'O',
                 bank_account: null,
+                responsible_party: null,
 			},
 		};
 	},

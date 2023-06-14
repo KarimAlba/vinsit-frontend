@@ -218,7 +218,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="pb-1">Почта</td>
+                                    <td class="pb-1">Email</td>
                                     <td>
                                         <validation-provider #default="{ errors }">
                                             <b-form-group

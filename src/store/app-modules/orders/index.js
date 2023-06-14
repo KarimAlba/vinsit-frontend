@@ -102,6 +102,10 @@ export default {
         setEditableOrder(state, payload) {
             state.editableOrder = payload;
         },
+        setTotalPrice(state, payload) {
+            state.order.total_price = payload;
+            state.editableOrder.total_price = payload;
+        },
 		setOrderSender(state, payload) {
 			// console.log(payload);
 			if (!state.order.sender_counterparty) return;
@@ -184,6 +188,17 @@ export default {
             this._vm.$api.orders.getOrder(idOrder).then((response) => {
                 // console.log('orderzresponse - ', response.data)
                 commit('setOrder', response.data)
+            })
+                .finally(() => {
+                    commit('changeLoading', false)
+                });
+        },
+        fetchTotalPrice({ commit, state }, idOrder) {
+            commit('changeLoading', true)
+
+            this._vm.$api.orders.getOrder(idOrder).then((response) => {
+                // console.log('orderzresponse - ', response.data)
+                commit('setTotalPrice', response.data.total_price)
             })
                 .finally(() => {
                     commit('changeLoading', false)
