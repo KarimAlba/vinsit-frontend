@@ -677,13 +677,13 @@
 						<b-col>
 							<b-row 
 								class="service" 
-								v-for="(service) in services" 
+								v-for="(service, i) in services" 
 								:key="service.id"
 							>
 								<b-col cols="12" md="8">
 									<b-form-checkbox
-										:id="`checkbox-${[i]}-service`"
-                                        :name="`checkbox-${[i]}-service`"
+										:id="`checkbox-${[service.id]}-service`"
+                                        :name="`checkbox-${[service.id]}-service`"
                                         @change="handleOrderService(service)"
 									>
 										{{service.name}}
@@ -693,9 +693,10 @@
 									<b-form-group>
 										<b-form-input
 											type="number"
-                                            :id="`checkbox-${[i]}-service-price`"
-											:name="`checkbox-${[i]}-service-price`"
+                                            :id="`input-${[service.id]}-service-price`"
+											:name="`input-${[service.id]}-service-price`"
                                             @input="handleOrderServicePrice($event, service)"
+											:state="(validationServices.findIndex(item => item.service === service.id) !== -1) ? false : null"
 										/>
 									</b-form-group>
 								</b-col>
@@ -1075,6 +1076,7 @@
 		data() {
 			return {
                 services: [],
+				validationServices: [],
             	additionalService: true,
 				// orderPlacesFields: [
 				// 	{ key: "barcode", label: "Штрих-код" },
@@ -1321,11 +1323,18 @@
 											},
 										});
 									} else {
+										console.log('response - ', response)
+										let error = '';
+										if (response.data.order_services) {
+											this.validationServices = this.order.order_services.filter(item => !item.price);
+											console.log('this.validationServices - ', this.validationServices);
+											error = 'Поле \'Дополнительные услуги\' не может быть пустым'
+										}
 										this.$toast({
 											component: ToastificationContent,
 											props: {
 												title: "Ошибка",
-												text: "Заказ не создан",
+												text: "Заказ не создан. " + error,
 												icon: "XIcon",
 												variant: "danger",
 											},
@@ -1368,12 +1377,18 @@
                         price: null,
                     };
                     this.order.order_services.push(newService);
+					// this.validationServices.push(newService);
                     return;
                 }
+				// this.validationServices.push(this.order.order_services[serviceIndex]);
                 this.order.order_services.splice(serviceIndex, 1);
 			},
             handleOrderServicePrice(event, currentService) {
                 const serviceIndex = this.order.order_services.findIndex(serv => serv.service === currentService.id);
+				const valIndex = this.validationServices.findIndex(item => item.service === currentService.id);
+				if (valIndex !== -1) {
+					this.validationServices = this.validationServices.filter(item => item.service !== currentService.id);
+				}
                 if (serviceIndex === -1) return;
                 this.order.order_services[serviceIndex].price = +event;
 			},
@@ -1585,6 +1600,9 @@
 
 	.service-table:nth-child(2n - 1) {
 		background: #0B1F3508;
-	;
+	}
+
+	.validation-service {
+		border-color: red
 	}
 </style>
