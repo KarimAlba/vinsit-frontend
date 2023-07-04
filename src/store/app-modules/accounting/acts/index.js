@@ -52,10 +52,12 @@ export default {
             commit('changeLoading', true)
             commit('resetData')
 
-            this._vm.$api.accActs.getActs({ limit: state.countPerPage, offset: ((state.curPage - 1) * state.countPerPage) }).then((response) => {
-                commit('setActs', response.data.results)
-                commit('setCount', response.data.count)
-            })
+            this._vm.$api.accActs.getActs({ limit: state.countPerPage, offset: ((state.curPage - 1) * state.countPerPage) })
+                .then((response) => {
+                    console.log('acts - ', response.data)
+                    commit('setActs', response.data.results)
+                    commit('setCount', response.data.count)
+                })
                 .finally(() => {
                     commit('changeLoading', false)
                 });

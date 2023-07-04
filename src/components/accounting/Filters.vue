@@ -65,8 +65,8 @@
 						</validation-provider>
 					</b-col>
                     <b-col cols="12" md="4" v-if="type === 'reconciliation_act'">
-						<validation-provider #default="{ errors }" rules="required">
-							<b-form-group :invalid-feedback="errors[0]" label="Ответственное лицо">
+						<validation-provider #default="{ errors }">
+							<b-form-group label="Ответственное лицо">
 								<b-form-input
                                     type="text"
                                     v-model="form.responsible_party"
@@ -193,6 +193,7 @@ export default {
                 bank_account: null,
                 responsible_party: null,
 			},
+            search: null,
 		};
 	},
     watch: {

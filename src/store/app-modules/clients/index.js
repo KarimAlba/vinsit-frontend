@@ -8,8 +8,15 @@ export default {
         curPage: 1,
         countPerPage: 20,
         filters: {
-            search: null
+            search: null,
+            date_created_after: null,
+            date_created_before: null,
+            number: null,
+			counterparty: null,
+            type: null,
         },
+
+        ordering: '-date_created',
 
         clientType: [
             { id: "E", title: "Юридическое лицо", short_title: "Юр. лицо" },

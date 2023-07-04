@@ -14,7 +14,15 @@
         </div>
 
         <b-card>
-        <b-table :items="clients" :fields="fields" striped responsive>
+        <b-table 
+            :items="clients" 
+            :fields="fields" 
+            striped responsive
+            
+            :sort-by.sync="sortBy"
+            :sort-desc.sync="sortDesc"
+            :no-local-sorting="true"
+        >
             <template #cell(amo_client_id)="data">
             <router-link
                 style="border-bottom: 1px dotted blue"
@@ -88,16 +96,18 @@ import store from "@/store/index";
 export default {
     data() {
         return {
-        fields: [
-            { key: "amo_client_id", label: "AMO ID" },
-            { key: "id", label: "ID" },
-            { key: "name", label: "Название / ФИО" },
-            { key: "type", label: "Тип" },
-            { key: "address", label: "Адрес" },
-            { key: "contacts", label: "Контакты" },
-            { key: "position", label: "Должность" },
-            { key: "bank_account", label: "Счет" },
-        ],
+            fields: [
+                { key: "amo_client_id", label: "AMO ID" },
+                { key: "id", label: "ID" },
+                { key: "name", label: "Название / ФИО" },
+                { key: "type", label: "Тип" },
+                { key: "address", label: "Адрес" },
+                { key: "contacts", label: "Контакты" },
+                { key: "position", label: "Должность" },
+                { key: "bank_account", label: "Счет" },
+            ],
+            sortBy: 'date_created',
+            sortDesc: false,
         };
     },
     components: {
@@ -108,14 +118,30 @@ export default {
         BButton,
         BPagination,
     },
+    watch: {
+        'sortBy'(newValue) {
+            // console.log('newValue - ', newValue);
+            this.sortTable();
+        },
+        'sortDesc'(newValue) {
+            // console.log('newValue - ', newValue);
+            this.sortTable();
+        }
+    },
     computed: {
         ...mapGetters({
-        loading: "moduleClients/getLoading",
-        clientType: "moduleClients/getClientType",
-        count: "moduleClients/getCount",
-        perPage: "moduleClients/getCountPerPage",
-        curPage: "moduleClients/getCurPage",
-        clients: "moduleClients/getClients",
+            loading: "moduleClients/getLoading",
+            clientType: "moduleClients/getClientType",
+            count: "moduleClients/getCount",
+            perPage: "moduleClients/getCountPerPage",
+            curPage: "moduleClients/getCurPage",
+            clients: "moduleClients/getClients",
+
+            total_income: "moduleAccountingBank/getTotalIncome",
+            total_outcome: "moduleAccountingBank/getTotalOutcome",
+            perPage: "moduleAccountingBank/getCountPerPage",
+            curPage: "moduleAccountingBank/getCurPage",
+            paymentClient: "moduleAccountingBank/getPaymentClients",
         }),
         showPagination() {
         return Math.ceil(this.count / this.perPage) > 1;
@@ -127,9 +153,11 @@ export default {
     methods: {
         ...mapActions({
             fetchClients: "moduleClients/fetchClients",
+            resetPagination: "moduleAccountingBank/resetPagination",
         }),
         ...mapMutations({
             changeCurPage: "moduleClients/changePage",
+            changeOrdering: "moduleAccountingBank/changeOrdering",
         }),
         changePage(page) {
             this.changeCurPage(page);
@@ -149,6 +177,30 @@ export default {
                 "i"
         );
         return !!pattern.test(string);
+        },
+        sortTable() {
+            let ordering = 'date_created';
+
+            if (this.sortBy === 'number') {
+                ordering = 'number';
+            };
+            if (this.sortBy === 'counterparty') {
+                ordering = 'counterparty_name';
+            };
+            if (this.sortBy === 'financial_transaction') {
+                ordering = 'financial_transaction_name';
+            };
+
+            if (this.sortDesc) {
+                this.changeOrdering(ordering);
+            } else {
+                this.changeOrdering(`-${ordering}`);
+            }
+
+            this.resetPagination();
+            setTimeout(() => {
+                this.fetchPaymentOrders();
+            }, 0);
         },
     },
     mounted() {

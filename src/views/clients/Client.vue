@@ -31,7 +31,34 @@
                                         ></b-form-checkbox>
                                     </td>
                                 </tr>
-
+                                <tr>
+                                    <td class="pb-1">Тип</td>
+                                    <td class="pb-1">
+                                        <!-- {{ getClientType(client.type) }} -->
+                                        <v-select
+                                            label="title"
+                                            :reduce="(type) => type.id"
+                                            :options="clientType"
+                                            :clearable="false"
+                                            v-model="client.type"
+                                            :disabled="readOnly"
+                                        />
+                                        <!-- @input="changeOrder($event, 'sender_counterparty_type')" -->
+                                    </td>
+                                </tr>
+                                <tr v-if="client.type === 'E'">
+                                    <td class="pb-1" >Форма<br>собственности</td>
+                                    <td>
+                                        <v-select
+                                            label="title"
+                                            :reduce="(type) => type"
+                                            :options="formsOwnership"
+                                            :clearable="false"
+                                            v-model="client.form_of_ownership"
+                                            :disabled="readOnly"
+                                        />
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td class="pb-1">Название / ФИО</td>
                                     <td>
@@ -51,23 +78,6 @@
                                         </validation-provider>
                                     </td>
                                 </tr>
-
-                                <tr>
-                                    <td class="pb-1">Тип</td>
-                                    <td class="pb-1">
-                                        <!-- {{ getClientType(client.type) }} -->
-                                        <v-select
-                                            label="title"
-                                            :reduce="(type) => type.id"
-                                            :options="clientType"
-                                            :clearable="false"
-                                            v-model="client.type"
-                                            :disabled="readOnly"
-                                        />
-                                        <!-- @input="changeOrder($event, 'sender_counterparty_type')" -->
-                                    </td>
-                                </tr>
-
                                 <tr>
                                     <td class="pb-1">Город</td>
                                     <td>
@@ -101,8 +111,7 @@
                                         </validation-provider>
                                     </td>
                                 </tr>
-
-                                <tr>
+                                <tr v-if="client.type === 'E'">
                                     <td class="pb-1">Договор</td>
                                     <td class="pb-1">
                                         <select-contracts
@@ -235,38 +244,21 @@
                                         </validation-provider>
                                     </td>
                                 </tr>
-                                <tr v-if="client.type === 'E'">
-                                    <td class="pb-1" >Форма<br>собственности</td>
+                                <tr v-if="client.type === 'I'">
+                                    <td class="pb-1">Номер телефона</td>
                                     <td>
                                         <validation-provider #default="{ errors }">
                                             <b-form-group
                                                 :invalid-feedback="errors[0]"
                                                 :state="!errors.length"
                                             >
-                                                <b-form-input
-                                                    v-model="client.form_of_ownership"
-                                                    type="text"
-                                                    :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('form_of_ownership', $event)"
-                                                ></b-form-input>
-                                            </b-form-group>
-                                        </validation-provider>
-                                    </td>
-                                </tr>
-                                <tr v-if="client.type !== 'E'">
-                                    <td class="pb-1">Почта для<br>бухгалтерских<br>документов</td>
-                                    <td>
-                                        <validation-provider #default="{ errors }">
-                                            <b-form-group
-                                                :invalid-feedback="errors[0]"
-                                                :state="!errors.length"
-                                            >
-                                                <b-form-input
-                                                    v-model="client.fin_docs_email"
-                                                    type="text"
-                                                    :state="errors.length > 0 ? false : null"
-                                                    @change="updateClient('fin_docs_email', $event)"
-                                                ></b-form-input>
+                                            <b-form-input
+                                                v-model="client.client_phones[0].phone_number"
+                                                :state="errors.length > 0 ? false : null"
+                                                :disabled="readOnly"
+                                                type="tel"
+                                                placeholder="+7"
+                                            />
                                             </b-form-group>
                                         </validation-provider>
                                     </td>
@@ -292,114 +284,8 @@
                                 </tr>
                                 
                             </table>
-                            </b-card>
-                        </b-col>
-                        <b-col>
-                            <b-card>
-                            <b-card-title>Контакты</b-card-title>
-                            <table class="w-100">
-                                <tr>
-                                    <td class="d-flex flex-column align-items-start" style="padding-top: 10px">
-                                        Сотрудники
-                                        <p class="add-phone-btn" @click="addPhoneNumber">Добавить</p>
-                                    </td>
-                                    <td>
-                                        <p
-                                            v-for="(phone, i) in client.client_phones"
-                                            :key="i"
-                                            style="position: relative;"
-                                        >
-                                        <!-- <a :href="`tel:${phone.phone_number}`"
-                                            >{{ i + 1 }}. {{ phone.phone_number }}</a
-                                        > -->
-                                            <validation-provider #default="{ errors }">
-                                                <span v-if="client.client_phones.length > 1" style="text-align: left; margin-bottom: 15px;">{{ i + 1 }})</span>
-                                                <b-form-input
-                                                    debounce="500"
-                                                    v-model="phone.phone_number"
-                                                    :state="errors.length > 0 ? false : null"
-                                                    :disabled="readOnly"
-                                                    type="tel"
-                                                    style="padding-right: 30px; box-sizing: border-box; margin-bottom: 15px; margin-top: 5px;"
-                                                    placeholder="Номер телефона"
-                                                />
-                                                <span
-                                                    class="delete-phone-btn"
-                                                    v-if="client.client_phones.length > 1"
-                                                    @click="deletePhoneNumber(i)"
-                                                    style="margin-top: 23px; padding: 3px;"
-                                                >
-                                                    <b-icon icon="trash" style="width: 20px"></b-icon>
-                                                </span>
-                                                <!-- @blur="changeOrder(phones, 'sender_phones')" -->
-                                            </validation-provider>
-                                            <!-- <validation-provider #default="{ errors }">
-                                                <b-form-group
-                                                    :invalid-feedback="errors[0]"
-                                                    :state="!errors.length"
-                                                >
-                                                    <b-form-input
-                                                        v-model="client.client_phones[i].position"
-                                                        type="text"
-                                                        :state="errors.length > 0 ? false : null"
-                                                        placeholder="Должность"
-                                                    ></b-form-input>
-                                                </b-form-group>
-                                            </validation-provider> -->
-                                            <validation-provider #default="{ errors }">
-                                                <b-form-group
-                                                    :invalid-feedback="errors[0]"
-                                                    :state="!errors.length"
-                                                >
-                                                    <b-form-input
-                                                        v-model="client.client_phones[i].full_name"
-                                                        type="text"
-                                                        :state="errors.length > 0 ? false : null"
-                                                        placeholder="ФИО"
-                                                    ></b-form-input>
-                                                </b-form-group>
-                                            </validation-provider>
-                                            <!-- <validation-provider #default="{ errors }">
-                                                <b-form-group
-                                                    :invalid-feedback="errors[0]"
-                                                    :state="!errors.length"
-                                                >
-                                                    <b-form-input
-                                                        v-model="client.client_phones[i].email"
-                                                        type="email"
-                                                        :state="errors.length > 0 ? false : null"
-                                                        placeholder="Email"
-                                                    ></b-form-input>
-                                                </b-form-group>
-                                            </validation-provider> -->
-                                        </p>
-                                    </td>
-                                </tr>
-
-                                <!-- <tr>
-                                <td class="pb-1">Email</td>
-                                <td>
-                                    <validation-provider #default="{ errors }">
-                                        <b-form-group
-                                            :invalid-feedback="errors[0]"
-                                            :state="!errors.length"
-                                        >
-                                            <b-form-input
-                                                v-model="client.email"
-                                                type="email"
-                                                :disabled="readOnly"
-                                                :state="errors.length > 0 ? false : null"
-                                                @change="updateClient('email', $event)"
-                                            ></b-form-input>
-                                        </b-form-group>
-                                    </validation-provider>
-                                </td>
-                                </tr> -->
-
-                                
-                            </table>
-                            </b-card>
-                            <b-card v-if="client.type === 'E'" >
+                        </b-card>
+                        <b-card v-if="client.type === 'E'" >
                                 <b-card-title>Реквизиты</b-card-title>
                                 <table class="w-100">
                                     <tr>
@@ -586,7 +472,7 @@
                                             </validation-provider>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <!-- <tr>
                                         <td class="pb-1">Почта для<br>бухгалтерских<br>документов</td>
                                         <td>
                                             <validation-provider #default="{ errors }">
@@ -603,12 +489,131 @@
                                                 </b-form-group>
                                             </validation-provider>
                                         </td>
-                                    </tr>
+                                    </tr> -->
                                 </table>
                             </b-card>
                     </b-col>
+                    <b-col>
+                        <b-card v-if="client.type !== 'I'">
+                            <b-card-title>Контакты</b-card-title>
+                            <table class="w-100">
+                                <tr>
+                                    <td class="d-flex flex-column align-items-start" style="padding-top: 10px">
+                                        Сотрудники
+                                        <p class="add-phone-btn" @click="addPhoneNumber">Добавить</p>
+                                    </td>
+                                    <td>
+                                        <p
+                                            v-for="(phone, i) in client.client_phones"
+                                            :key="i"
+                                            style="position: relative;"
+                                        >
+                                        <!-- <a :href="`tel:${phone.phone_number}`"
+                                            >{{ i + 1 }}. {{ phone.phone_number }}</a
+                                        > -->
+                                            <validation-provider #default="{ errors }">
+                                                <span v-if="client.client_phones.length > 1" style="text-align: left; margin-bottom: 15px;">{{ i + 1 }})</span>
+                                                <b-form-input
+                                                    debounce="500"
+                                                    v-model="phone.phone_number"
+                                                    :state="errors.length > 0 ? false : null"
+                                                    :disabled="readOnly"
+                                                    type="tel"
+                                                    style="padding-right: 30px; box-sizing: border-box; margin-bottom: 15px; margin-top: 5px;"
+                                                    placeholder="Номер телефона"
+                                                />
+                                                <span
+                                                    class="delete-phone-btn"
+                                                    v-if="client.client_phones.length > 1"
+                                                    @click="deletePhoneNumber(i)"
+                                                    style="margin-top: 23px; padding: 3px;"
+                                                >
+                                                    <b-icon icon="trash" style="width: 20px"></b-icon>
+                                                </span>
+                                                <!-- @blur="changeOrder(phones, 'sender_phones')" -->
+                                            </validation-provider>
+                                            <validation-provider #default="{ errors }">
+                                                <b-form-group
+                                                    :invalid-feedback="errors[0]"
+                                                    :state="!errors.length"
+                                                >
+                                                    <b-form-input
+                                                        v-model="client.client_phones[i].position"
+                                                        type="text"
+                                                        :state="errors.length > 0 ? false : null"
+                                                        placeholder="Должность"
+                                                    ></b-form-input>
+                                                </b-form-group>
+                                            </validation-provider>
+                                            <validation-provider #default="{ errors }">
+                                                <b-form-group
+                                                    :invalid-feedback="errors[0]"
+                                                    :state="!errors.length"
+                                                >
+                                                    <b-form-input
+                                                        v-model="client.client_phones[i].full_name"
+                                                        type="text"
+                                                        :state="errors.length > 0 ? false : null"
+                                                        placeholder="ФИО"
+                                                    ></b-form-input>
+                                                </b-form-group>
+                                            </validation-provider>
+                                            <validation-provider #default="{ errors }">
+                                                <b-form-group
+                                                    :invalid-feedback="errors[0]"
+                                                    :state="!errors.length"
+                                                >
+                                                    <b-form-input
+                                                        v-model="client.client_phones[i].email"
+                                                        type="email"
+                                                        :state="errors.length > 0 ? false : null"
+                                                        placeholder="Email"
+                                                    ></b-form-input>
+                                                </b-form-group>
+                                            </validation-provider>
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr style="height: 20px;"></tr>
+                                <tr v-if="client.type === 'E'">
+                                    <td style="display: flex; justify-content: flex-start; padding-top: 8px;">ЛПР</td>
+                                    <td>
+                                        <validation-provider #default="{ errors }">
+                                            <b-form-input
+                                                :state="errors.length > 0 ? false : null"
+                                                :disabled="readOnly"
+                                                type="text"
+                                                placeholder="ФИО"
+                                                class="mb-1"
+                                            />
+                                            <!-- v-model="client.responsible_person.name" -->
+                                        </validation-provider>
+                                        <validation-provider #default="{ errors }">
+                                            <b-form-input
+                                                :state="errors.length > 0 ? false : null"
+                                                :disabled="readOnly"
+                                                type="text"
+                                                placeholder="Должность"
+                                                class="mb-1"
+                                            />
+                                            <!-- v-model="client.responsible_person.position" -->
+                                        </validation-provider>
+                                        <v-select
+                                            label="title"
+                                            :reduce="(type) => type"
+                                            :options="statusResponsiblePerson"
+                                            :clearable="false"
+                                            :disabled="readOnly"
+                                            placeholder="Основание"
+                                        />
+                                        <!-- v-model="client.responsible_person.status" -->
+                                    </td>
+                                </tr>
+                            </table>
+                        </b-card>
+                    </b-col>
                 </b-row>
-                <b-col :style="client.type === 'E' ? 'display: flex; justify-content: end;' : null">
+                <b-col>
                     <b-button v-b-modal.modal-delete variant="danger">Удалить</b-button>
                 </b-col>
                 <b-modal
@@ -694,6 +699,25 @@ export default {
             client: {},
             message: null,
             initialized: false,
+            formsOwnership: [
+                'ООО',
+                'ОАО',
+                'ЗАО',
+                'ПАО',
+                'АО'
+            ],
+            statusResponsiblePerson: [
+                'Доверенность',
+                'Договор',
+                'Лист записи ЕГРИП',
+                'Положение',
+                'Приказ',
+                'Решение',
+                'Свидетельство',
+                'Талон',
+                'Уведомление',
+                'Устав'
+            ]
         };
     },
     watch: {
