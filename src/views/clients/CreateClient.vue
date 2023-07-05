@@ -212,7 +212,7 @@
                                 </validation-provider>
                             </td>
                         </tr>
-                        <tr v-if="client.type !== 'E'">
+                        <!-- <tr v-if="client.type !== 'E'">
                             <td class="pb-1">Должность</td>
                             <td>
                                 <validation-provider #default="{ errors }">
@@ -228,7 +228,7 @@
                                     </b-form-group>
                                 </validation-provider>
                             </td>
-                        </tr>
+                        </tr> -->
                         <tr>
                             <td class="pb-1">Email</td>
                             <td>
@@ -721,10 +721,13 @@ export default {
             contracts: [{ value: '' }],
             formsOwnership: [
                 'ООО',
-                'ОАО',
-                'ЗАО',
+                'АО',
                 'ПАО',
-                'АО'
+                'ЗАО',
+                'ИП',
+                'ТСЖ',
+                'СХП',
+                'СТ'
             ],
             statusResponsiblePerson: [
                 'Доверенность',
