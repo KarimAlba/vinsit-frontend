@@ -31,6 +31,7 @@ export default {
         },
         curPage: 1,
         countPerPage: 10,
+        ordering: '-date_created',
         placeStatus: [
             { id: "D", title: "Вручено", color: "success" },
             { id: "U", title: "Не вручено", color: "primary" },
@@ -70,6 +71,9 @@ export default {
         },
         getPlaceStatus: (state) => {
             return state.placeStatus
+        },
+        getOrdering: (state) => {
+            return state.ordering
         },
         getOrderMode: (state) => {
             return state.orderMode
@@ -123,6 +127,9 @@ export default {
         deleteOrderPhone(state, payload) {
             state.order[`${payload.prefix}_counterparty`].client_phones.splice(payload.index, 1);
         },
+        changeOrdering(state, payload) {
+            state.ordering = payload
+        },
         setCount(state, payload) {
             state.count = payload
         },
@@ -163,7 +170,10 @@ export default {
         },
         changeLoading(state, payload) {
             state.loading = payload
-        }
+        },
+        resetOrdering(state) {
+            state.ordering = null
+        },
     },
     actions: {
         fetchOrders({ commit, state }) {
@@ -172,6 +182,7 @@ export default {
 
             this._vm.$api.orders.getOrders({
                 ...state.filters,
+                ordering: state.ordering,
                 offset: ((state.curPage - 1) * state.countPerPage),
                 limit: state.countPerPage
             }).then((response) => {
@@ -215,6 +226,9 @@ export default {
         },
         resetFilters({ commit, state }) {
             commit('resetFilters')
+        },
+        resetOrdering({ commit, state }) {
+            commit('resetOrdering')
         }
     },
 }

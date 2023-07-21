@@ -172,18 +172,20 @@
                                         />
 									</b-form-group>
 								</b-col>
-								<b-col cols="12">
+								<!-- <b-col cols="12">
 									<b-form-group label="ФИО *">
 										<b-form-input v-model="order.sender_full_name"></b-form-input>
 									</b-form-group>
-								</b-col>
+								</b-col> -->
 								<b-col cols="12">
 									<b-form-group label="Адрес *">
 										<b-form-input v-model="order.sender_address"/>
 									</b-form-group>
 								</b-col>
 								<b-col cols="12">
-									<b-form-group label="Email *">
+									<b-form-group 
+										:label="order.sender_counterparty_type !== 'I' ? 'Email *' : 'Email'"
+									>
 										<b-form-input v-model="order.sender_email"/>
 									</b-form-group>
 								</b-col>
@@ -400,18 +402,20 @@
                                         />
 									</b-form-group>
 								</b-col>
-								<b-col cols="12">
+								<!-- <b-col cols="12">
 									<b-form-group label="ФИО *">
 										<b-form-input v-model="order.recipient_full_name"/>
 									</b-form-group>
-								</b-col>
+								</b-col> -->
 								<b-col cols="12">
 									<b-form-group label="Адрес *">
 										<b-form-input v-model="order.recipient_address"/>
 									</b-form-group>
 								</b-col>
 								<b-col cols="12">
-									<b-form-group label="Email *">
+									<b-form-group 
+										:label="order.recipient_counterparty_type !== 'I' ? 'Email *' : 'Email'"
+									>
 										<b-form-input v-model="order.recipient_email"/>
 									</b-form-group>
 								</b-col>

@@ -38,7 +38,7 @@
                 </b-form-group>
             </b-col>
 
-            <b-col cols="12">
+            <!-- <b-col cols="12">
                 <b-form-group label="ФИО *">
                     <b-form-input
                         v-model="order.sender_full_name"
@@ -46,7 +46,7 @@
                         @change="changeOrder($event, 'sender_full_name')"
                     />
                 </b-form-group>
-            </b-col>
+            </b-col> -->
 
             <b-col cols="12">
                 <b-form-group label="Адрес">
@@ -61,7 +61,9 @@
             </b-col>
 
             <b-col cols="12">
-                <b-form-group label="Email *">
+                <b-form-group 
+                    :label="order.sender_counterparty_type !== 'I' ? 'Email *' : 'Email'"
+                >
                     <b-form-input 
                         v-model="order.sender_email"
                         @change="changeOrder($event, 'sender_email')"
@@ -407,6 +409,9 @@ export default {
     watch: {
         'order'() {
             this.phones = this.order.sender_phones;
+            // if (this.order.sender_counterparty_type === 'I') {
+            //     this.phones[0].full_name = this.order.sender_full_name ? this.order.sender_full_name : '';
+            // }
         },
     },
     methods: {
@@ -535,8 +540,9 @@ export default {
             this.addClient();
         },
         addPhone() {
-                // this.order[name + '_phones'].unshift({});
-                this.phones.push({phone_number: ''});
+            // this.order[name + '_phones'].unshift({});
+            if (this.order.sender_counterparty_type === 'I') return;
+            this.phones.push({phone_number: ''});
         },
         deletePhone(index) {
                 this.phones.splice(index, 1);

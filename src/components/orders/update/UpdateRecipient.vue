@@ -38,7 +38,7 @@
             </b-form-group>
         </b-col>
 
-        <b-col cols="12">
+        <!-- <b-col cols="12">
             <b-form-group label="ФИО *">
             <b-form-input
                 v-model="order.recipient_full_name"
@@ -46,7 +46,7 @@
                 @change="changeOrder($event, 'recipient_full_name')"
             />
             </b-form-group>
-        </b-col>
+        </b-col> -->
 
         <b-col cols="12">
             <b-form-group label="Адрес">
@@ -61,7 +61,9 @@
         </b-col>
 
         <b-col cols="12">
-            <b-form-group label="Email *">
+            <b-form-group 
+                :label="order.recipient_counterparty_type !== 'I' ? 'Email *' : 'Email'"
+            >
                 <b-form-input 
                     v-model="order.recipient_email"
                     @change="changeOrder($event, 'recipient_email')"
@@ -202,7 +204,11 @@
                             <b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
                                 Сотрудники
                             </b-col>
-                            <b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="2" @click="addPhone">
+                            <b-col 
+                                class="text-center text-white border border-dark bg-secondary font-weight-bold plus" 
+                                cols="2" 
+                                @click="addPhone"
+                            >
                                 +
                             </b-col>
                         </b-row>
@@ -403,6 +409,9 @@ export default {
     watch: {
         'order'() {
             this.phones = this.order.recipient_phones;
+            // if (this.order.recipient_counterparty_type === 'I') {
+            //     this.phones[0].full_name = this.order.recipient_full_name ? this.order.recipient_full_name : '';
+            // }
         },
     },
     computed: {
@@ -511,6 +520,7 @@ export default {
         },
         addPhone() {
             // this.order[name + '_phones'].unshift({});
+            if (this.order.recipient_counterparty_type === 'I') return;
             this.phones.push({phone_number: ''});
         },
         deletePhone(index) {

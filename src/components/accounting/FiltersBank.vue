@@ -1,6 +1,16 @@
 <template>
 	<b-card>
 		<b-row>
+			<b-col cols="12">
+				<b-form-group label="Поиск">
+					<b-form-input
+						debounce="500"
+						v-model="search"
+					/>
+				</b-form-group>
+			</b-col>
+		</b-row>
+		<b-row>
 			<b-col class="mb-1" cols="12" md="4">
 				<b-form-group>
 					<b-form-input

@@ -7,6 +7,7 @@ import appConfig from './app-config';
 import verticalMenu from './vertical-menu';
 import moduleClients from './app-modules/clients';
 import moduleOrders from './app-modules/orders';
+import moduleDocuments from './app-modules/documents';
 import moduleInvoices from './app-modules/accounting/invoices';
 import moduleReconciliationActs from './app-modules/accounting/reconciliation-acts';
 import moduleAccountingActs from './app-modules/accounting/acts';
@@ -27,6 +28,7 @@ export default new Vuex.Store({
 		verticalMenu,
 		moduleClients,
 		moduleOrders,
+		moduleDocuments,
 		moduleInvoices,
         moduleReconciliationActs,
 		moduleAccountingActs,

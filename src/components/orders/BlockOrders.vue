@@ -8,8 +8,7 @@
         <div>
             <b-button variant="primary" :to="{ name: 'order-create' }" v-if="!readOnly" :disabled="readOnly">
                 Создать
-            </b-button
-            >
+            </b-button>
         </div>
         </div>
 
@@ -20,6 +19,10 @@
                 striped
                 responsive
                 @row-clicked="(item) => $set(item, '_showDetails', !item._showDetails)"
+
+                :sort-by.sync="sortBy"
+                :sort-desc.sync="sortDesc"
+                :no-local-sorting="true"
             >
                 <template #cell(show_details)>
                 <b-form-checkbox plain class="vs-checkbox-con">
@@ -246,21 +249,24 @@ export default {
         return {
             fields: [
                 { key: "show_details", label: "" },
-                { key: "id", label: "Номер заказа" },
-                { key: "date_created", label: "Дата заказа" },
-                { key: "status", label: "Статус заказа" },
-                { key: "location", label: "Местонахождение" },
-                { key: "mode", label: "Режим заказа" },
-                { key: "pay_on_order", label: "Наложенный платеж" },
-                { key: "places_amount", label: "Количество мест" },
-                { key: "sender_full_name", label: "Отправитель" },
-                { key: "sender_city.name", label: "Город отправителя" },
-                { key: "recipient_full_name", label: "Получатель" },
-                { key: "recipient_city.name", label: "Город получателя" },
-                { key: "payer_counterparty.name", label: "Плательщик" },
-                { key: "contract.contract", label: "Договор" },
+                { key: "id", label: "Номер заказа", sortable: true },
+                { key: "date_created", label: "Дата заказа", sortable: true },
+                { key: "status", label: "Статус заказа", sortable: true },
+                { key: "location", label: "Местонахождение", sortable: false },
+                { key: "mode", label: "Режим заказа", sortable: true },
+                { key: "pay_on_order", label: "Наложенный платеж", sortable: false },
+                { key: "places_amount", label: "Количество мест", sortable: false },
+                { key: "sender_full_name", label: "Отправитель", sortable: false },
+                { key: "sender_city.name", label: "Город отправителя", sortable: false },
+                { key: "recipient_full_name", label: "Получатель", sortable: false },
+                { key: "recipient_city.name", label: "Город получателя", sortable: false },
+                { key: "payer_counterparty.name", label: "Плательщик", sortable: false },
+                { key: "contract.contract", label: "Договор", sortable: false },
             ],
             orderStatus: [],
+
+            sortBy: 'date_created',
+            sortDesc: false,
         };
     },
     components: {
@@ -273,10 +279,20 @@ export default {
         BFormCheckbox,
         BPagination,
     },
+    watch: {
+        'sortBy'(newValue) {
+            if (!newValue) return;
+            this.sortTable();
+        },
+        'sortDesc'(newValue) {
+            this.sortTable();
+        }
+    },
     computed: {
         ...mapGetters({
             loading: "moduleOrders/getLoading",
             count: "moduleOrders/getCount",
+            ordering: "moduleOrders/getOrdering",
             perPage: "moduleOrders/getCountPerPage",
             curPage: "moduleOrders/getCurPage",
             orders: "moduleOrders/getOrders",
@@ -298,6 +314,7 @@ export default {
         }),
         ...mapMutations({
             changeCurPage: "moduleOrders/changePage",
+            changeOrdering: "moduleOrders/changeOrdering",
         }),
         getColorStatus(status) {
             return (
@@ -313,6 +330,27 @@ export default {
         },
         getClientType(clientType) {
             return this.clientType.find((type) => type.id === clientType)?.short_title;
+        },
+        checkSortName() {
+            switch(this.sortBy) {
+                case 'id':
+                    return 'number';
+                default:
+                    return this.sortBy;
+            };
+        },
+        sortTable() {
+            let ordering = this.checkSortName();
+            if (this.sortDesc) {
+                this.changeOrdering(ordering);
+            } else {
+                this.changeOrdering(`-${ordering}`);
+            };
+
+            this.resetPagination();
+            setTimeout(() => {
+                this.fetchOrders();
+            }, 0);
         },
     },
     mounted() {

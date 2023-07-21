@@ -15,6 +15,7 @@ export default {
             number: null,
 			counterparty: null,
             type: null,
+            search: null,
         },
 
 
@@ -94,6 +95,7 @@ export default {
                 date_created_before: null,
                 number: null,
                 counterparty: null,
+                search: null,
             }
         },
         resetOrdering(state) {

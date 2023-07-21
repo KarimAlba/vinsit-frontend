@@ -3,64 +3,87 @@
         <filters type="reconciliation_act" />
         <b-card>
             <b-row>
-                <b-col class="mb-1" cols="12" md="4">
-                    <b-form-group>
-                        <v-select
-                            label="label"
-                            :options="types"
-                            :reduce="item => item.key"
-                            v-model="filters.type"
-                        >
-                        </v-select>
+                <b-col cols="12">
+                    <b-form-group label="Поиск">
+                        <b-form-input
+                            debounce="500"
+                            v-model="search"
+                        />
                     </b-form-group>
                 </b-col>
             </b-row>
+            <b-collapse v-model="visible" id="filters-collapse">
+                <b-row>
+                    <b-col class="mb-1" cols="12" md="4">
+                        <b-form-group>
+                            <v-select
+                                label="label"
+                                :options="types"
+                                :reduce="item => item.key"
+                                v-model="filters.type"
+                            >
+                            </v-select>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
+            </b-collapse>
             <template #footer>
-                <a class="filter-orders__btn mr-1" v-b-toggle="'filters-collapse'">
+                <a class="filter-act__btn mr-1" v-b-toggle="'filters-collapse'">
                     <feather-icon
                         :icon="visible ? 'ChevronUpIcon' : 'ChevronDownIcon'"
                         size="12"
                     />
-                    <span class="filter-orders__btn-text"> Все фильтры </span>
+                    <span class="filter-act__btn-text"> Все фильтры </span>
                 </a>
                 <a 
-                    class="filter-orders__btn" 
+                    class="filter-act__btn" 
                     @click="() => {
                         resetFilters()
                     }"
                 >
                     <feather-icon icon="XCircleIcon" size="12" />
-                    <span class="filter-orders__btn-text"> Сбросить все фильтры </span>
+                    <span class="filter-act__btn-text"> Сбросить все фильтры </span>
                 </a>
             </template>
         </b-card>
 
         <b-card>
-        <b-table :items="reconciliationActs" :fields="fields" striped responsive>
-            <template #cell(date_created)="data">
-                {{ formatDate(data.item.date_created) }}
-            </template>
+            <b-table 
+                :items="reconciliationActs" 
+                :fields="fields" 
+                striped responsive
+                
+                :sort-by.sync="sortBy"
+                :sort-desc.sync="sortDesc"
+                :no-local-sorting="true"
+            >
+                <template #cell(date_created)="data">
+                    {{ formatDate(data.item.date_created) }}
+                </template>
 
-            <template #cell(pdf)="data">
-                <a
-                    class="link"
-                    style="color: #3d78b4;"
-                    @click="handlePdfDownload($event, data.item.id, data.item.client, data.item.date_created)"
-                >
-                    <feather-icon icon="DownloadIcon" size="16" />
-                    Скачать
-                </a>
-            </template>
-        </b-table>
+                <template #cell(name)="data">
+                    {{ data.item.name }}
+                </template>
 
-        <b-pagination
-            v-if="showPagination"
-            :total-rows="count"
-            :per-page="perPage"
-            @change="changePage"
-            :value="curPage"
-            align="right"
-        ></b-pagination>
+                <template #cell(pdf)="data">
+                    <a
+                        class="link"
+                        style="color: #3d78b4;"
+                        @click="handlePdfDownload($event, data.item.id, data.item.client, data.item.date_created)"
+                    >
+                        <feather-icon icon="DownloadIcon" size="16" />
+                        Скачать
+                    </a>
+                </template>
+            </b-table>
+            <b-pagination
+                v-if="showPagination"
+                :total-rows="count"
+                :per-page="perPage"
+                @change="changePage"
+                :value="curPage"
+                align="right"
+            />
         </b-card>
     </b-overlay>
 </template>
@@ -91,10 +114,11 @@ export default {
     data() {
         return {
             fields: [
-                { key: "id", label: "ID" },
-                { key: "client", label: "ID Клиента" },
-                { key: "date_created", label: "Дата создания" },
-                { key: "pdf", label: "Документ" },
+                { key: "id", label: "ID", sortable: true },
+                { key: "client", label: "ID клиента", sortable: true },
+                { key: "name", label: "Имя клиента", sortable: true },
+                { key: "date_created", label: "Дата создания", sortable: true },
+                { key: "pdf", label: "Документ", sortable: true },
             ],
             types: [
                 {key: 'O', label: 'По всем заказам'},
@@ -102,6 +126,8 @@ export default {
             ],
             search: null,
             visible: false,
+            sortBy: 'date_created',
+            sortDesc: false,
         };
     },
     components: {
@@ -124,15 +150,23 @@ export default {
     watch: {
         filters: {
             handler(val) {
-            console.log('handler - ', val);
-                // this.resetPagination();
+            // console.log('handler - ', val);
                 this.fetchInvoices();
             },
             deep: true,
         },
         'search'(value) {
-            console.log('search - ', value);
+            // console.log('search - ', value);
             this.handleSearchField(value, this);
+        },
+        'sortBy'(newValue) {
+            if (!newValue) return;
+            // console.log('newValue - ', newValue);
+            this.sortTable();
+        },
+        'sortDesc'(newValue) {
+            // console.log('newValue - ', newValue);
+            this.sortTable();
         }
     },
     directives: {
@@ -158,9 +192,11 @@ export default {
         ...mapActions({
             fetchInvoices: "moduleReconciliationActs/fetchReconciliationActs",
             resetFilters: "moduleReconciliationActs/resetFilters",
+            resetPagination: "moduleReconciliationActs/resetPagination",
         }),
         ...mapMutations({
             changeCurPage: "moduleReconciliationActs/changePage",
+            changeOrdering: "moduleReconciliationActs/changeOrdering",
         }),
         async handlePdfDownload(event, id, clientId, date) {
             event.preventDefault();
@@ -171,6 +207,28 @@ export default {
         },
         linkToPDF(id) {
             return `${this.urlAPI}/api/v1/reconciliation_act/${id}/generate_pdf/`;
+        },
+        checkSortName() {
+            switch(this.sortBy) {
+                // case 'write_offs':
+                //     return 'financial_transaction';
+                default:
+                    return this.sortBy;
+            };
+        },
+        sortTable() {
+            let ordering = this.checkSortName();
+
+            if (this.sortDesc) {
+                this.changeOrdering(ordering);
+            } else {
+                this.changeOrdering(`-${ordering}`);
+            }
+
+            this.resetPagination();
+            setTimeout(() => {
+                this.fetchInvoices();
+            }, 0);
         },
         changePage(page) {
             this.changeCurPage(page);
@@ -196,7 +254,7 @@ export default {
 			align-items: center;
 
 			&:hover {
-				.filter-orders__btn-text {
+				.filter-act__btn-text {
 					color: $primary;
 					border-color: $primary;
 				}
