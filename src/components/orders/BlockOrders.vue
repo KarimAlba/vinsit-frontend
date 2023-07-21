@@ -252,9 +252,9 @@ export default {
                 { key: "id", label: "Номер заказа", sortable: true },
                 { key: "date_created", label: "Дата заказа", sortable: true },
                 { key: "status", label: "Статус заказа", sortable: true },
-                { key: "location", label: "Местонахождение", sortable: false },
+                { key: "location", label: "Местонахождение", sortable: true },
                 { key: "mode", label: "Режим заказа", sortable: true },
-                { key: "pay_on_order", label: "Наложенный платеж", sortable: false },
+                { key: "pay_on_order", label: "Наложенный платеж", sortable: true },
                 { key: "places_amount", label: "Количество мест", sortable: false },
                 { key: "sender_full_name", label: "Отправитель", sortable: false },
                 { key: "sender_city.name", label: "Город отправителя", sortable: false },
@@ -333,8 +333,8 @@ export default {
         },
         checkSortName() {
             switch(this.sortBy) {
-                case 'id':
-                    return 'number';
+                case 'places_amount':
+                    return 'PVZ';
                 default:
                     return this.sortBy;
             };
