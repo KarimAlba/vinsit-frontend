@@ -1,6 +1,5 @@
 <template>
 	<div>
-		<h3>Раздел в разработке</h3>
 		<DocumentsFilter/>
 		<BlockDocuments/>
 	</div>

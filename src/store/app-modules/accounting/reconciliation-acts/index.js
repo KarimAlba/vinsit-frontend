@@ -9,7 +9,8 @@ export default {
         countPerPage: 20,
         filters: {
             type: null,
-        }
+        },
+        ordering: '-date_created',
 
     },
     getters: {
@@ -30,7 +31,10 @@ export default {
         },
         getFilters: (state) => {
             return state.filters
-        }
+        },
+        getOrdering: (state) => {
+            return state.ordering
+        },
     },
     mutations: {
         setReconciliationActs(state, payload) {
@@ -56,7 +60,13 @@ export default {
         },
         changeLoading(state, payload) {
             state.loading = payload
-        }
+        },
+        changeOrdering(state, payload) {
+            state.ordering = payload
+        },
+        resetOrdering(state) {
+            state.ordering = null
+        },
     },
     actions: {
         fetchReconciliationActs({ commit, state }) {
@@ -65,8 +75,10 @@ export default {
 
             this._vm.$api.reconciliationActs.getReconciliationActs({ 
                 limit: state.countPerPage, 
+                ordering: state.ordering,
                 offset: ((state.curPage - 1) * state.countPerPage), 
-                ...state.filters })
+                ...state.filters 
+            })
                     .then((response) => {
                     commit('setReconciliationActs', response.data.results)
                     commit('setCount', response.data.count)
@@ -80,6 +92,9 @@ export default {
         },
         resetFilters({ commit, state }) {
             commit('resetFilters')
+        },
+        resetOrdering({ commit, state }) {
+            commit('resetOrdering')
         },
     },
 }

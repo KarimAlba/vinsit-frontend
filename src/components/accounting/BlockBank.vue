@@ -61,6 +61,10 @@
                         {{ data.item.number}}
                     </router-link>
                 </template>
+
+                <template #cell(date_created)="data">
+                    {{ data.item.date_created ? formatDate(data.item.date_created) : null }}
+                </template>
         
                 <template #cell(location)="data">
                     {{ data.item.location || "Не определено" }}
@@ -74,7 +78,7 @@
                     
                 </template>
 
-                <template #cell(income)="data">
+                <template #cell(sum)="data">
                     <span 
                         v-if="!data.item.count"
                         v-bind:class="
@@ -106,14 +110,6 @@
                     </span>
                 </template>
         
-                <template #cell(date_created)="data">
-                    {{ data.item.date_created ? formatDate(data.item.date_created) : null }}
-                </template>
-        
-                <template #cell(financial_transaction)="data">
-                    <p class="document">{{ data.item.financial_transaction }}</p>
-                    <!-- <p class="document-info">{{ data.item.financial_transaction }}</p> -->
-                </template>
             </b-table>
     
             <b-pagination
@@ -158,11 +154,11 @@
                     { key: "show_details", label: "" },
                     { key: "number", label: "Номер", sortable: true},
                     { key: "date_created", label: "Дата", sortable: true},
-                    { key: "financial_transaction", label: "Документ", sortable: true },
+                    { key: "type", label: "Документ", sortable: true },
                     { key: "counterparty", label: "Контрагент", sortable: true },
-                    { key: "income", label: "Поступления, ₽", sortable: true },
+                    { key: "sum", label: "Поступления, ₽", sortable: true },
                     { key: "write_offs", label: "Списания, ₽", sortable: true },
-                    { key: "comment", label: "Комментарий", sortable: true },
+                    { key: "comment", label: "Комментарий", sortable: false },
                 ],
                 showModal: false,
                 file: null,
@@ -211,9 +207,9 @@
                         id: null,
                         date_created: null,
                         document: null,
-                        document_info:null,
+                        document_info: null,
                         counterparty: 'ИТОГО',
-                        income: 0,
+                        sum: 0,
                         write_offs: 0,
                         comment: null,
                         count: 1,
@@ -224,6 +220,7 @@
         },
         watch: {
             'sortBy'(newValue) {
+                if (!newValue) return;
                 // console.log('newValue - ', newValue);
                 this.sortTable();
             },
@@ -252,18 +249,16 @@
             formatDate(date) {
                     return this.dayjs(date).format("DD.MM.YYYY");
             },
+            checkSortName() {
+                switch(this.sortBy) {
+                    case 'write_offs':
+                        return 'financial_transaction';
+                    default:
+                        return this.sortBy;
+                };
+            },
             sortTable() {
-                let ordering = 'date_created';
-
-                if (this.sortBy === 'number') {
-                    ordering = 'number';
-                };
-                if (this.sortBy === 'counterparty') {
-                    ordering = 'counterparty_name';
-                };
-                if (this.sortBy === 'financial_transaction') {
-                    ordering = 'financial_transaction_name';
-                };
+                let ordering = this.checkSortName();
 
                 if (this.sortDesc) {
                     this.changeOrdering(ordering);

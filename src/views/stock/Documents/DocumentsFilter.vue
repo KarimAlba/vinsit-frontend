@@ -2,10 +2,11 @@
 	<b-card>
 		<b-row>
 			<b-col class="mb-1" md="4">
-				<b-form-group label="Дата создания">
+				<b-form-group>
                     <b-form-datepicker
                         label="date"
                         v-model="filter.date_created"
+						placeholder="Дата создания"
                         @input="changeOrder($event, 'delivery_date')"
                     />
                 </b-form-group>
@@ -88,7 +89,7 @@
 						v-model="filter.in_office"
 					/>
 				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
+				<b-col class="mb-1" cols="12" md="4" align-v="center">
 					<b-form-checkbox
 						value="true"
 						:unchecked-value="null"
@@ -135,6 +136,7 @@
 		BFormCheckbox,
 		BCollapse,
 		VBToggle,
+		BFormDatepicker
 	} from "bootstrap-vue";
 	import vSelect from "vue-select";
 	import { debounce } from "lodash";
@@ -156,7 +158,8 @@
 					number_seal: null,
 					in_office: null,
 					is_overdue: null,
-				}
+				},
+				visible: false,
 			};
 		},
 		components: {
@@ -170,6 +173,7 @@
 			VBToggle,
 
 			AppDatepicker,
+			BFormDatepicker,
 			vSelect,
 			SelectAllContracts,
 			SelectClients,

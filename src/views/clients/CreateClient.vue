@@ -684,6 +684,7 @@ export default {
                         full_name: '',
                         position: '',
                         email: '',
+                        is_lpr: false,
                     }
                 ],
                 type: null,

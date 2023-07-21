@@ -12,35 +12,37 @@
                     </b-form-group>
                 </b-col>
             </b-row>
-            <b-row>
-                <b-col class="mb-1" cols="12" md="4">
-                    <b-form-group>
-                        <v-select
-                            label="label"
-                            :options="types"
-                            :reduce="item => item.key"
-                            v-model="filters.type"
-                        >
-                        </v-select>
-                    </b-form-group>
-                </b-col>
-            </b-row>
+            <b-collapse v-model="visible" id="filters-collapse">
+                <b-row>
+                    <b-col class="mb-1" cols="12" md="4">
+                        <b-form-group>
+                            <v-select
+                                label="label"
+                                :options="types"
+                                :reduce="item => item.key"
+                                v-model="filters.type"
+                            >
+                            </v-select>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
+            </b-collapse>
             <template #footer>
-                <a class="filter-orders__btn mr-1" v-b-toggle="'filters-collapse'">
+                <a class="filter-act__btn mr-1" v-b-toggle="'filters-collapse'">
                     <feather-icon
                         :icon="visible ? 'ChevronUpIcon' : 'ChevronDownIcon'"
                         size="12"
                     />
-                    <span class="filter-orders__btn-text"> Все фильтры </span>
+                    <span class="filter-act__btn-text"> Все фильтры </span>
                 </a>
                 <a 
-                    class="filter-orders__btn" 
+                    class="filter-act__btn" 
                     @click="() => {
                         resetFilters()
                     }"
                 >
                     <feather-icon icon="XCircleIcon" size="12" />
-                    <span class="filter-orders__btn-text"> Сбросить все фильтры </span>
+                    <span class="filter-act__btn-text"> Сбросить все фильтры </span>
                 </a>
             </template>
         </b-card>
@@ -112,11 +114,11 @@ export default {
     data() {
         return {
             fields: [
-                { key: "id", label: "ID" },
-                { key: "client", label: "ID клиента" },
-                { key: "name", label: "Имя клиента" },
-                { key: "date_created", label: "Дата создания" },
-                { key: "pdf", label: "Документ" },
+                { key: "id", label: "ID", sortable: true },
+                { key: "client", label: "ID клиента", sortable: true },
+                { key: "name", label: "Имя клиента", sortable: true },
+                { key: "date_created", label: "Дата создания", sortable: true },
+                { key: "pdf", label: "Документ", sortable: true },
             ],
             types: [
                 {key: 'O', label: 'По всем заказам'},
@@ -148,17 +150,17 @@ export default {
     watch: {
         filters: {
             handler(val) {
-            console.log('handler - ', val);
-                // this.resetPagination();
+            // console.log('handler - ', val);
                 this.fetchInvoices();
             },
             deep: true,
         },
         'search'(value) {
-            console.log('search - ', value);
+            // console.log('search - ', value);
             this.handleSearchField(value, this);
         },
         'sortBy'(newValue) {
+            if (!newValue) return;
             // console.log('newValue - ', newValue);
             this.sortTable();
         },
@@ -190,10 +192,11 @@ export default {
         ...mapActions({
             fetchInvoices: "moduleReconciliationActs/fetchReconciliationActs",
             resetFilters: "moduleReconciliationActs/resetFilters",
+            resetPagination: "moduleReconciliationActs/resetPagination",
         }),
         ...mapMutations({
             changeCurPage: "moduleReconciliationActs/changePage",
-            // changeOrdering: "moduleAccountingBank/changeOrdering",
+            changeOrdering: "moduleReconciliationActs/changeOrdering",
         }),
         async handlePdfDownload(event, id, clientId, date) {
             event.preventDefault();
@@ -205,18 +208,16 @@ export default {
         linkToPDF(id) {
             return `${this.urlAPI}/api/v1/reconciliation_act/${id}/generate_pdf/`;
         },
+        checkSortName() {
+            switch(this.sortBy) {
+                // case 'write_offs':
+                //     return 'financial_transaction';
+                default:
+                    return this.sortBy;
+            };
+        },
         sortTable() {
-            let ordering = 'date_created';
-
-            if (this.sortBy === 'number') {
-                ordering = 'number';
-            };
-            if (this.sortBy === 'counterparty') {
-                ordering = 'counterparty_name';
-            };
-            if (this.sortBy === 'financial_transaction') {
-                ordering = 'financial_transaction_name';
-            };
+            let ordering = this.checkSortName();
 
             if (this.sortDesc) {
                 this.changeOrdering(ordering);
@@ -226,7 +227,7 @@ export default {
 
             this.resetPagination();
             setTimeout(() => {
-                this.fetchPaymentOrders();
+                this.fetchInvoices();
             }, 0);
         },
         changePage(page) {
@@ -253,7 +254,7 @@ export default {
 			align-items: center;
 
 			&:hover {
-				.filter-orders__btn-text {
+				.filter-act__btn-text {
 					color: $primary;
 					border-color: $primary;
 				}

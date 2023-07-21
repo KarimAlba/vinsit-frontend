@@ -97,14 +97,14 @@ export default {
     data() {
         return {
             fields: [
-                { key: "amo_client_id", label: "AMO ID" },
-                { key: "id", label: "ID" },
-                { key: "name", label: "Название / ФИО" },
-                { key: "type", label: "Тип" },
-                { key: "address", label: "Адрес" },
-                { key: "contacts", label: "Контакты" },
-                { key: "position", label: "Должность" },
-                { key: "bank_account", label: "Счет" },
+                { key: "amo_client_id", label: "AMO ID", sortable: true  },
+                { key: "id", label: "ID", sortable: true  },
+                { key: "name", label: "Название / ФИО", sortable: true  },
+                { key: "type", label: "Тип", sortable: true  },
+                { key: "address", label: "Адрес", sortable: false  },
+                { key: "contacts", label: "Контакты", sortable: false  },
+                { key: "position", label: "Должность", sortable: false  },
+                { key: "bank_account", label: "Счет", sortable: false  },
             ],
             sortBy: 'date_created',
             sortDesc: false,
@@ -120,7 +120,7 @@ export default {
     },
     watch: {
         'sortBy'(newValue) {
-            // console.log('newValue - ', newValue);
+            if (!newValue) return;
             this.sortTable();
         },
         'sortDesc'(newValue) {
@@ -153,11 +153,11 @@ export default {
     methods: {
         ...mapActions({
             fetchClients: "moduleClients/fetchClients",
-            resetPagination: "moduleAccountingBank/resetPagination",
+            resetPagination: "moduleClients/resetPagination",
         }),
         ...mapMutations({
             changeCurPage: "moduleClients/changePage",
-            changeOrdering: "moduleAccountingBank/changeOrdering",
+            changeOrdering: "moduleClients/changeOrdering",
         }),
         changePage(page) {
             this.changeCurPage(page);
@@ -178,28 +178,26 @@ export default {
         );
         return !!pattern.test(string);
         },
+        checkSortName() {
+            switch(this.sortBy) {
+                case 'id':
+                    return 'id'
+                default:
+                    return this.sortBy;
+            };
+        },
         sortTable() {
-            let ordering = 'date_created';
-
-            if (this.sortBy === 'number') {
-                ordering = 'number';
-            };
-            if (this.sortBy === 'counterparty') {
-                ordering = 'counterparty_name';
-            };
-            if (this.sortBy === 'financial_transaction') {
-                ordering = 'financial_transaction_name';
-            };
+            let ordering = this.checkSortName();
 
             if (this.sortDesc) {
                 this.changeOrdering(ordering);
             } else {
                 this.changeOrdering(`-${ordering}`);
-            }
+            };
 
             this.resetPagination();
             setTimeout(() => {
-                this.fetchPaymentOrders();
+                this.fetchClients();
             }, 0);
         },
     },

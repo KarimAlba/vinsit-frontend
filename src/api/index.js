@@ -10,6 +10,7 @@ import executorsModule from "./executors";
 import invoicesModule from "./invoices";
 import reconciliationActsModule from "./reconciliation-acts";
 import ordersModule from "./orders";
+import documentsModule from "./documents";
 import orderStatusModule from "./orderStatus";
 import productsModule from "./products";
 import placesModule from "./places";
@@ -31,6 +32,7 @@ export default {
     invoices: invoicesModule(instance),
     reconciliationActs: reconciliationActsModule(instance),
     orders: ordersModule(instance),
+    documents: documentsModule(instance),
     orderStatus: orderStatusModule(instance),
     products: productsModule(instance),
     places: placesModule(instance),

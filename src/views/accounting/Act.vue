@@ -12,19 +12,39 @@
                     </b-form-group>
                 </b-col>
             </b-row>
-            <!-- <b-row>
-                <b-col class="mb-1" cols="12" md="4">
-                    <b-form-group>
-                        <v-select
-                            label="label"
-                            :options="types"
-                            :reduce="item => item.key"
-                            v-model="type"
-                        >
-                        </v-select>
-                    </b-form-group>
-                </b-col>
-            </b-row> -->
+            <b-collapse v-model="visible" id="filters-collapse">
+                <b-row>
+                    <b-col class="mb-1" cols="12" md="4">
+                        <!-- <b-form-group>
+                            <v-select
+                                label="label"
+                                :options="types"
+                                :reduce="item => item.key"
+                                v-model="filters.type"
+                            >
+                            </v-select>
+                        </b-form-group> -->
+                    </b-col>
+                </b-row>
+            </b-collapse>
+            <template #footer>
+                <a class="filter-act__btn mr-1" v-b-toggle="'filters-collapse'">
+                    <feather-icon
+                        :icon="visible ? 'ChevronUpIcon' : 'ChevronDownIcon'"
+                        size="12"
+                    />
+                    <span class="filter-act__btn-text"> Все фильтры </span>
+                </a>
+                <a 
+                    class="filter-act__btn" 
+                    @click="() => {
+                        resetFilters()
+                    }"
+                >
+                    <feather-icon icon="XCircleIcon" size="12" />
+                    <span class="filter-act__btn-text"> Сбросить все фильтры </span>
+                </a>
+            </template>
         </b-card>
         <b-card>
             <b-table 
@@ -44,7 +64,7 @@
                     {{ data.item.name }}
                 </template>
 
-                <template #cell(pdf)="data">
+                <template #cell(type)="data">
                     <a
                         class="link"
                         style="color: #3d78b4;"
@@ -70,7 +90,18 @@
 <script>
 import { mapGetters, mapActions, mapMutations } from "vuex";
 
-import { BOverlay, BCard, BTable, BPagination, BRow, BCol, BFormInput, BFormGroup } from "bootstrap-vue";
+import { 
+    BOverlay, 
+    BCard, 
+    BTable, 
+    BPagination, 
+    BRow, 
+    BCol, 
+    BFormInput, 
+    BFormGroup,
+    BCollapse,
+    VBToggle,
+} from "bootstrap-vue";
 import downloadPdf from '../../utils/downloadPdf';
 
 import Filters from "@/components/accounting/Filters";
@@ -80,17 +111,19 @@ export default {
     data() {
         return {
             fields: [
-                { key: "id", label: "ID" },
-                { key: "customer", label: "ID клиента" },
-                { key: "name", label: "Имя клиента" },
-                { key: "date_created", label: "Дата создания" },
-                { key: "pdf", label: "Документ" },
+                { key: "id", label: "ID", sortable: true },
+                { key: "customer", label: "ID клиента", sortable: true },
+                { key: "name", label: "Имя клиента", sortable: true },
+                { key: "date_created", label: "Дата создания", sortable: true },
+                { key: "type", label: "Документ", sortable: true },
             ],
             types: [
                 {key: 'O', label: 'По всем заказам'},
                 {key: 'A', label: 'Только по актам'},
             ],
+
             search: null,
+            visible: false,
             sortBy: 'date_created',
             sortDesc: false,
             type: null,
@@ -106,23 +139,36 @@ export default {
         BCard, 
         BFormInput, 
         BFormGroup,
+        BCollapse,
+        VBToggle,
 
         Filters,
         vSelect
     },
     watch: {
+        filters: {
+            handler(val) {
+            // console.log('handler - ', val);
+                this.fetchActs();
+            },
+            deep: true,
+        },
         'search'(value) {
             console.log('search - ', value);
             this.handleSearchField(value, this);
         },
         'sortBy'(newValue) {
-            // console.log('newValue - ', newValue);
+            if (!newValue) return;
+            console.log('newValue - ', newValue);
             this.sortTable();
         },
         'sortDesc'(newValue) {
             // console.log('newValue - ', newValue);
             this.sortTable();
         }
+    },
+    directives: {
+        "b-toggle": VBToggle,
     },
     computed: {
         ...mapGetters({
@@ -131,6 +177,7 @@ export default {
             perPage: "moduleAccountingActs/getCountPerPage",
             curPage: "moduleAccountingActs/getCurPage",
             acts: "moduleAccountingActs/getActs",
+            filters: "moduleAccountingActs/getFilters",
         }),
         showPagination() {
             return Math.ceil(this.count / this.perPage) > 1;
@@ -143,10 +190,12 @@ export default {
     methods: {
         ...mapActions({
             fetchActs: "moduleAccountingActs/fetchActs",
+            resetFilters: "moduleAccountingActs/resetFilters",
+            resetPagination: "moduleAccountingActs/resetPagination",
         }),
         ...mapMutations({
             changeCurPage: "moduleAccountingActs/changePage",
-            // changeOrdering: "moduleAccountingBank/changeOrdering",
+            changeOrdering: "moduleAccountingActs/changeOrdering",
         }),
         async handlePdfDownload(event, id, customerId, date) {
             event.preventDefault();
@@ -158,18 +207,16 @@ export default {
         linkToPDF(id) {
             return `${this.urlAPI}/api/v1/acts/${id}/generate_pdf/`;
         },
+        checkSortName() {
+            switch(this.sortBy) {
+                case 'type':
+                    return 'orders';
+                default:
+                    return this.sortBy;
+            };
+        },
         sortTable() {
-            let ordering = 'date_created';
-
-            if (this.sortBy === 'number') {
-                ordering = 'number';
-            };
-            if (this.sortBy === 'counterparty') {
-                ordering = 'counterparty_name';
-            };
-            if (this.sortBy === 'financial_transaction') {
-                ordering = 'financial_transaction_name';
-            };
+            let ordering = this.checkSortName();
 
             if (this.sortDesc) {
                 this.changeOrdering(ordering);
@@ -179,16 +226,20 @@ export default {
 
             this.resetPagination();
             setTimeout(() => {
-                this.fetchPaymentOrders();
+                this.fetchActs();
             }, 0);
         },
         changePage(page) {
             this.changeCurPage(page);
             this.fetchActs();
         },
+        handleSearchField: _.debounce((value, vm) => {
+            vm.filters.search = value;
+        }, 500),
     },
     mounted() {
         this.fetchActs();
+        this.resetFilters();
     },
 };
 </script>

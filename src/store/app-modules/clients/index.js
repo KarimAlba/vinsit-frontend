@@ -16,7 +16,7 @@ export default {
             type: null,
         },
 
-        ordering: '-date_created',
+        ordering: '-id',
 
         clientType: [
             { id: "E", title: "Юридическое лицо", short_title: "Юр. лицо" },
@@ -44,7 +44,10 @@ export default {
         },
         getLoading: (state) => {
             return state.loading
-        }
+        },
+        getOrdering: (state) => {
+            return state.ordering
+        },
     },
     mutations: {
         setClients(state, payload) {
@@ -70,14 +73,25 @@ export default {
         },
         changeLoading(state, payload) {
             state.loading = payload
-        }
+        },
+        changeOrdering(state, payload) {
+            state.ordering = payload
+        },
+        resetOrdering(state) {
+            state.ordering = null
+        },
     },
     actions: {
         fetchClients({ commit, state }) {
             commit('changeLoading', true)
             commit('resetData')
 
-            this._vm.$api.clients.getClients({ ...state.filters, limit: state.countPerPage, offset: ((state.curPage - 1) * state.countPerPage) }).then((response) => {
+            this._vm.$api.clients.getClients({ 
+                ...state.filters, 
+                limit: state.countPerPage, 
+                ordering: state.ordering,
+                offset: ((state.curPage - 1) * state.countPerPage) 
+            }).then((response) => {
                 commit('setClients', response.data.results)
                 commit('setCount', response.data.count)
             })
@@ -88,5 +102,8 @@ export default {
         resetPagination({ commit, state }) {
             commit('resetPagination')
         },
+        resetOrdering({ commit, state }) {
+            commit('resetOrdering')
+        }
     },
 }
