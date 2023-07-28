@@ -6,6 +6,7 @@ import accountingChecksModule from "./accounting-checks";
 import accountingUpdsModule from "./accounting-upds";
 import citiesModule from "./cities";
 import clientsModule from "./clients";
+import lprDocsModule from "./lpr-docs";
 import executorsModule from "./executors";
 import invoicesModule from "./invoices";
 import reconciliationActsModule from "./reconciliation-acts";
@@ -38,4 +39,5 @@ export default {
     places: placesModule(instance),
     payDoc: paymentDocumentsModule(instance),
     services: servicesModule(instance),
+    lprDocs: lprDocsModule(instance),
 };

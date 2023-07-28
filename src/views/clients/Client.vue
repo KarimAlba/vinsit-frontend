@@ -740,6 +740,12 @@ export default {
             }
             this.updateClient('type', this.client.type, this);
         },
+        'client.form_of_ownership'() {
+            if (!this.initialized) {
+                return;
+            }
+            this.updateClient('form_of_ownership', this.client.form_of_ownership, this);
+        },
     },
     computed: {
         ...mapGetters({

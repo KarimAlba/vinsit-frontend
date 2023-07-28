@@ -578,8 +578,8 @@
                                         />
                                     </validation-provider>
                                     <v-select
-                                        label="title"
-                                        :reduce="(type) => type"
+                                        label="name"
+                                        :reduce="(type) => type.id"
                                         :options="statusResponsiblePerson"
                                         :clearable="false"
                                         v-model="client.responsible_person.status"
@@ -684,7 +684,6 @@ export default {
                         full_name: '',
                         position: '',
                         email: '',
-                        is_lpr: false,
                     }
                 ],
                 type: null,
@@ -730,18 +729,19 @@ export default {
                 'СХП',
                 'СТ'
             ],
-            statusResponsiblePerson: [
-                'Доверенность',
-                'Договор',
-                'Лист записи ЕГРИП',
-                'Положение',
-                'Приказ',
-                'Решение',
-                'Свидетельство',
-                'Талон',
-                'Уведомление',
-                'Устав'
-            ]
+            // statusResponsiblePerson: [
+            //     'Доверенность',
+            //     'Договор',
+            //     'Лист записи ЕГРИП',
+            //     'Положение',
+            //     'Приказ',
+            //     'Решение',
+            //     'Свидетельство',
+            //     'Талон',
+            //     'Уведомление',
+            //     'Устав'
+            // ],
+            statusResponsiblePerson: [],
         };
     },
     computed: {
@@ -848,6 +848,24 @@ export default {
 
         this.changeLoading(true);
 
+        if (this.client.client_phones.length === 1) {
+            this.client.client_phones[0] = {
+                full_name: this.client.responsible_person.name,
+                position: this.client.responsible_person.position,
+                documents: [this.client.responsible_person.status],
+                is_lpr: true,
+            }
+        } else {
+            this.client.client_phones.push({
+                full_name: this.client.responsible_person.name,
+                position: this.client.responsible_person.position,
+                documents: [this.client.responsible_person.status],
+                is_lpr: true,
+            });
+        }
+
+        console.log(this.client);
+
         this.$api.clients
             .addNewClient(this.client)
             .then((response) => {
@@ -920,8 +938,19 @@ export default {
         handleContractCreation() {
             this.contracts.push({ value: '' });
         },
+        getLprDocs() {
+            this.$api.lprDocs.getLprDocs()
+                .then((response) => {
+                    // console.log('lpr - ', response)
+                    this.statusResponsiblePerson = response.data.results;
+                })
+                .catch((error) => {
+                    console.log('lpr - ', error)
+                })
+        }
     },
     mounted() {
+        this.getLprDocs();
     },
 };
 </script>
