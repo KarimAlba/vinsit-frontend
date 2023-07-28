@@ -61,8 +61,8 @@
                     {{ formatDate(data.item.date_created) }}
                 </template>
 
-                <template #cell(name)="data">
-                    {{ data.item.name }}
+                <template #cell(client)="data">
+                    {{ data.item.client.name }}
                 </template>
 
                 <template #cell(pdf)="data">
@@ -115,8 +115,8 @@ export default {
         return {
             fields: [
                 { key: "id", label: "ID", sortable: true },
-                { key: "client", label: "ID клиента", sortable: true },
-                { key: "name", label: "Имя клиента", sortable: true },
+                // { key: "client", label: "ID клиента", sortable: true },
+                { key: "client", label: "Имя клиента", sortable: true },
                 { key: "date_created", label: "Дата создания", sortable: true },
                 { key: "pdf", label: "Документ", sortable: true },
             ],

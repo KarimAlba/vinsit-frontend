@@ -57,6 +57,11 @@
                 :sort-desc.sync="sortDesc"
                 :no-local-sorting="true"
             >
+
+                <template #cell(customer)="data">
+                    {{ data.item.customer.name }}
+                </template>
+
                 <template #cell(date_created)="data">
                     {{ formatDate(data.item.date_created) }}
                 </template>
@@ -110,7 +115,8 @@ export default {
         return {
             fields: [
                 { key: "id", label: "ID", sortable: true },
-                { key: "customer", label: "ID Клиента", sortable: true },
+                // { key: "customer", label: "ID Клиента", sortable: true },
+                { key: "customer", label: "Имя клиента", sortable: true },
                 { key: "date_created", label: "Дата создания", sortable: true },
                 { key: "type", label: "Документ", sortable: false },
             ],

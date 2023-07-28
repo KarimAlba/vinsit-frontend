@@ -1,6 +1,6 @@
 <template>
 	<div style="padding-bottom: 20px;">
-        <h1>Создать документ {{'Выдача на доставку'}} от {{'05.10.2022'}}</h1>
+        <h1>Создать документ {{title}} от {{'05.10.2022'}}</h1>
         <b-row class="row equal-cols">
             <b-col cols="8">
                 <b-card>
@@ -245,6 +245,7 @@ import AppDatepicker from "@/@core/components/app-datepicker/AppDatepicker";
 import SelectClients from "@/components/ui/selectClients/selectClients.vue";
 
 export default {
+    props: ['title'],
 	data() {
 		return {
             document: {

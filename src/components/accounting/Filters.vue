@@ -22,7 +22,7 @@
 							</b-form-group>
 						</validation-provider>
 					</b-col>
-					<b-col cols="12" md="4">
+					<!-- <b-col cols="12" md="4">
 						<validation-provider #default="{ errors }">
 							<b-form-group :invalid-feedback="errors[0]" label="Клиент (физ. лица)">
 								<select-clients
@@ -33,17 +33,18 @@
 								/>
 							</b-form-group>
 						</validation-provider>
-					</b-col>
+					</b-col> -->
                     <b-col cols="12" md="4">
 						<validation-provider #default="{ errors }" rules="required">
-							<b-form-group :invalid-feedback="errors[0]" label="Юр. лицо">
+							<!-- <b-form-group :invalid-feedback="errors[0]" label="Юр. лицо"> -->
+							<b-form-group :invalid-feedback="errors[0]" label="Ответственное лицо">
                                 <v-select
                                     label="full_name_and_type"
                                     @search="onSearchExecutors"
                                     :reduce="(executor) => executor.id"
 									v-model="form.executor"
                                     :options="executors"
-                                    :placeholder="'Юр. лицо'"
+                                    :placeholder="'Ответственное лицо'"
                                     :filterable="true"
                                 >
                                     <template #no-options="{ search }">
@@ -53,8 +54,6 @@
 							</b-form-group>
 						</validation-provider>
 					</b-col>
-				</b-row>
-                <b-row>
                     <b-col cols="12" md="4">
 						<validation-provider #default="{ errors }" rules="required">
 							<b-form-group :invalid-feedback="errors[0]" label="Период заказа">
@@ -64,7 +63,18 @@
 							</b-form-group>
 						</validation-provider>
 					</b-col>
-                    <b-col cols="12" md="4" v-if="type === 'reconciliation_act'">
+				</b-row>
+                <b-row>
+                    <!-- <b-col cols="12" md="4">
+						<validation-provider #default="{ errors }" rules="required">
+							<b-form-group :invalid-feedback="errors[0]" label="Период заказа">
+								<app-datepicker @selectedDates="changeDates" />
+								<input type="hidden" v-model="form.start_date" />
+								<input type="hidden" v-model="form.end_date" />
+							</b-form-group>
+						</validation-provider>
+					</b-col> -->
+                    <!-- <b-col cols="12" md="4" v-if="type === 'reconciliation_act'">
 						<validation-provider #default="{ errors }">
 							<b-form-group label="Ответственное лицо">
 								<b-form-input
@@ -73,7 +83,7 @@
                                 />
 							</b-form-group>
 						</validation-provider>
-					</b-col>
+					</b-col> -->
                     <b-col cols="12" md="4" v-if="type !== 'reconciliation_act'">
                         <b-form-group label="Банковский счет">
                             <b-form-input

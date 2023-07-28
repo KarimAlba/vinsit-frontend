@@ -13,7 +13,7 @@
                 </b-button>
             </div>
             <div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
-                <b-button variant="primary" :to="{ name: 'create-stock-document' }" v-if="!readOnly" :disabled="readOnly">
+                <b-button variant="primary" :to="{ name: 'create-stock-document', params: {title: 'Выдача на доставку'} }" v-if="!readOnly" :disabled="readOnly">
                     PR
                 </b-button>
             </div>
