@@ -27,8 +27,9 @@
             <router-link
                 style="border-bottom: 1px dotted blue"
                 :to="{ name: 'client', params: { id: data.item.id } }"
-                >{{ data.item.amo_client_id }}</router-link
             >
+                {{ data.item.amo_client_id }}
+            </router-link>
             </template>
 
             <template #cell(id)="data">
