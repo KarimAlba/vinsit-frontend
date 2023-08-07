@@ -1,51 +1,45 @@
 <template>
 	<b-card>
 		<b-row>
-			<b-col class="mb-1" cols="12" md="4">
-				<v-select
-					label="search"
-					placeholder="Поиск по"
-					v-model="filters.search_fields"
-					:reduce="(searchName) => search_fields.find(field => field.name === searchName).key"
-					:options="search_fields.map((item) => item.name)"
-				/>
-				<!-- <b-form-input 
-					placeholder="Номер заказа"
-				/> -->
+			<b-col class="mb-1" md="4">
+				<b-form-group>
+                    <b-form-datepicker
+                        label="date"
+                        v-model="filter.date_created"
+						placeholder="Дата создания"
+                        @input="changeOrder($event, 'delivery_date')"
+                    />
+                </b-form-group>
 			</b-col>
-			<b-col cols="12" md="8">
+			<b-col cols="12" md="4">
 				<b-form-input 
-					placeholder="Поиск"
-					v-model="search"
+					placeholder="Номер грузоместа"
+					v-model="filter.number_place"
+				/>
+			</b-col>
+			<b-col cols="12" md="4">
+				<b-form-input 
+					placeholder="Офис склада"
+					v-model="filter.office"
 				/>
 			</b-col>
 		</b-row>
 		<b-collapse v-model="visible" id="filters-collapse">
 			<b-row>
-                <b-col class="mb-1" cols="12" md="4">
-                    <v-select
-                        label="title"
-                        :reduce="(mode) => mode.id"
-                        placeholder="Режим заказа"
-                        :options="orderMode"
-                        v-model="filters.mode"
-                    />
-                    <!-- <v-select
-                        label="status"
-                        :reduce="(status) => status.id"
-                        placeholder="Статус заказа"
-                        :options="orderStatus"
-                        v-model="filters.status"
-                    /> -->
+                <b-col class="mb-1" md="4">
+					<b-form-input 
+						placeholder="Из офиса"
+						v-model="filter.from_office"
+					/>
                 </b-col>
 				<b-col class="mb-1" cols="12" md="4">
 					<select-clients
 						:disabled="false"
 						:disabledAddBtn="true"
 						:reduce="(counterparty) => counterparty"
-						:value="counterparty"
+						:value="filter.counterparty"
 						@input="handleFilterFieldChange($event, 'counterparty')"
-						placeholder="Контрагент"
+						placeholder="Оформил"
 						:clearable="false"
 					/>
 				</b-col>
@@ -56,8 +50,9 @@
 						@close="resetCities"
 						@input="(item) => filters.sender_city = item ? item.id : null"
 						:options="cities"
-						placeholder="Город отправителя"
+						placeholder="Тип документа"
 						:filterable="false"
+						:value="filter.type"
 					>
 						<template #no-options="{ search }">
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -65,120 +60,44 @@
 					</v-select>
 				</b-col>
 				<b-col class="mb-1" cols="12" md="4">
-					<v-select
-						label="name"
-						@search="onSearchCities"
-						@close="resetCities"
-						@input="(item) => filters.recipient_city = item ? item.id : null"
-						:options="cities"
-						placeholder="Город получателя"
-						:filterable="false"
-					>
-						<template #no-options="{ search }">
-							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
-						</template>
-					</v-select>
+					<b-form-input 
+						placeholder="Номер п.п"
+						v-model="filter.number_p"
+					/>
 				</b-col>
 				<b-col class="mb-1" cols="12" md="4">
-					<v-select
-						label="status"
-						:reduce="(status) => status.id"
-						placeholder="Статус заказа"
-						:options="orderStatus"
-						v-model="filters.status"
+					<b-form-input 
+						placeholder="Номер заказов"
+						v-model="filter.number_order"
 					/>
-
 				</b-col>
-				<!-- <b-col class="mb-1" cols="12" md="4">
-					<b-form-input
-						placeholder="Телефон клиента"
-						debounce="500"
-						v-model="filters.sender_counterparty_client_phones_phone_number"
-					/>
-				</b-col> -->
 				<b-col class="mb-1" cols="12" md="4">
-					<app-datepicker
-						placeholder="Дата проставления статуса"
-						@selectedDates="changeDatesStatus"
+					<b-form-input 
+						placeholder="Номер документова"
+						v-model="filter.number_document"
 					/>
-					<!-- <v-select
-						label="title"
-						:reduce="(mode) => mode.id"
-						placeholder="Режим заказа"
-						:options="orderMode"
-						v-model="filters.mode"
-					/> -->
 				</b-col>
-				<!-- <b-col>
-					<select-all-contracts
-						:disabled="false"
-						:reduce="(cont) => cont.id"
-						:value="contract"
-						@input="handleFilterFieldChange($event, 'contract')"
-						v-model="filters.contract"
-						placeholder="Договор"
-						:disabledAddBtn="true"
-					/>
-				</b-col> -->
 				<b-col class="mb-1" cols="12" md="4">
-					<app-datepicker
-						placeholder="Период заказа"
-						@selectedDates="changeDatesCreated"
+					<b-form-input 
+						placeholder="Номер пломбы"
+						v-model="filter.number_seal"
 					/>
-					<!-- <b-form-checkbox
-						value="true"
-						:unchecked-value="null"
-						v-model="filters.recipient_has_passport"
-					>
-						Паспортные данные получателя<br />собраны
-					</b-form-checkbox> -->
-					
 				</b-col>
-				<!-- <b-col class="mb-1" cols="12" md="4">
-					<b-form-checkbox
-						value="false"
-						:unchecked-value="null"
-						v-model="filters.sender_has_passport"
-					>
-						Нет паспортных данных отправителя
-					</b-form-checkbox>
-				</b-col> -->
-				<!-- <b-col class="mb-1" cols="12" md="4">
-					<b-form-checkbox
-						value="true"
-						:unchecked-value="null"
-						v-model="filters.from_amo_crm"
-					>
-						Оформлен моим ПВЗ
-					</b-form-checkbox>
-				</b-col> -->
 				<b-col class="mb-1" cols="12" md="4">
+					<b-form-input 
+						placeholder="В офис"
+						v-model="filter.in_office"
+					/>
+				</b-col>
+				<b-col class="mb-1" cols="12" md="4" align-v="center">
 					<b-form-checkbox
 						value="true"
 						:unchecked-value="null"
 						v-model="filters.is_overdue"
 					>
-						Просрочка
+						Только открытые документы
 					</b-form-checkbox>
 				</b-col>
-				<!-- <b-col class="mb-1" cols="12" md="4">
-					<b-form-checkbox
-						value="false"
-						:unchecked-value="null"
-						v-model="filters.recipient_has_passport"
-					>
-						Нет паспортных данных получателя
-					</b-form-checkbox>
-				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
-					<b-form-checkbox
-						value="true"
-						:unchecked-value="null"
-						v-model="filters.sender_has_passport"
-					>
-						Паспортные данные отправителя собраны
-					</b-form-checkbox>
-				</b-col> -->
 			</b-row>
 		</b-collapse>
 		<template #footer>
@@ -217,6 +136,7 @@
 		BFormCheckbox,
 		BCollapse,
 		VBToggle,
+		BFormDatepicker
 	} from "bootstrap-vue";
 	import vSelect from "vue-select";
 	import { debounce } from "lodash";
@@ -225,26 +145,22 @@
 	export default {
 		data() {
 			return {
-				cities: [],
-				orderStatus: [],
+				filter: {
+					date_created: null,
+					number_place: null,
+					office: null,
+					from_office: null,
+					counterparty: null,
+					type: null,
+					number_p: null,
+					number_order: null,
+					number_document: null,
+					number_seal: null,
+					in_office: null,
+					is_overdue: null,
+				},
 				visible: false,
-				contract: null,
-				counterparty: null,
-				search_fields:  [
-					{
-						name: 'По договору',
-						key: 'contract'
-					}, 
-					{
-						name: 'По номеру заказа',
-						key: 'id'
-					}, 
-					{
-						name: 'По номеру телефона',
-						key: 'phone_number'
-					}
-				],
-				search: null,
+				cities: [],
 			};
 		},
 		components: {
@@ -258,6 +174,7 @@
 			VBToggle,
 
 			AppDatepicker,
+			BFormDatepicker,
 			vSelect,
 			SelectAllContracts,
 			SelectClients,
@@ -363,3 +280,4 @@
 		}
 	}
 </style>
+

@@ -36,6 +36,10 @@
 				type: Boolean,
 				default: false,
 			},
+			disabledDefaultValue: {
+				type: Boolean,
+				default: false,
+			},
 			reduce: {
 				type: Function,
 			},
@@ -54,6 +58,10 @@
                 type: Number,
                 default: null
             },
+			debounceOff: {
+				type: Boolean,
+				default: false,
+			},
 		},
 		data() {
 			return {
@@ -99,7 +107,7 @@
 					this.fetchContracts(search, loading, this);
 				};
 			},
-			fetchContracts: _.debounce(
+			fetchContractsDebounced: _.debounce(
                 (search, loading, vm, callback, initCallback) => {
                     vm.$api.clients.getClientContracts(vm.payerId).then((response) => {
                         loading ? loading(false) : null;
@@ -112,7 +120,7 @@
                         if (callback) {
                             const selected = result.find(res => res.id === vm.value);
                             const defaultValue = result.length ? result[0] : null;
-                            callback(selected || defaultValue);
+                            callback(selected || (!vm.disabledDefaultValue ? defaultValue : null));
                         }
                         if (initCallback) {
                             const selected = result.find(res => res.id === vm.value);
@@ -123,6 +131,32 @@
                 },
                 500
             ),
+			fetchCallback(search, loading, vm, callback, initCallback) {
+				vm.$api.clients.getClientContracts(vm.payerId).then((response) => {
+					loading ? loading(false) : null;
+					if (response.status > 203) {
+						return;
+					}
+					const result = response.data
+						.filter((result) => result.contract.includes(search));
+					vm.contracts = result;
+					if (callback) {
+						const selected = result.find(res => res.id === vm.value);
+						const defaultValue = result.length ? result[0] : null;
+						callback(selected || (!vm.disabledDefaultValue ? defaultValue : null));
+					}
+					if (initCallback) {
+						const selected = result.find(res => res.id === vm.value);
+						initCallback(selected || null);
+					}
+					!result.length ? vm.disabledBtn = false : vm.disabledBtn = true;
+				});
+			},
+			fetchContracts(search, loading, vm, callback, initCallback) {
+				!this.debounceOff
+					? this.fetchContractsDebounced(search, loading, vm, callback, initCallback)
+					: this.fetchCallback(search, loading, vm, callback, initCallback)
+			},
 			input(id) {
 				this.$emit("input", id);
 				this.disabledBtn = true;
@@ -149,6 +183,31 @@
 			},
 			
 		},
+		mounted() {
+			if (this.debounceOff) {
+				this.fetchContracts(
+					'',
+					null,
+					this,
+					(contract) => {
+						this.contract = contract;
+						this.input(contract ? contract.id : null);
+					},
+				);
+			}
+			this.payerId 
+				? this.fetchContracts(
+                    '',
+                    null,
+                    this,
+                    (contract) => {
+                        this.contract = contract;
+                        this.input(contract ? contract.id : null);
+                    },
+                )
+				: null;
+
+		}
 	};
 </script>
 

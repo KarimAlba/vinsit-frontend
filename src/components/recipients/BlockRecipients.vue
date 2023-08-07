@@ -67,7 +67,7 @@ export default {
             { key: "address", label: "Адрес" },
             { key: "contacts", label: "Контакты" },
             { key: "counterparty", label: "Контрагент" },
-            { key: "passport", label: "Пасспортные данные" },
+            { key: "passport", label: "Паспортные данные" },
             { key: "city.name", label: "Город" },
         ],
         };

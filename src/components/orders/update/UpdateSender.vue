@@ -38,7 +38,7 @@
                 </b-form-group>
             </b-col>
 
-            <b-col cols="12">
+            <!-- <b-col cols="12">
                 <b-form-group label="ФИО *">
                     <b-form-input
                         v-model="order.sender_full_name"
@@ -46,7 +46,7 @@
                         @change="changeOrder($event, 'sender_full_name')"
                     />
                 </b-form-group>
-            </b-col>
+            </b-col> -->
 
             <b-col cols="12">
                 <b-form-group label="Адрес">
@@ -60,7 +60,18 @@
                 </b-form-group>
             </b-col>
 
-            <b-col cols="12" md="4">
+            <b-col cols="12">
+                <b-form-group 
+                    :label="order.sender_counterparty_type !== 'I' ? 'Email *' : 'Email'"
+                >
+                    <b-form-input 
+                        v-model="order.sender_email"
+                        @change="changeOrder($event, 'sender_email')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" md="4" v-if="order.sender_counterparty_type !== 'E'">
                 <b-form-group label="Серия паспорта">
                     <b-form-input
                         v-model="order.sender_passport_series"
@@ -73,7 +84,7 @@
                 </b-form-group>
             </b-col>
 
-            <b-col cols="12" md="4">
+            <b-col cols="12" md="4" v-if="order.sender_counterparty_type !== 'E'">
                 <b-form-group label="Номер паспорта">
                     <b-form-input
                         v-model="order.sender_passport_no"
@@ -86,6 +97,87 @@
                 </b-form-group>
             </b-col>
 
+            <!-- <b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+                <b-form-group label="Расчетный счет">
+                    <b-form-input
+                        v-model="order.sender_checking_account"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'sender_checking_account')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+                <b-form-group label="ОКПО">
+                    <b-form-input
+                        v-model="order.sender_okpo"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'sender_okpo')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+                <b-form-group label="Банк">
+                    <b-form-input
+                        v-model="order.sender_bank"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'sender_bank')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+                <b-form-group label="ОКВЭД">
+                    <b-form-input
+                        v-model="order.sender_okved"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'sender_okved')"
+                    />
+                </b-form-group>
+            </b-col> -->
+
+            <!-- Добавить доп проверку -->
+            <!-- <b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+                <b-form-group label="КПП">
+                    <b-form-input
+                        v-model="order.sender_KPP"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'sender_KPP')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+                <b-form-group label="БИК">
+                    <b-form-input
+                        v-model="order.sender_BIK"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'sender_BIK')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+                <b-form-group label="ОГРН">
+                    <b-form-input
+                        v-model="order.sender_psrn"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'sender_psrn')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+                <b-form-group label="Корр. счет">
+                    <b-form-input
+                        v-model="order.sender_correspondent_account"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'sender_correspondent_account')"
+                    />
+                </b-form-group>
+            </b-col> -->
+
             <b-col
                 cols="12"
             >
@@ -93,14 +185,14 @@
                     <validation-provider #default="{ errors }" rules="required">
                         <b-form-group
                             :invalid-feedback="errors[0]"
-                            label="Телефоны *"
+                            label="Сотрудники *"
                         >
                             <b-row class="">
                                 <b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
                                     
                                 </b-col>
                                 <b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
-                                    Номер телефона
+                                    Сотрудники
                                 </b-col>
                                 <b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="2" @click="addPhone">
                                     +
@@ -134,12 +226,62 @@
                                         @blur="changeOrder(phones, 'sender_phones')"
                                     /> -->
                                     <b-form-input
+                                        :id="`phone_number-${[i]}-sender`"
+                                        :name="`phone_number-${[i]}-sender`"
                                         v-model="phone.phone_number"
                                         :state="errors.length > 0 ? false : null"
                                         :disabled="readOnly"
+                                        placeholder="Номер телефона"
                                         type="tel"
                                         @blur="changeOrder(phones, 'sender_phones')"
+                                        style="margin-top: 15px"
                                     />
+                                    <!-- <validation-provider #default="{ errors }">
+                                        <b-form-group
+                                            :invalid-feedback="errors[0]"
+                                            :state="!errors.length"
+                                        >
+                                            <b-form-input
+                                                v-model="phones[i].position"
+                                                type="text"
+                                                :state="errors.length > 0 ? false : null"
+                                                placeholder="Должность"
+                                                @blur="changeOrder(phones, 'sender_phones')"
+                                                style="margin-top: 15px;"
+                                            ></b-form-input>
+                                        </b-form-group>
+                                    </validation-provider> -->
+                                    <validation-provider #default="{ errors }">
+                                        <b-form-group
+                                            :invalid-feedback="errors[0]"
+                                            :state="!errors.length"
+                                        >
+                                            <b-form-input
+                                                :id="`full_name-${[i]}-sender`"
+                                                :name="`full_name-${[i]}-sender`"
+                                                v-model="phones[i].full_name"
+                                                type="text"
+                                                :state="errors.length > 0 ? false : null"
+                                                @blur="changeOrder(phones, 'sender_phones')"
+                                                placeholder="ФИО"
+                                                style="margin-top: 15px;"
+                                            ></b-form-input>
+                                        </b-form-group>
+                                    </validation-provider>
+                                    <!-- <validation-provider #default="{ errors }">
+                                        <b-form-group
+                                            :invalid-feedback="errors[0]"
+                                            :state="!errors.length"
+                                        >
+                                            <b-form-input
+                                                v-model="phones[i].email"
+                                                type="email"
+                                                :state="errors.length > 0 ? false : null"
+                                                placeholder="Email"
+                                                @blur="changeOrder(phones, 'sender_phones')"
+                                            ></b-form-input>
+                                        </b-form-group>
+                                    </validation-provider> -->
                                 </b-col>
                                 <b-col class="text-center border border-secondary" cols="2" @click="deletePhone(i)">
                                     <b-icon icon="trash"></b-icon>
@@ -242,6 +384,16 @@ export default {
             position: '',
             type: null,
             web: '',
+
+            bank: '',
+            KPP: '',
+            BIK: '',
+            correspondent_account: '',
+
+            checking_account: '',
+            okpo: '',
+            okved: '',
+            psrn: '',
         },
         phones: [],
         creationError: {
@@ -257,6 +409,9 @@ export default {
     watch: {
         'order'() {
             this.phones = this.order.sender_phones;
+            // if (this.order.sender_counterparty_type === 'I') {
+            //     this.phones[0].full_name = this.order.sender_full_name ? this.order.sender_full_name : '';
+            // }
         },
     },
     methods: {
@@ -366,6 +521,17 @@ export default {
                 position: '',
                 type: this.order.sender_counterparty_type,
                 web: '',
+
+
+                bank: this.order.sender_bank,
+                KPP: this.order.sender_KPP,
+                BIK: this.order.sender_BIK,
+                correspondent_account: this.order.sender_correspondent_account,
+
+                checking_account: this.order.sender_checking_account,
+                okpo: this.order.sender_okpo,
+                okved: this.order.sender_okved,
+                psrn: this.order.sender_psrn,
             };
             if ((!this.newUser.type) && (this.newUser.name) && (!this.newUser.client_phones.length)) {
                 this.creationError.creationErrorSender = true;
@@ -374,8 +540,9 @@ export default {
             this.addClient();
         },
         addPhone() {
-                // this.order[name + '_phones'].unshift({});
-                this.phones.unshift({phone_number: ''});
+            // this.order[name + '_phones'].unshift({});
+            if (this.order.sender_counterparty_type === 'I') return;
+            this.phones.push({phone_number: ''});
         },
         deletePhone(index) {
                 this.phones.splice(index, 1);

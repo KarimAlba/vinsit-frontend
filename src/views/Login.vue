@@ -212,7 +212,6 @@ export default {
 	},
 	methods: {
 		setTokens(response) {
-			console.log('tot')
 			useJwt.setToken(response.data.access);
 			useJwt.setRefreshToken(response.data.refresh);
 			useJwt.setTokenLifetime(response.data.access_token_lifetime);
@@ -220,6 +219,17 @@ export default {
 		validationForm() {
 			// this.$refs.loginValidation.validate().then((success) => {
 				// if (success) {
+					if (this.userEmail == '' || this.password == '') {
+						this.$toast({
+							component: ToastificationContent,
+							props: {
+								title: "Fields cannot be empty",
+								icon: "EditIcon",
+								variant: "danger",
+							},
+						});
+						return
+					}
 					this.$api.auth.signIn(this.userEmail, this.password)
 						.then((response) => {
 							if (response.status === 200) {

@@ -37,7 +37,7 @@
 			@filtered="filteredTable"
 		>
 			<template #cell(history_content)="data">
-				<p>
+				<p style="max-width: 750px;">
 					<template v-if="data.item.oldValue">
 						Поле <b>{{ data.item.valByKeyObj }}</b> изменено c
 						<b>{{ data.item.oldValue }}</b> на <b>{{ data.item.newValue }}</b>
@@ -258,65 +258,35 @@
 							history_date = array[index].history_date,
 							history_user = array[index].user_name;
 
-                            // console.log('oldValue - ', oldValue, 'newValue - ', newValue, 'key - ', key)
-							// history_date = array[index].status_changed_date;
-
 							if (key === "mode") {
 								if (oldValue) oldValue = this.orderMode.find((x) => x.id === oldValue).title;
 								newValue = this.orderMode.find((x) => x.id === newValue).title;
+
+								const currentValue = oldValue;
+                                oldValue = newValue;
+                                newValue = currentValue;
 							} else if (key === "type") {
 								if (oldValue) oldValue = this.orderType.find((x) => x.id === oldValue).title;
 								newValue = this.orderType.find((x) => x.id === newValue).title;
+
+								const currentValue = oldValue;
+                                oldValue = newValue;
+                                newValue = currentValue;
 							} else if (
 								key === "recipient_counterparty_type" ||
 								key === "sender_counterparty_type"
 							) {
                                 if (oldValue) oldValue = this.clientType.find((x) => x.id === oldValue).title;
                                 newValue = this.clientType.find((x) => x.id === newValue).title;
-							} else if (key === 'status') {
-                                const currentValue = oldValue;
+
+								const currentValue = oldValue;
                                 oldValue = newValue;
                                 newValue = currentValue;
-                            } else {
-                                newValue ? null : newValue = '-';
-                            }
-
-							if (key === 'delivery_date') {
-								const value = array[index][key];
+							} else {
+                                const value = array[index][key];
 								oldValue = newValue;
 								newValue = value;
-							}
-							// if (key === "status") {
-								// if (oldValue) oldValue = this.orderStatus.find( (x) => x.id === oldValue).status;
-								// newValue = this.orderStatus.find((x) => x.id === newValue).status;
-							// };
-							// if (key === "payer_city" || key === "recipient_city" || key === "sender_city") {
-                                // const ids_list = [];
-                                // newValue ? ids_list.push(newValue) : null;
-                                // oldValue ? ids_list.push(oldValue) : null;
-								// await this.$api.cities.getCitiesById({ids_list})
-								// 	.then((response) => {
-                                //         if (newValue) {
-                                //             newValue = response.data.find(c => c.id === newValue).name;
-                                //         } else {
-                                //             newValue = '-';
-                                //         }
-								// 		if (oldValue) {
-                                //             oldValue = response.data.find(c => c.id === oldValue).name;
-                                //         }
-								// 	})
-								// 	.catch((error) => {})
-							// }
-                            // if (key === "payer_counterparty" || key === "recipient_counterparty" || key === "sender_counterparty") {
-								// await this.$api.clients.getClient(newValue)
-                                //     .then((response) => {
-                                //         newValue = response.data.name;
-                                // });
-                                // await this.$api.clients.getClient(oldValue)
-                                //     .then((response) => {
-                                //     oldValue = response.data.name;
-                                // });
-							// };
+                            }
 							arr.push({ valByKeyObj, oldValue, newValue, history_date, history_user });
 						}
 					});

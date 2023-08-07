@@ -172,17 +172,24 @@
                                         />
 									</b-form-group>
 								</b-col>
-								<b-col cols="12">
+								<!-- <b-col cols="12">
 									<b-form-group label="ФИО *">
 										<b-form-input v-model="order.sender_full_name"></b-form-input>
 									</b-form-group>
-								</b-col>
+								</b-col> -->
 								<b-col cols="12">
 									<b-form-group label="Адрес *">
 										<b-form-input v-model="order.sender_address"/>
 									</b-form-group>
 								</b-col>
-								<b-col cols="12" md="4">
+								<b-col cols="12">
+									<b-form-group 
+										:label="order.sender_counterparty_type !== 'I' ? 'Email *' : 'Email'"
+									>
+										<b-form-input v-model="order.sender_email"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4" v-if="order.sender_counterparty_type !== 'E'">
 									<b-form-group label="Серия паспорта">
 										<b-form-input
                                             v-model="order.sender_passport_series"
@@ -192,7 +199,7 @@
                                         />
 									</b-form-group>
 								</b-col>
-								<b-col cols="12" md="4">
+								<b-col cols="12" md="4" v-if="order.sender_counterparty_type !== 'E'">
 									<b-form-group label="Номер паспорта">
 										<b-form-input
                                             v-model="order.sender_passport_no"
@@ -202,19 +209,97 @@
                                         />
 									</b-form-group>
 								</b-col>
+
+								<!-- <b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="Расчетный счет">
+										<b-form-input
+											v-model="order.sender_bank_account"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="ОКПО">
+										<b-form-input
+											v-model="order.sender_OKPO"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="Банк">
+										<b-form-input
+											v-model="order.sender_bank"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="ОКВЭД">
+										<b-form-input
+											v-model="order.sender_OKVED"
+										/>
+									</b-form-group>
+								</b-col> -->
+
+								<!-- Добавить доп проверку -->
+								<!-- <b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="КПП">
+										<b-form-input
+											v-model="order.sender_KPP"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="БИК">
+										<b-form-input
+											v-model="order.sender_BIK"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="ОГРН">
+										<b-form-input
+											v-model="order.sender_OGRN"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.sender_counterparty_type === 'E'">
+									<b-form-group label="Корр. счет">
+										<b-form-input
+											v-model="order.sender_correspondent_account"
+										/>
+									</b-form-group>
+								</b-col> -->
+
 								<b-col
 									cols="12"
 								>
 									<validation-provider #default="{ errors }" rules="required">
 										<b-form-group
 											:invalid-feedback="errors[0]"
-											label="Телефоны *"
+											label="Сотрудники *"
 										>
-											<b-row class="">
+											<!-- <b-row class="">
+												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
+                            					</b-col>
 												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
 													Номер телефона
 												</b-col>
 												<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('sender')">
+													+
+												</b-col>
+											</b-row> -->
+											<b-row class="">
+												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
+												</b-col>
+												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
+													Сотрудники
+												</b-col>
+												<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="2" @click="addPhone('sender')">
 													+
 												</b-col>
 											</b-row>
@@ -222,6 +307,17 @@
 												v-for="(phone, i) in order.sender_phones"
 												:key="i"
 											>
+												<b-col
+													class="d-flex text-center border border-secondary"
+													cols="2"
+												>
+													<b-form-checkbox
+														:id="phone + phone.phone_number + ''"
+														:name="phone.phone_number"
+														class="align-self-center justify-self-center"
+														@change="onPhoneSelect('sender_phones', i)"
+													></b-form-checkbox>
+												</b-col>
 												<b-col class=" border border-secondary px-0" cols="8">
 													<!-- <b-form-input
 														v-model="phone.phone_number"
@@ -234,10 +330,33 @@
 														v-model="phone.phone_number"
 														:state="errors.length > 0 ? false : null"
 														type="tel"
+														placeholder="Номер телефона"
+														style="margin-top: 15px;"
 													/>
+													<!-- <b-form-input
+														v-model="order.sender_phones[i].position"
+														type="text"
+														:state="errors.length > 0 ? false : null"
+														placeholder="Должность"
+														style="margin-top: 15px;"
+													/> -->
+													<b-form-input
+														v-model="order.sender_phones[i].full_name"
+														type="text"
+														:state="errors.length > 0 ? false : null"
+														placeholder="ФИО"
+														style="margin-top: 15px; margin-bottom: 15px;"
+													/>
+													<!-- <b-form-input
+														v-model="order.sender_phones[i].email"
+														type="email"
+														:state="errors.length > 0 ? false : null"
+														placeholder="Email"
+														style="margin-top: 15px; margin-bottom: 15px;"
+													/> -->
 												</b-col>
-												<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('sender', i)">
-													<b-icon icon="trash"></b-icon>
+												<b-col class="text-center border border-secondary" cols="2" @click="deletePhone('sender', i)">
+													<b-icon icon="trash" style="margin-top: 50px;"></b-icon>
 												</b-col>
 											</b-row>
 										</b-form-group>
@@ -283,17 +402,24 @@
                                         />
 									</b-form-group>
 								</b-col>
-								<b-col cols="12">
+								<!-- <b-col cols="12">
 									<b-form-group label="ФИО *">
 										<b-form-input v-model="order.recipient_full_name"/>
 									</b-form-group>
-								</b-col>
+								</b-col> -->
 								<b-col cols="12">
 									<b-form-group label="Адрес *">
 										<b-form-input v-model="order.recipient_address"/>
 									</b-form-group>
 								</b-col>
-								<b-col cols="12" md="4">
+								<b-col cols="12">
+									<b-form-group 
+										:label="order.recipient_counterparty_type !== 'I' ? 'Email *' : 'Email'"
+									>
+										<b-form-input v-model="order.recipient_email"/>
+									</b-form-group>
+								</b-col>
+								<b-col cols="12" md="4" v-if="order.recipient_counterparty_type !== 'E'">
 									<b-form-group label="Серия паспорта">
 										<b-form-input
                                             v-model="order.recipient_passport_series"
@@ -303,7 +429,7 @@
                                         />
 									</b-form-group>
 								</b-col>
-								<b-col cols="12" md="4">
+								<b-col cols="12" md="4" v-if="order.recipient_counterparty_type !== 'E'">
 									<b-form-group label="Номер паспорта">
 										<b-form-input
                                             v-model="order.recipient_passport_no"
@@ -313,27 +439,88 @@
                                         />
 									</b-form-group>
 								</b-col>
-								<b-col cols="12" md="4">
-									<b-form-group label="Email">
+								
+
+								<!-- <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="Расчетный счет">
 										<b-form-input
-										type="email"
-										v-model="order.recipient_email"
-										></b-form-input>
+											v-model="order.recipient_bank_account"
+										/>
 									</b-form-group>
 								</b-col>
+
+								<b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="ОКПО">
+										<b-form-input
+											v-model="order.recipient_OKPO"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="Банк">
+										<b-form-input
+											v-model="order.recipient_bank"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="ОКВЭД">
+										<b-form-input
+											v-model="order.recipient_OKVED"
+										/>
+									</b-form-group>
+								</b-col> -->
+
+								<!-- Добавить доп проверку -->
+								<!-- <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="КПП">
+										<b-form-input
+											v-model="order.recipient_KPP"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="БИК">
+										<b-form-input
+											v-model="order.recipient_BIK"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="ОГРН">
+										<b-form-input
+											v-model="order.recipient_OGRN"
+										/>
+									</b-form-group>
+								</b-col>
+
+								<b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+									<b-form-group label="Корр. счет">
+										<b-form-input
+											v-model="order.recipient_correspondent_account"
+										/>
+									</b-form-group>
+								</b-col> -->
+
 								<b-col
 									cols="12"
 								>
 									<validation-provider #default="{ errors }" rules="required">
 										<b-form-group
 											:invalid-feedback="errors[0]"
-											label="Телефоны *"
+											label="Сотрудники *"
 										>
 											<b-row class="">
-												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
-													Номер телефона
+												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
 												</b-col>
-												<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="4" @click="addPhone('recipient')">
+												<b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
+													Сотрудники
+												</b-col>
+												<b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="2" @click="addPhone('recipient')">
 													+
 												</b-col>
 											</b-row>
@@ -341,6 +528,14 @@
 												v-for="(phone, i) in order.recipient_phones"
 												:key="i"
 											>
+												<b-col class="d-flex text-center border border-secondary" cols="2">
+													<b-form-checkbox
+														:id="phone + phone.phone_number + ''"
+														:name="phone.phone_number"
+														class="align-self-center justify-self-center"
+														@change="onPhoneSelect('recipient_phones', i)"
+													></b-form-checkbox>
+												</b-col>
 												<b-col class=" border border-secondary px-0" cols="8">
 													<!-- <b-form-input
 														v-model="phone.phone_number"
@@ -353,10 +548,33 @@
 														v-model="phone.phone_number"
 														:state="errors.length > 0 ? false : null"
 														type="tel"
+														placeholder="Номер телефона"
+														style="margin-top: 15px;"
 													/>
+													<!-- <b-form-input
+														v-model="order.recipient_phones[i].position"
+														type="text"
+														:state="errors.length > 0 ? false : null"
+														placeholder="Должность"
+														style="margin-top: 15px;"
+													/> -->
+													<b-form-input
+														v-model="order.recipient_phones[i].full_name"
+														type="text"
+														:state="errors.length > 0 ? false : null"
+														placeholder="ФИО"
+														style="margin-top: 15px; margin-bottom: 15px;"
+													/>
+													<!-- <b-form-input
+														v-model="order.recipient_phones[i].email"
+														type="email"
+														:state="errors.length > 0 ? false : null"
+														placeholder="Email"
+														style="margin-top: 15px; margin-bottom: 15px;"
+													/> -->
 												</b-col>
-												<b-col class="text-center border border-secondary" cols="4" @click="deletePhone('recipient', i)">
-													<b-icon icon="trash"></b-icon>
+												<b-col class="text-center border border-secondary" cols="2" @click="deletePhone('recipient', i)">
+													<b-icon icon="trash" style="margin-top: 50px;"></b-icon>
 												</b-col>
 											</b-row>
 										</b-form-group>
@@ -453,19 +671,23 @@
 						</b-col>
 					</b-row> -->
 					<b-row>
-						<b-col cols="5" class="mt-2" @click="() => additionalService = additionalService ? false : true">
+						<b-col cols="5" class="mt-2" @click="() => additionalService = !additionalService">
 							<b-icon-chevron-up v-if="additionalService" variant="primary"/>
 							<b-icon-chevron-down v-if="!additionalService" variant="primary"/>
 							<span class="header-additional-service">Дополнительные услуги</span>
 						</b-col>
 					</b-row>
-					<b-row v-if="additionalService">
+					<b-row v-if="additionalService && services.length">
 						<b-col>
-							<b-row class="service"  v-for="(service) in services" :key="service.id">
+							<b-row 
+								class="service" 
+								v-for="(service, i) in services" 
+								:key="service.id"
+							>
 								<b-col cols="12" md="8">
 									<b-form-checkbox
-                                        :id="service + service.id + ''"
-                                        :name="service.name"
+										:id="`checkbox-${[service.id]}-service`"
+                                        :name="`checkbox-${[service.id]}-service`"
                                         @change="handleOrderService(service)"
 									>
 										{{service.name}}
@@ -475,8 +697,10 @@
 									<b-form-group>
 										<b-form-input
 											type="number"
-                                            :id="service.price + service.id + ''"
+                                            :id="`input-${[service.id]}-service-price`"
+											:name="`input-${[service.id]}-service-price`"
                                             @input="handleOrderServicePrice($event, service)"
+											:state="(validationServices.findIndex(item => item.service === service.id) !== -1) ? false : null"
 										/>
 									</b-form-group>
 								</b-col>
@@ -856,6 +1080,7 @@
 		data() {
 			return {
                 services: [],
+				validationServices: [],
             	additionalService: true,
 				// orderPlacesFields: [
 				// 	{ key: "barcode", label: "Штрих-код" },
@@ -906,7 +1131,7 @@
 					payment_type: 'SC',
                     payer_counterparty: null,
                     sender_counterparty: null,
-                    sender_counterparty_type: 'E',
+                    sender_counterparty_type: '',
 					sender_phones: [{}],
                     sender_address: '',
                     sender_passport_series: '',
@@ -914,7 +1139,7 @@
                     sender_city: null,
                     recipient_city: null,
                     recipient_counterparty: null,
-                    recipient_counterparty_type: 'E',
+                    recipient_counterparty_type: '',
 					recipient_phones: [{}],
                     recipient_address: '',
                     recipient_email: '',
@@ -937,7 +1162,7 @@
 				newUser: {
 					INN: '',
 					address: '',
-					bank_account: '',
+					// bank_account: '',
 					city: '',
 					client_phones: [],
 					email: '',
@@ -948,6 +1173,16 @@
 					position: '',
 					type: null,
 					web: '',
+
+					bank: null,
+					KPP: null,
+					BIK: null,
+					correspondent_account: null,
+					bank_account: null,
+					OKPO: null,
+					OKVED: null,
+					OGRN: null,
+					EDO: null,
 				},
 				creationError: {
 					creationErrorSender: false,
@@ -957,6 +1192,7 @@
 		},
 		watch: {
 			'order.recipient_counterparty'() {
+				// console.log('watch 1 - ', this.order.sender_counterparty)
 				if (Number.isFinite(this.order.recipient_counterparty)) {
 					const id = this.order.recipient_counterparty;
 					this.addCounterparty(id, 'recipient');
@@ -968,6 +1204,7 @@
 			},
 			'order.sender_counterparty'() {
 				if (Number.isFinite(this.order.sender_counterparty)) {
+					// console.log('watch 2 - ', this.order.sender_counterparty)
 					const id = this.order.sender_counterparty;
 					this.addCounterparty(id, 'sender');
 					if (this.order.payment_type == 'SC' || this.order.payment_type == 'CS') {
@@ -978,6 +1215,7 @@
 			},
 			'order.payer_counterparty'() {
 				if (Number.isFinite(this.order.payer_counterparty)) {
+					// console.log('watch 3 - ', this.order.sender_counterparty)
 					const id = this.order.payer_counterparty;
 					this.addCounterparty(id, 'payer');
                     // this.addPayerContracts(id);
@@ -1052,13 +1290,21 @@
                 return Number(String(value).substring(0, 6));
             },
 			fetchStatus() {
-				this.$api.orderStatus.getOrderStatusList().then((response) => {
-					this.orderStatus = response.data.results;
-				});
+				this.$api.orderStatus.getOrderStatusList()
+					.then((response) => {
+						this.orderStatus = response.data.results;
+					});
 			},
             changeOrder(value, key) {
                 this.order[key] = value;
             },
+			onPhoneSelect(counterparty, index) {
+				if (!this.order[counterparty][index].to_print) {
+					this.order[counterparty][index].to_print = true;
+					return;
+				}
+				this.order[counterparty][index].to_print = false;
+			},
 			validationForm() {
 				this.$refs.simpleRules.validate().then((success) => {
 					if (success) {
@@ -1081,11 +1327,18 @@
 											},
 										});
 									} else {
+										console.log('response - ', response)
+										let error = '';
+										if (response.data.order_services) {
+											this.validationServices = this.order.order_services.filter(item => !item.price);
+											console.log('this.validationServices - ', this.validationServices);
+											error = 'Поле \'Дополнительные услуги\' не может быть пустым'
+										}
 										this.$toast({
 											component: ToastificationContent,
 											props: {
 												title: "Ошибка",
-												text: "Заказ не создан",
+												text: "Заказ не создан. " + error,
 												icon: "XIcon",
 												variant: "danger",
 											},
@@ -1120,7 +1373,7 @@
 				this.order.products.push({});
 			},
             handleOrderService(currentService) {
-                console.log('currentService - ', currentService)
+                // console.log('currentService - ', currentService)
                 const serviceIndex = this.order.order_services.findIndex(serv => serv.service === currentService.id);
                 if (serviceIndex === -1) {
                     const newService = {
@@ -1128,12 +1381,18 @@
                         price: null,
                     };
                     this.order.order_services.push(newService);
+					// this.validationServices.push(newService);
                     return;
                 }
+				// this.validationServices.push(this.order.order_services[serviceIndex]);
                 this.order.order_services.splice(serviceIndex, 1);
 			},
             handleOrderServicePrice(event, currentService) {
                 const serviceIndex = this.order.order_services.findIndex(serv => serv.service === currentService.id);
+				const valIndex = this.validationServices.findIndex(item => item.service === currentService.id);
+				if (valIndex !== -1) {
+					this.validationServices = this.validationServices.filter(item => item.service !== currentService.id);
+				}
                 if (serviceIndex === -1) return;
                 this.order.order_services[serviceIndex].price = +event;
 			},
@@ -1144,21 +1403,30 @@
 				};
 			},
 			changeCounterpartyParams(data, name) {
+				// console.log('data - ', data)
 				for (let key in data) {
 					if (data[key] && key === 'id') {
-						this.order[name + '_counterparty'] = data.id;
+						this.order = {...this.order, [name + '_counterparty']: data.id};
+						continue;
+					};
+					if (data[key] && key === 'type') {
+						this.order = {...this.order, [name + '_counterparty_type']: data.type};
+						continue;
+					};
+					if (data[key] && key === 'name') {
+						this.order = {...this.order, [name + '_full_name']: data.name};
 						continue;
 					};
 					if (data[key] && key === 'client_phones') {
                         if (data.client_phones && data.client_phones.length) {
-                            this.order[name + '_phones'] = data.client_phones.map((it) => ({phone_number: it.phone_number}));
+                            this.order = {...this.order, [name + '_phones']: data.client_phones.map((it) => ({...it}))}
                         } else {
-                            this.order[name + '_phones'] = [{phone_number: ''}];
+                            this.order = {...this.order, [name + '_phones']: [{phone_number: ''}]};
                         }
 						continue;
 					};
 					if (data[key]) {
-						this.order[name + '_' + key] = data[key];
+						this.order = {...this.order, [name + '_' + key]: data[key]};
 					};
 				}
 			},
@@ -1177,19 +1445,21 @@
             // },
 			addPhone(name) {
 				if (this.order[name + '_phones'][0].phone_number){
-					this.order[name + '_phones'].unshift({});
+					// this.order[name + '_phones'].unshift({});
+					this.order[name + '_phones'].push({});
 				}
 			},
 			deletePhone(name, id) {
-				this.order[name + '_phones'].splice(id, 1);
-				if (this.order[name + '_phones'].length == 0){
-					this.order[name + '_phones'].unshift({});
+				// this.order[name + '_phones'].splice(id, 1);
+				if (this.order[name + '_phones'].length !== 0){
+					// this.order[name + '_phones'].unshift({});
+					this.order[name + '_phones'].pop({});
 				}
             },
 			addClient(propName) {
 				this.$api.clients.addNewClient(this.newUser)
 					.then((response) => {
-						console.log('response - ', response);
+						// console.log('response - ', response);
                         if (response.status > 203) {
                             return;
                         }
@@ -1256,9 +1526,7 @@
             addServicesList() {
                 this.$api.services.getServices(0, 30)
                     .then(response => {
-                        if (response.status > 203) {
-                            return;
-                        }
+                        if (response.status > 203) return;
                         this.services = response.data;
                     })
             },
@@ -1336,6 +1604,9 @@
 
 	.service-table:nth-child(2n - 1) {
 		background: #0B1F3508;
-	;
+	}
+
+	.validation-service {
+		border-color: red
 	}
 </style>

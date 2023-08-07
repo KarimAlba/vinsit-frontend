@@ -14,13 +14,22 @@
         </div>
 
         <b-card>
-        <b-table :items="clients" :fields="fields" striped responsive>
+        <b-table 
+            :items="clients" 
+            :fields="fields" 
+            striped responsive
+            
+            :sort-by.sync="sortBy"
+            :sort-desc.sync="sortDesc"
+            :no-local-sorting="true"
+        >
             <template #cell(amo_client_id)="data">
             <router-link
                 style="border-bottom: 1px dotted blue"
                 :to="{ name: 'client', params: { id: data.item.id } }"
-                >{{ data.item.amo_client_id }}</router-link
             >
+                {{ data.item.amo_client_id }}
+            </router-link>
             </template>
 
             <template #cell(id)="data">
@@ -88,16 +97,18 @@ import store from "@/store/index";
 export default {
     data() {
         return {
-        fields: [
-            { key: "amo_client_id", label: "AMO ID" },
-            { key: "id", label: "ID" },
-            { key: "name", label: "Название / ФИО" },
-            { key: "type", label: "Тип" },
-            { key: "address", label: "Адрес" },
-            { key: "contacts", label: "Контакты" },
-            { key: "position", label: "Должность" },
-            { key: "bank_account", label: "Счет" },
-        ],
+            fields: [
+                { key: "amo_client_id", label: "AMO ID", sortable: true  },
+                { key: "id", label: "ID", sortable: true  },
+                { key: "name", label: "Название / ФИО", sortable: true  },
+                { key: "type", label: "Тип", sortable: true  },
+                { key: "address", label: "Адрес", sortable: false  },
+                { key: "contacts", label: "Контакты", sortable: false  },
+                { key: "position", label: "Должность", sortable: false  },
+                { key: "bank_account", label: "Счет", sortable: false  },
+            ],
+            sortBy: 'date_created',
+            sortDesc: false,
         };
     },
     components: {
@@ -108,14 +119,30 @@ export default {
         BButton,
         BPagination,
     },
+    watch: {
+        'sortBy'(newValue) {
+            if (!newValue) return;
+            this.sortTable();
+        },
+        'sortDesc'(newValue) {
+            // console.log('newValue - ', newValue);
+            this.sortTable();
+        }
+    },
     computed: {
         ...mapGetters({
-        loading: "moduleClients/getLoading",
-        clientType: "moduleClients/getClientType",
-        count: "moduleClients/getCount",
-        perPage: "moduleClients/getCountPerPage",
-        curPage: "moduleClients/getCurPage",
-        clients: "moduleClients/getClients",
+            loading: "moduleClients/getLoading",
+            clientType: "moduleClients/getClientType",
+            count: "moduleClients/getCount",
+            perPage: "moduleClients/getCountPerPage",
+            curPage: "moduleClients/getCurPage",
+            clients: "moduleClients/getClients",
+
+            total_income: "moduleAccountingBank/getTotalIncome",
+            total_outcome: "moduleAccountingBank/getTotalOutcome",
+            perPage: "moduleAccountingBank/getCountPerPage",
+            curPage: "moduleAccountingBank/getCurPage",
+            paymentClient: "moduleAccountingBank/getPaymentClients",
         }),
         showPagination() {
         return Math.ceil(this.count / this.perPage) > 1;
@@ -127,9 +154,11 @@ export default {
     methods: {
         ...mapActions({
             fetchClients: "moduleClients/fetchClients",
+            resetPagination: "moduleClients/resetPagination",
         }),
         ...mapMutations({
             changeCurPage: "moduleClients/changePage",
+            changeOrdering: "moduleClients/changeOrdering",
         }),
         changePage(page) {
             this.changeCurPage(page);
@@ -149,6 +178,28 @@ export default {
                 "i"
         );
         return !!pattern.test(string);
+        },
+        checkSortName() {
+            switch(this.sortBy) {
+                case 'id':
+                    return 'id'
+                default:
+                    return this.sortBy;
+            };
+        },
+        sortTable() {
+            let ordering = this.checkSortName();
+
+            if (this.sortDesc) {
+                this.changeOrdering(ordering);
+            } else {
+                this.changeOrdering(`-${ordering}`);
+            };
+
+            this.resetPagination();
+            setTimeout(() => {
+                this.fetchClients();
+            }, 0);
         },
     },
     mounted() {

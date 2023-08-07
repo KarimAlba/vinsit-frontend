@@ -38,7 +38,7 @@
             </b-form-group>
         </b-col>
 
-        <b-col cols="12">
+        <!-- <b-col cols="12">
             <b-form-group label="ФИО *">
             <b-form-input
                 v-model="order.recipient_full_name"
@@ -46,7 +46,7 @@
                 @change="changeOrder($event, 'recipient_full_name')"
             />
             </b-form-group>
-        </b-col>
+        </b-col> -->
 
         <b-col cols="12">
             <b-form-group label="Адрес">
@@ -60,7 +60,18 @@
             </b-form-group>
         </b-col>
 
-        <b-col cols="12" md="4">
+        <b-col cols="12">
+            <b-form-group 
+                :label="order.recipient_counterparty_type !== 'I' ? 'Email *' : 'Email'"
+            >
+                <b-form-input 
+                    v-model="order.recipient_email"
+                    @change="changeOrder($event, 'recipient_email')"
+                />
+            </b-form-group>
+        </b-col>
+
+        <b-col cols="12" md="4" v-if="order.recipient_counterparty_type !== 'E'">
             <b-form-group label="Серия паспорта">
                 <b-form-input
                     v-model="order.recipient_passport_series"
@@ -73,7 +84,7 @@
             </b-form-group>
         </b-col>
 
-        <b-col cols="12" md="4">
+        <b-col cols="12" md="4" v-if="order.recipient_counterparty_type !== 'E'">
             <b-form-group label="Номер паспорта">
                 <b-form-input
                     v-model="order.recipient_passport_no"
@@ -86,7 +97,88 @@
             </b-form-group>
         </b-col>
 
-        <b-col cols="12" md="4">
+        <!-- <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="Расчетный счет">
+                    <b-form-input
+                        v-model="order.recipient_bank_account"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_bank_account')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="ОКПО">
+                    <b-form-input
+                        v-model="order.recipient_okpo"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_okpo')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="Банк">
+                    <b-form-input
+                        v-model="order.recipient_bank"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_bank')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="ОКВЭД">
+                    <b-form-input
+                        v-model="order.recipient_okved"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_okved')"
+                    />
+                </b-form-group>
+            </b-col> -->
+
+            <!-- Добавить доп проверку -->
+            <!-- <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="КПП">
+                    <b-form-input
+                        v-model="order.recipient_KPP"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_KPP')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="БИК">
+                    <b-form-input
+                        v-model="order.recipient_BIK"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_BIK')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="ОГРН">
+                    <b-form-input
+                        v-model="order.recipient_OGRN"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_OGRN')"
+                    />
+                </b-form-group>
+            </b-col>
+
+            <b-col cols="12" v-if="order.recipient_counterparty_type === 'E'">
+                <b-form-group label="Корр. счет">
+                    <b-form-input
+                        v-model="order.recipient_correspondent_account"
+                        :disabled="readOnly"
+                        @change="changeOrder($event, 'recipient_correspondent_account')"
+                    />
+                </b-form-group>
+            </b-col> -->
+
+        <!-- <b-col cols="12" md="4" >
             <b-form-group label="Email">
             <b-form-input
                 type="email"
@@ -95,7 +187,7 @@
                 @change="changeOrder($event, 'recipient_email')"
             />
             </b-form-group>
-        </b-col>
+        </b-col> -->
 
         <b-col
             cols="12"
@@ -104,15 +196,19 @@
                 <validation-provider #default="{ errors }" rules="required">
                     <b-form-group
                         :invalid-feedback="errors[0]"
-                        label="Телефоны *"
+                        label="Сотрудники *"
                     >
                         <b-row class="">
                             <b-col class="text-center text-white border border-dark bg-secondary py-1" cols="2">
                             </b-col>
                             <b-col class="text-center text-white border border-dark bg-secondary py-1" cols="8">
-                                Номер телефона
+                                Сотрудники
                             </b-col>
-                            <b-col class="text-center text-white border border-dark bg-secondary font-weight-bold plus" cols="2" @click="addPhone">
+                            <b-col 
+                                class="text-center text-white border border-dark bg-secondary font-weight-bold plus" 
+                                cols="2" 
+                                @click="addPhone"
+                            >
                                 +
                             </b-col>
                         </b-row>
@@ -125,9 +221,9 @@
                                 cols="2"
                             >
                                 <b-form-checkbox
-                                    id="checkbox-1"
+                                    :id="`checkbox-${[i]}-recipient`"
                                     v-model="phone.to_print"
-                                    name="checkbox-1"
+                                    :name="`checkbox-${[i]}-recipient`"
                                     class="align-self-center justify-self-center"
                                     :disabled="readOnly"
                                     @change="onPhoneSelect(i)"
@@ -144,12 +240,62 @@
                                     @blur="changeOrder(phones, 'recipient_phones')"
                                 /> -->
                                 <b-form-input
+                                    :id="`phone_number-${[i]}-sender`"
+                                    :name="`phone_number-${[i]}-sender`"
                                     v-model="phone.phone_number"
                                     :state="errors.length > 0 ? false : null"
                                     :disabled="readOnly"
                                     type="tel"
-                                    @blur="changeOrder(phones, 'sender_phones')"
+                                    placeholder="Номер телефона"
+                                    @blur="changeOrder(phones, 'recipient_phones')"
+                                    style="margin-top: 15px"
                                 />
+                                <!-- <validation-provider #default="{ errors }">
+                                    <b-form-group
+                                        :invalid-feedback="errors[0]"
+                                        :state="!errors.length"
+                                    >
+                                        <b-form-input
+                                            v-model="phones[i].position"
+                                            type="text"
+                                            :state="errors.length > 0 ? false : null"
+                                            placeholder="Должность"
+                                            @blur="changeOrder(phones, 'recipient_phones')"
+                                            style="margin-top: 15px;"
+                                        ></b-form-input>
+                                    </b-form-group>
+                                </validation-provider> -->
+                                <validation-provider #default="{ errors }" >
+                                    <b-form-group
+                                        :invalid-feedback="errors[0]"
+                                        :state="!errors.length"
+                                    >
+                                        <b-form-input
+                                            :id="`full_name-${[i]}-sender`"
+                                            :name="`full_name-${[i]}-sender`"
+                                            v-model="phones[i].full_name"
+                                            type="text"
+                                            :state="errors.length > 0 ? false : null"
+                                            @blur="changeOrder(phones, 'recipient_phones')"
+                                            placeholder="ФИО"
+                                            style="margin-top: 15px;"
+                                        ></b-form-input>
+                                    </b-form-group>
+                                </validation-provider>
+                                <!-- <validation-provider #default="{ errors }">
+                                    <b-form-group
+                                        :invalid-feedback="errors[0]"
+                                        :state="!errors.length"
+                                    >
+                                        <b-form-input
+                                            v-model="phones[i].email"
+                                            type="email"
+                                            :state="errors.length > 0 ? false : null"
+                                            placeholder="Email"
+                                            @blur="changeOrder(phones, 'recipient_phones')"
+                                        ></b-form-input>
+                                    </b-form-group>
+                                </validation-provider> -->
                             </b-col>
                             <b-col class="text-center border border-secondary" cols="2" @click="deletePhone(i)">
                                 <b-icon icon="trash"></b-icon>
@@ -263,6 +409,9 @@ export default {
     watch: {
         'order'() {
             this.phones = this.order.recipient_phones;
+            // if (this.order.recipient_counterparty_type === 'I') {
+            //     this.phones[0].full_name = this.order.recipient_full_name ? this.order.recipient_full_name : '';
+            // }
         },
     },
     computed: {
@@ -371,7 +520,8 @@ export default {
         },
         addPhone() {
             // this.order[name + '_phones'].unshift({});
-            this.phones.unshift({phone_number: ''});
+            if (this.order.recipient_counterparty_type === 'I') return;
+            this.phones.push({phone_number: ''});
         },
         deletePhone(index) {
             this.phones.splice(index, 1);

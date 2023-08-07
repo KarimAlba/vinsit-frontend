@@ -22,7 +22,7 @@
 							</b-form-group>
 						</validation-provider>
 					</b-col>
-					<b-col cols="12" md="4">
+					<!-- <b-col cols="12" md="4">
 						<validation-provider #default="{ errors }">
 							<b-form-group :invalid-feedback="errors[0]" label="Клиент (физ. лица)">
 								<select-clients
@@ -33,17 +33,18 @@
 								/>
 							</b-form-group>
 						</validation-provider>
-					</b-col>
+					</b-col> -->
                     <b-col cols="12" md="4">
 						<validation-provider #default="{ errors }" rules="required">
-							<b-form-group :invalid-feedback="errors[0]" label="Юр. лицо">
+							<!-- <b-form-group :invalid-feedback="errors[0]" label="Юр. лицо"> -->
+							<b-form-group :invalid-feedback="errors[0]" label="Ответственное лицо">
                                 <v-select
                                     label="full_name_and_type"
                                     @search="onSearchExecutors"
                                     :reduce="(executor) => executor.id"
 									v-model="form.executor"
                                     :options="executors"
-                                    :placeholder="'Юр. лицо'"
+                                    :placeholder="'Ответственное лицо'"
                                     :filterable="true"
                                 >
                                     <template #no-options="{ search }">
@@ -53,8 +54,6 @@
 							</b-form-group>
 						</validation-provider>
 					</b-col>
-				</b-row>
-                <b-row>
                     <b-col cols="12" md="4">
 						<validation-provider #default="{ errors }" rules="required">
 							<b-form-group :invalid-feedback="errors[0]" label="Период заказа">
@@ -64,6 +63,27 @@
 							</b-form-group>
 						</validation-provider>
 					</b-col>
+				</b-row>
+                <b-row>
+                    <!-- <b-col cols="12" md="4">
+						<validation-provider #default="{ errors }" rules="required">
+							<b-form-group :invalid-feedback="errors[0]" label="Период заказа">
+								<app-datepicker @selectedDates="changeDates" />
+								<input type="hidden" v-model="form.start_date" />
+								<input type="hidden" v-model="form.end_date" />
+							</b-form-group>
+						</validation-provider>
+					</b-col> -->
+                    <!-- <b-col cols="12" md="4" v-if="type === 'reconciliation_act'">
+						<validation-provider #default="{ errors }">
+							<b-form-group label="Ответственное лицо">
+								<b-form-input
+                                    type="text"
+                                    v-model="form.responsible_party"
+                                />
+							</b-form-group>
+						</validation-provider>
+					</b-col> -->
                     <b-col cols="12" md="4" v-if="type !== 'reconciliation_act'">
                         <b-form-group label="Банковский счет">
                             <b-form-input
@@ -181,7 +201,9 @@ export default {
                 is_consider_saldo: false,
                 type: 'O',
                 bank_account: null,
+                responsible_party: null,
 			},
+            search: null,
 		};
 	},
     watch: {
@@ -199,7 +221,7 @@ export default {
         }, 500),
         fetchExecutors: _.debounce((loading, vm) => {
             vm.$api.executors.getExecutors({ limit: 100 }).then((response) => {
-                vm.executors = response.data.results;
+                vm.executors = response.data;
                 loading ? loading(false) : null;
             });
         }, 500),
@@ -264,6 +286,7 @@ export default {
                     bank_account: this.form.bank_account || undefined,
                     company: this.form.company || undefined,
                 }).then((response) => {
+
                     if (response.status > 203) {
                         this.$toast({
                             component: ToastificationContent,
@@ -297,11 +320,12 @@ export default {
                 company: this.form.company || undefined,
             }).then((response) => {
 				if (response.status > 203) {
+                    // console.log('response - ', response)
                     this.$toast({
                         component: ToastificationContent,
                         props: {
                             title: "Ошибка",
-                            text: "Не удалось сформировать",
+                            text: "Не удалось сформировать. " + response.data.non_field_errors,
                             icon: "XIcon",
                             variant: "danger",
                         },

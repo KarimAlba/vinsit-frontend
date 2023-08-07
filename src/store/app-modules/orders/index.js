@@ -31,6 +31,7 @@ export default {
         },
         curPage: 1,
         countPerPage: 10,
+        ordering: '-date_created',
         placeStatus: [
             { id: "D", title: "Вручено", color: "success" },
             { id: "U", title: "Не вручено", color: "primary" },
@@ -71,6 +72,9 @@ export default {
         getPlaceStatus: (state) => {
             return state.placeStatus
         },
+        getOrdering: (state) => {
+            return state.ordering
+        },
         getOrderMode: (state) => {
             return state.orderMode
         },
@@ -86,7 +90,7 @@ export default {
             state.orders = payload
         },
         setOrder(state, payload) {
-            console.log(payload);
+            // console.log(payload);
             state.order = payload;
             state.editableOrder = {
                 ...payload,
@@ -102,8 +106,12 @@ export default {
         setEditableOrder(state, payload) {
             state.editableOrder = payload;
         },
+        setTotalPrice(state, payload) {
+            state.order.total_price = payload;
+            state.editableOrder.total_price = payload;
+        },
 		setOrderSender(state, payload) {
-			console.log(payload);
+			// console.log(payload);
 			if (!state.order.sender_counterparty) return;
 			state.order.sender_counterparty.id = payload.id
 			state.order.sender_counterparty.name = payload.name
@@ -118,6 +126,9 @@ export default {
         },
         deleteOrderPhone(state, payload) {
             state.order[`${payload.prefix}_counterparty`].client_phones.splice(payload.index, 1);
+        },
+        changeOrdering(state, payload) {
+            state.ordering = payload
         },
         setCount(state, payload) {
             state.count = payload
@@ -159,7 +170,10 @@ export default {
         },
         changeLoading(state, payload) {
             state.loading = payload
-        }
+        },
+        resetOrdering(state) {
+            state.ordering = null
+        },
     },
     actions: {
         fetchOrders({ commit, state }) {
@@ -168,10 +182,11 @@ export default {
 
             this._vm.$api.orders.getOrders({
                 ...state.filters,
+                ordering: state.ordering,
                 offset: ((state.curPage - 1) * state.countPerPage),
                 limit: state.countPerPage
             }).then((response) => {
-				console.log('response - ', response);
+				// console.log('response - ', response);
                 commit('setOrders', response.data.results)
                 commit('setCount', response.data.count)
             }).finally(() => {
@@ -182,8 +197,19 @@ export default {
             commit('changeLoading', true)
 
             this._vm.$api.orders.getOrder(idOrder).then((response) => {
-                console.log('orderzresponse - ', response.data)
+                // console.log('orderzresponse - ', response.data)
                 commit('setOrder', response.data)
+            })
+                .finally(() => {
+                    commit('changeLoading', false)
+                });
+        },
+        fetchTotalPrice({ commit, state }, idOrder) {
+            commit('changeLoading', true)
+
+            this._vm.$api.orders.getOrder(idOrder).then((response) => {
+                // console.log('orderzresponse - ', response.data)
+                commit('setTotalPrice', response.data.total_price)
             })
                 .finally(() => {
                     commit('changeLoading', false)
@@ -200,6 +226,9 @@ export default {
         },
         resetFilters({ commit, state }) {
             commit('resetFilters')
+        },
+        resetOrdering({ commit, state }) {
+            commit('resetOrdering')
         }
     },
 }

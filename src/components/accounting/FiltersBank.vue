@@ -1,28 +1,61 @@
 <template>
 	<b-card>
 		<b-row>
+			<b-col cols="12">
+				<b-form-group label="Поиск">
+					<b-form-input
+						debounce="500"
+						v-model="search"
+					/>
+				</b-form-group>
+			</b-col>
+		</b-row>
+		<b-row>
 			<b-col class="mb-1" cols="12" md="4">
-				<v-select
-					label="search"
-					placeholder="Поиск по"
+				<b-form-group>
+					<b-form-input
+						placeholder="Номер"
+						v-model="filters.number"
+					></b-form-input>
+				</b-form-group>
+				<!-- <v-select
+					label="number"
+					placeholder="Номер"
 					v-model="filters.search_fields"
 					:reduce="(searchName) => search_fields.find(field => field.name === searchName).key"
 					:options="search_fields.map((item) => item.name)"
-				/>
-				<!-- <b-form-input 
-					placeholder="Номер заказа"
 				/> -->
 			</b-col>
-			<b-col cols="12" md="8">
-				<b-form-input 
-					placeholder="Поиск"
-					v-model="search"
-				/>
-			</b-col>
+            <b-col class="mb-1" cols="12" md="4">
+                <app-datepicker
+                    placeholder="Период"
+                    @selectedDates="changeDatesCreated"
+                />
+            </b-col>
+            <b-col class="mb-1" cols="12" md="4">
+                <select-clients
+                    :disabled="false"
+                    :disabledAddBtn="true"
+                    :reduce="(counterparty) => counterparty"
+                    :value="counterparty"
+                    @input="handleFilterFieldChange($event, 'counterparty')"
+                    placeholder="Контрагент"
+                    :clearable="false"
+                />
+            </b-col>
 		</b-row>
 		<b-collapse v-model="visible" id="filters-collapse">
 			<b-row>
-                <b-col class="mb-1" cols="12" md="4">
+				<b-col class="mb-1" cols="12" md="4">
+					<v-select
+						label="type"
+						placeholder="Тип поручения"
+						v-model="filters.type"
+						:reduce="(type) => orderType.find(item => item.name === type).key"
+						:options="orderType.map((item) => item.name)"
+					/>
+				</b-col>
+                <!-- <b-col class="mb-1" cols="12" md="4">
                     <v-select
                         label="title"
                         :reduce="(mode) => mode.id"
@@ -30,15 +63,8 @@
                         :options="orderMode"
                         v-model="filters.mode"
                     />
-                    <!-- <v-select
-                        label="status"
-                        :reduce="(status) => status.id"
-                        placeholder="Статус заказа"
-                        :options="orderStatus"
-                        v-model="filters.status"
-                    /> -->
-                </b-col>
-				<b-col class="mb-1" cols="12" md="4">
+                </b-col> -->
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<select-clients
 						:disabled="false"
 						:disabledAddBtn="true"
@@ -48,8 +74,8 @@
 						placeholder="Контрагент"
 						:clearable="false"
 					/>
-				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
+				</b-col> -->
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<v-select
 						label="name"
 						@search="onSearchCities"
@@ -63,8 +89,8 @@
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
 						</template>
 					</v-select>
-				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
+				</b-col> -->
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<v-select
 						label="name"
 						@search="onSearchCities"
@@ -78,8 +104,8 @@
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
 						</template>
 					</v-select>
-				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
+				</b-col> -->
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<v-select
 						label="status"
 						:reduce="(status) => status.id"
@@ -87,96 +113,26 @@
 						:options="orderStatus"
 						v-model="filters.status"
 					/>
-
-				</b-col>
-				<!-- <b-col class="mb-1" cols="12" md="4">
-					<b-form-input
-						placeholder="Телефон клиента"
-						debounce="500"
-						v-model="filters.sender_counterparty_client_phones_phone_number"
-					/>
 				</b-col> -->
-				<b-col class="mb-1" cols="12" md="4">
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<app-datepicker
 						placeholder="Дата проставления статуса"
 						@selectedDates="changeDatesStatus"
 					/>
-					<!-- <v-select
-						label="title"
-						:reduce="(mode) => mode.id"
-						placeholder="Режим заказа"
-						:options="orderMode"
-						v-model="filters.mode"
-					/> -->
-				</b-col>
-				<!-- <b-col>
-					<select-all-contracts
-						:disabled="false"
-						:reduce="(cont) => cont.id"
-						:value="contract"
-						@input="handleFilterFieldChange($event, 'contract')"
-						v-model="filters.contract"
-						placeholder="Договор"
-						:disabledAddBtn="true"
-					/>
 				</b-col> -->
-				<b-col class="mb-1" cols="12" md="4">
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<app-datepicker
 						placeholder="Период заказа"
 						@selectedDates="changeDatesCreated"
 					/>
-					<!-- <b-form-checkbox
-						value="true"
-						:unchecked-value="null"
-						v-model="filters.recipient_has_passport"
-					>
-						Паспортные данные получателя<br />собраны
-					</b-form-checkbox> -->
-					
-				</b-col>
-				<!-- <b-col class="mb-1" cols="12" md="4">
-					<b-form-checkbox
-						value="false"
-						:unchecked-value="null"
-						v-model="filters.sender_has_passport"
-					>
-						Нет паспортных данных отправителя
-					</b-form-checkbox>
 				</b-col> -->
 				<!-- <b-col class="mb-1" cols="12" md="4">
-					<b-form-checkbox
-						value="true"
-						:unchecked-value="null"
-						v-model="filters.from_amo_crm"
-					>
-						Оформлен моим ПВЗ
-					</b-form-checkbox>
-				</b-col> -->
-				<b-col class="mb-1" cols="12" md="4">
 					<b-form-checkbox
 						value="true"
 						:unchecked-value="null"
 						v-model="filters.is_overdue"
 					>
 						Просрочка
-					</b-form-checkbox>
-				</b-col>
-				<!-- <b-col class="mb-1" cols="12" md="4">
-					<b-form-checkbox
-						value="false"
-						:unchecked-value="null"
-						v-model="filters.recipient_has_passport"
-					>
-						Нет паспортных данных получателя
-					</b-form-checkbox>
-				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
-					<b-form-checkbox
-						value="true"
-						:unchecked-value="null"
-						v-model="filters.sender_has_passport"
-					>
-						Паспортные данные отправителя собраны
 					</b-form-checkbox>
 				</b-col> -->
 			</b-row>
@@ -192,8 +148,9 @@
 			<a 
 				class="filter-orders__btn" 
 				@click="() => {
-					resetFilters(), 
-					fetchOrders()
+					resetFilters(),
+					resetInputs(),
+					fetchPaymentOrders()
 				}"
 			>
 				<feather-icon icon="XCircleIcon" size="12" />
@@ -225,26 +182,20 @@
 	export default {
 		data() {
 			return {
-				cities: [],
-				orderStatus: [],
 				visible: false,
-				contract: null,
+				number: null,
 				counterparty: null,
-				search_fields:  [
-					{
-						name: 'По договору',
-						key: 'contract'
-					}, 
-					{
-						name: 'По номеру заказа',
-						key: 'id'
-					}, 
-					{
-						name: 'По номеру телефона',
-						key: 'phone_number'
-					}
-				],
 				search: null,
+				orderType: [
+					{
+						name: 'Исходящие банковские платежные поручения',
+						key: 'O'
+					}, 
+					{
+						name: 'Входящие банковские платежные поручения',
+						key: 'I'
+					}, 
+				],
 			};
 		},
 		components: {
@@ -268,10 +219,8 @@
 		watch: {
 			filters: {
 				handler(val) {
-					if (val.search && !val.search_fields?.length) return;
 					this.resetPagination();
-					this.fetchOrders();
-					// this.resetPagination();
+					this.fetchPaymentOrders();
 				},
 				deep: true,
 			},
@@ -281,50 +230,27 @@
 		},
 		computed: {
 			...mapGetters({
-				orderMode: "moduleOrders/getOrderMode",
-				filters: "moduleOrders/getFilters",
+				filters: "moduleAccountingBank/getFilters",
 			}),
 		},
 		methods: {
 			...mapActions({
-				fetchOrders: "moduleOrders/fetchOrders",
-				resetPagination: "moduleOrders/resetPagination",
-				resetFilters: "moduleOrders/resetFilters",
+				fetchPaymentOrders: "moduleAccountingBank/fetchPaymentOrders",
+				resetPagination: "moduleAccountingBank/resetPagination",
+				resetFilters: "moduleAccountingBank/resetFilters",
 			}),
+			resetInputs() {
+				this.counterparty = null;
+			},
 			changeDatesCreated(dates) {
 				this.filters.date_created_after = this.dayjs(dates.start).format( "YYYY-MM-DD");
 				this.filters.date_created_before = this.dayjs(dates.end).format("YYYY-MM-DD");
 			},
-			changeDatesStatus(dates) {
-				this.filters.status_changed_date_after = this.dayjs(dates.start).format("YYYY-MM-DD");
-				this.filters.status_changed_date_before = this.dayjs(dates.end).format("YYYY-MM-DD");
-			},
-			onSearchCities(search, loading) {
-				if (search.length) {
-					loading(true);
-					this.fetchCities(search, loading, this);
-				}
-			},
-			fetchCities: _.debounce((search, loading, vm) => {
-				vm.$api.cities.getCities({ search, limit: 100 }).then((response) => {
-					vm.cities = response.data.results;
-					loading(false);
-				});
-			}, 500),
-			resetCities() {
-				this.cities = [];
-			},
-			fetchStatus() {
-				this.$api.orderStatus.getOrderStatusList({limit: 10, offset: 0})
-					.then((response) => {
-						// console.log('response status - ', response);
-						this.orderStatus = response.data.results;
-				});
-			},
 			handleFilterFieldChange(value, key) {
 				if (key === 'counterparty') {
 					value ? this.counterparty = value.id : null;
-					this.filters[key] = value ? value.name : null;
+					this.filters[key] = value ? value.id : null;
+					// console.log('counterparty fil', value.name, value.id)
 					return;
 				}
                 this[key] = value;
@@ -336,7 +262,6 @@
 		mounted() {
 			this.resetFilters();
 			this.resetPagination();
-			this.fetchStatus();
 		},
 	};
 </script>

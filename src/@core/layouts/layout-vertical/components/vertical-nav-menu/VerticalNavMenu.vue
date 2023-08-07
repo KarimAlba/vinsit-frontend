@@ -79,6 +79,7 @@
       <vertical-nav-menu-items
         :items="enabledMenuItems"
         class="navigation navigation-main"
+        style="margin-bottom: 100px;"
       />
     </vue-perfect-scrollbar>
     <!-- /main menu content-->

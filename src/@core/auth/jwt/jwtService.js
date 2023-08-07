@@ -23,7 +23,7 @@ export default class JwtService {
 			// Get token from localStorage
 			const accessToken = this.getToken();
 
-			console.log('Called this interceptor ', accessToken);
+			// console.log('Called this interceptor ', accessToken);
 
 			// If token is present add it to request's Authorization Header
 			if (accessToken) {
