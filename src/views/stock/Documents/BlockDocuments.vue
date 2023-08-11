@@ -13,17 +13,17 @@
                 </b-button>
             </div>
             <div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
-                <b-button variant="primary" :to="{ name: 'create-stock-document', params: {title: 'Выдача на доставку'} }" v-if="!readOnly" :disabled="readOnly">
+                <b-button variant="primary" :to="{ name: 'create-stock-document', params: {title: 'Первичный приход'} }" v-if="!readOnly" :disabled="readOnly">
                     PR
                 </b-button>
             </div>
             <div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
-                <b-button variant="primary" :to="{ name: 'create-stock-document' }" v-if="!readOnly" :disabled="readOnly">
+                <b-button variant="primary" :to="{ name: 'create-stock-document', params: {title: 'Консолидация'} }" v-if="!readOnly" :disabled="readOnly">
                     CN
                 </b-button>
             </div>
             <div class="d-flex align-items-center justify-content-right">
-                <b-button variant="primary" :to="{ name: 'create-stock-document' }" v-if="!readOnly" :disabled="readOnly">
+                <b-button variant="primary" :to="{ name: 'create-stock-document', params: {title: 'Выдача на доставку'} }" v-if="!readOnly" :disabled="readOnly">
                     DE
                 </b-button>
             </div>
@@ -37,13 +37,13 @@
                 @row-clicked="(item) => $set(item, '_showDetails', !item._showDetails)"
             >
                 <template #cell(id)="data">
-                <router-link
-                    style="border-bottom: 1px dotted blue"
-                    :to="{ name: 'order', params: { id: data.item.id } }"
-                >
-                    {{ data.item.id }}
-                </router-link
-                >
+                    <router-link
+                        style="border-bottom: 1px dotted blue"
+                        :to="{ name: 'order', params: { id: data.item.id } }"
+                    >
+                        {{ data.item.id }}
+                    </router-link
+                    >
                 </template>
 
                 <template #cell(date_created)="data">

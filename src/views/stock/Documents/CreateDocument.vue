@@ -1,6 +1,6 @@
 <template>
 	<div style="padding-bottom: 20px;">
-        <h1>Создать документ {{title}} от {{'05.10.2022'}}</h1>
+        <h1>Создать документ {{ this.$route.params.title}} от {{'05.10.2022'}}</h1>
         <b-row class="row equal-cols">
             <b-col cols="8">
                 <b-card>
@@ -139,13 +139,9 @@
                         @row-clicked="(item) => $set(item, '_showDetails', !item._showDetails)"
                     >
                         <template #cell(id)="data">
-                            <!-- :to="{ name: 'order', params: { id: data.item.id } }" -->
-                        <router-link
-                            style="border-bottom: 1px dotted blue"
-                        >
-                            {{ data.item.id }}
-                        </router-link
-                        >
+                            <router-link style="border-bottom: 1px dotted blue">
+                                {{ data.item.id }}
+                            </router-link>
                         </template>
 
                         <template #cell(SK_GM)="data">
@@ -245,7 +241,6 @@ import AppDatepicker from "@/@core/components/app-datepicker/AppDatepicker";
 import SelectClients from "@/components/ui/selectClients/selectClients.vue";
 
 export default {
-    props: ['title'],
 	data() {
 		return {
             document: {

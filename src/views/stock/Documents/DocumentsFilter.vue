@@ -160,6 +160,7 @@
 					is_overdue: null,
 				},
 				visible: false,
+				cities: [],
 			};
 		},
 		components: {
