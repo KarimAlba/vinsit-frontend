@@ -17,7 +17,7 @@ import moduleAccountingBank from './app-modules/accounting/bank';
 import modulePayers from './app-modules/payers';
 import moduleRecipients from './app-modules/recipients';
 import moduleSenders from './app-modules/senders';
-
+import moduleCargoRegistration from './app-modules/addressBasedStorage/cargoRegistration';
 
 Vue.use(Vuex);
 
@@ -37,7 +37,8 @@ export default new Vuex.Store({
 		moduleAccountingBank,
 		modulePayers,
 		moduleRecipients,
-		moduleSenders
+		moduleSenders,
+		moduleCargoRegistration
   	},
   	strict: process.env.DEV,
 });

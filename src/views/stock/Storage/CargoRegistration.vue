@@ -32,7 +32,7 @@
 				class="mt-24"
 				style="margin-top: 24px;"
 				placeholder="Номер заказа"
-				v-model="order.number"
+				@input="setSeacrhParams"
 			/>
 			<b-form-textarea
 				class="t-24 w-full ph-5"
@@ -120,14 +120,13 @@
 		BImg,
 		BFormTextarea,
 	} from "bootstrap-vue";
+
 	import { RoleConstants } from '@/utils/role';
 	import store from "@/store/index";
+	
 	export default {
 		data() {
 			return {
-				order: {
-					number: null,
-				},
 				fields: [
 					{ key: "id", label: "НОМЕР ЗАКАЗА" },
 					{ key: "number_GM", label: "НОМЕР ГМ" },
@@ -138,9 +137,7 @@
 					{ key: "status", label: "СТАТУС" },
 					{ key: "office", label: "ОФИС" },
 				],
-				orders: [],
 				text: null,
-				count: null,
 			};
 		},
 		components: {
@@ -158,8 +155,18 @@
 			BPagination
 		},
 		watch: {
+			text() {
+				console.log(this.text);
+			}
 		},
 		computed: {
+			...mapGetters({
+				loading: "moduleCargoRegistration/getLoading",
+				count: "moduleCargoRegistration/getCount",
+				perPage: "moduleCargoRegistration/getCountPerPage",
+				curPage: "moduleCargoRegistration/getCurPage",
+				orders: "moduleCargoRegistration/getOrders",
+			}),
 			showPagination() {
 				return Math.ceil(this.count / this.perPage) > 1;
 			},
@@ -168,11 +175,23 @@
 			}
 		},
 		methods: {
+			...mapActions({
+				fetchOrders: "moduleCargoRegistration/fetchOrders",
+				resetPagination: "moduleCargoRegistration/resetPagination",
+			}),
+			...mapMutations({
+				changeCurPage: "moduleCargoRegistration/changePage",
+			}),
 			formatDate(date) {
 				return this.dayjs(date).format("DD.MM.YYYY");
 			},
+			setSeacrhParams(event) {
+				console.log(event.target.value);
+			}
 		},
 		mounted() {
+        	this.fetchOrders();
+			this.resetPagination();
 		},
 	};
 </script>
