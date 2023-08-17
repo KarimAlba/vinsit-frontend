@@ -1,27 +1,47 @@
 export default function (instance) {
     return {
-        getOrders(data) {
+        getStoredOrders(data) {
             return instance.get("api/v1/address_based_storage/cargo_registration", {
                 params: data
             });
         },
-        createOrder(data) {
+        createStoredOrder(data) {
             return instance.post("api/v1/address_based_storage/cargo_registration", data);
         },
-        getOrder(id) {
+        getStoredOrder(id) {
             return instance.get(`api/v1/address_based_storage/cargo_registration/${id}/`);
         },
-        updateOrder(id, data) {
+        updateStoredOrder(id, data) {
             return instance.put(`api/v1/address_based_storage/cargo_registration/${id}/`, data);
         },
-        editOrder(id, data) {
+        editStoredOrder(id, data) {
             return instance.patch(`api/v1/address_based_storage/cargo_registration/${id}/`, data);
         },
-        deleteOrder(id) {
+        deleteStoredOrder(id) {
             return instance.delete(`api/v1/address_based_storage/cargo_registration/${id}/`);
         },
-        getStatus() {
+        getStoredOrderStatus() {
             return instance.get("api/v1/address_based_storage/cargo_registration_status");
-        }
+        },
+        getStocks(data) {
+            return instance.get("api/v1/stock", {
+                params: data
+            });
+        },
+        getZones(data) {
+            return instance.get("api/v1/address_based_storage/zone", {
+                params: data
+            });
+        },
+        getRacks(data) {
+            return instance.get("api/v1/address_based_storage/rack", {
+                params: data
+            });
+        },
+        getShelves(data) {
+            return instance.get("api/v1/address_based_storage/shelf", {
+                params: data
+            });
+        }  
     }
 }

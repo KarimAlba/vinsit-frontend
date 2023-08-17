@@ -2,12 +2,22 @@
 	<div>
 		<b-card class="px-1">
 			<div style="display: flex;">
-				<div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
-					<b-button variant="primary" v-if="!readOnly" :disabled="readOnly">
+				<div 
+					class="d-flex align-items-center justify-content-right" 
+					style="margin-right: 18px;"
+				>
+					<b-button 
+						variant="primary" 
+						v-if="!readOnly" 
+						:disabled="readOnly"
+					>
 						Уточнить поиск
 					</b-button>
 				</div>
-				<div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
+				<div 
+					class="d-flex align-items-center justify-content-right" 
+					style="margin-right: 18px;"
+				>
 					<b-button 
 						variant="white"
 						v-if="!readOnly" 
@@ -17,7 +27,10 @@
 						Отображать маршрут
 					</b-button>
 				</div>
-				<div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
+				<div 
+					class="d-flex align-items-center justify-content-right" 
+					style="margin-right: 18px;"
+				>
 					<b-button 
 						variant="white"
 						v-if="!readOnly" 
@@ -34,19 +47,22 @@
 				placeholder="Номер заказа"
 				@input="setSeacrhParams"
 			/>
-			<b-form-textarea
+			<!-- <b-form-textarea
 				class="t-24 w-full ph-5"
 				style="margin-top: 24px;"
 				v-model="text"
 				placeholder=""
-			/>
+			/> -->
 		</b-card>
+
+		<FiltrationCargoRegistration/>
+
 		<div style="display: flex; justify-content: space-between;">
 			<div>
-				<h3>Найдено: {{ count }}</h3>				
+				<h3>Найдено: {{ count }} </h3>				
 			</div>
 			<div style="display: flex;">
-				<div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
+				<!-- <div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
 					<b-button 
 						variant="white"
 						v-if="!readOnly" 
@@ -65,17 +81,21 @@
 					>
 						Раскладка/Сборка
 					</b-button>
-				</div>
-				<div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
-					<b-button variant="primary" v-if="!readOnly" :disabled="readOnly">
-						Уточнить поиск
+				</div> -->
+				<div class="d-flex align-items-center justify-content-right">
+					<b-button 
+						variant="primary" 
+						v-if="!readOnly" 
+						:disabled="readOnly"
+					>
+						Зарегистрировать груз
 					</b-button>
 				</div>
 			</div>
 		</div>
 		<b-card style="margin-top: 20px;">
 			<b-table
-				:items="orders"
+				:items="storedOrders"
 				:fields="fields"
 				striped
 				responsive
@@ -105,6 +125,7 @@
 </template>
 
 <script>
+	import FiltrationCargoRegistration from '@/components/addressBasedStorage/FiltrationCargoRegistration'
 	import { mapGetters, mapActions, mapMutations } from "vuex";
 	import {
 		BRow,
@@ -137,7 +158,6 @@
 					{ key: "status", label: "СТАТУС" },
 					{ key: "office", label: "ОФИС" },
 				],
-				text: null,
 			};
 		},
 		components: {
@@ -152,20 +172,17 @@
 			BFormInput,
 			BImg,
 			BFormTextarea,
-			BPagination
+			BPagination,
+			FiltrationCargoRegistration
 		},
-		watch: {
-			text() {
-				console.log(this.text);
-			}
-		},
+		watch: {},
 		computed: {
 			...mapGetters({
 				loading: "moduleCargoRegistration/getLoading",
 				count: "moduleCargoRegistration/getCount",
 				perPage: "moduleCargoRegistration/getCountPerPage",
 				curPage: "moduleCargoRegistration/getCurPage",
-				orders: "moduleCargoRegistration/getOrders",
+				storedOrders: "moduleCargoRegistration/getStoredOrders",
 			}),
 			showPagination() {
 				return Math.ceil(this.count / this.perPage) > 1;
@@ -176,7 +193,7 @@
 		},
 		methods: {
 			...mapActions({
-				fetchOrders: "moduleCargoRegistration/fetchOrders",
+				fetchStoredOrders: "moduleCargoRegistration/fetchStoredOrders",
 				resetPagination: "moduleCargoRegistration/resetPagination",
 			}),
 			...mapMutations({
@@ -190,7 +207,7 @@
 			}
 		},
 		mounted() {
-        	this.fetchOrders();
+        	this.fetchStoredOrders();
 			this.resetPagination();
 		},
 	};

@@ -1,26 +1,31 @@
 export default {
     namespaced: true,
     state: {
-        orders: [],
-        order: {},
-        editableOrder: {},
+        storedOrders: [],
+        storedOrder: {},
+        editableStoredOrder: {},
         count: 0,
         loading: false,
+        search: null,
         filters: {
-            search: null,
+            stock: null,
+            zone: null,
+            rack: null,
+            shelf: null,
+            status: null
         },
         curPage: 1,
         countPerPage: 10,
     },
     getters: {
-        getOrders: (state) => {
-            return state.orders
+        getStoredOrders: (state) => {
+            return state.storedOrders
         },
-        getOrder: (state) => {
-            return state.order
+        getStoredOrder: (state) => {
+            return state.storedOrder
         },
-        getEditableOrder: (state) => {
-            return state.editableOrder
+        getEditableStoredOrder: (state) => {
+            return state.editableStoredOrder
         },
         getCount: (state) => {
             return state.count
@@ -39,17 +44,17 @@ export default {
         }
     },
     mutations: {
-        setOrders(state, payload) {
-            state.orders = payload
+        setStoredOrders(state, payload) {
+            state.storedOrders = payload
         },
         setOrder(state, payload) {
-            state.order = payload;
-            state.editableOrder = {
+            state.storedOrder = payload;
+            state.editableStoredOrder = {
                 ...payload,
             };
         },
-        setEditableOrder(state, payload) {
-            state.editableOrder = payload;
+        setEditableStoredOrder(state, payload) {
+            state.editableStoredOrder = payload;
         },
         setCount(state, payload) {
             state.count = payload
@@ -58,61 +63,77 @@ export default {
             state.curPage = payload
         },
         resetFilters(state) {
-            state.filters = {
-                search: null,
+            for (let key in state.filters) {
+                state.filters[key] = null
             }
         },
         resetPagination(state) {
             state.curPage = 1;
         },
         resetData(state) {
-            state.orders = []
+            state.storedOrder = []
             state.count = 0
         },
         changeLoading(state, payload) {
             state.loading = payload
+        },
+        setStock(state, payload) {
+            state.filters.stock = payload;
+        },
+        setZone(state, payload) {
+            state.filters.zone = payload;
+        },
+        setRack(state, payload) {
+            state.filters.rack = payload;
+        },
+        setShelf(state, payload) {
+            state.filters.shelf = payload;
+        },
+        setStatus(state, payload) {
+            state.filters.status = payload;
         }
     },
     actions: {
-        fetchOrders({ commit, state }) {
+        fetchStoredOrders({ commit, state }) {
             commit('changeLoading', true);
             commit('resetData');
 
-            this._vm.$api.cargoRegistration.getOrders({
+            this._vm.$api.cargoRegistration.getStoredOrders({
                 ...state.filters,
                 offset: ((state.curPage - 1) * state.countPerPage),
                 limit: state.countPerPage
             }).then((response) => {
-                commit('setOrders', response.data.results)
+                commit('setStoredOrders', response.data.results)
                 commit('setCount', response.data.count)
             }).finally(() => {
 				commit('changeLoading', false)
 			});
         },
-        fetchOrder({ commit, state }, orderId) {
+        fetchStoredOrder({ commit, state }, storedOrderId) {
             commit('changeLoading', true);
-            this._vm.$api.cargoRegistration.getOrder(orderId)
+            this._vm.$api.cargoRegistration.getStoredOrder(storedOrderId)
                 .then((response) => {
-                    commit('setOrder', response.data)
+                    commit('setStoredOrder', response.data)
                 })
                 .finally(() => {
                     commit('changeLoading', false)
                 });
         },
-        createOrder({ commit, state }, orderId) {
+        createStoredOrder({ commit, state }, storedOrderId) {
             commit('changeLoading', true)
             const data = {
+                stock: 0,
                 zone: 0,
                 rack: 0,
                 shelf: 0,
                 status: 0,
-                orders: [
+                storedOrders: [
                     0
                 ]
             }
-            this._vm.$api.documents.createOrder(data)
+            this._vm.$api.cargoRegistration.createStoredOrder(data)
                 .then((response) => {
-                    console.log('createOrder - ', response)
+                    console.log('createStoredOrder - ', response)
                 })
                 .finally(() => {
                     commit('changeLoading', false)
