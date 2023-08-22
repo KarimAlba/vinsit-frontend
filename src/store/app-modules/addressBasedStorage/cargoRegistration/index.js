@@ -6,8 +6,8 @@ export default {
         editableStoredOrder: {},
         count: 0,
         loading: false,
-        search: null,
         filters: {
+            search: null,
             stock: null,
             zone: null,
             rack: null,
@@ -41,6 +41,9 @@ export default {
         },
         getLoading: (state) => {
             return state.loading
+        },
+        getStatuses: (state) => {
+            return state.statuses
         }
     },
     mutations: {
@@ -77,21 +80,9 @@ export default {
         changeLoading(state, payload) {
             state.loading = payload
         },
-        setStock(state, payload) {
-            state.filters.stock = payload;
+        setFilters(state, payload) {
+            state.filters = Object.assign({}, {...payload})
         },
-        setZone(state, payload) {
-            state.filters.zone = payload;
-        },
-        setRack(state, payload) {
-            state.filters.rack = payload;
-        },
-        setShelf(state, payload) {
-            state.filters.shelf = payload;
-        },
-        setStatus(state, payload) {
-            state.filters.status = payload;
-        }
     },
     actions: {
         fetchStoredOrders({ commit, state }) {
@@ -103,6 +94,7 @@ export default {
                 offset: ((state.curPage - 1) * state.countPerPage),
                 limit: state.countPerPage
             }).then((response) => {
+                console.log(response);
                 commit('setStoredOrders', response.data.results)
                 commit('setCount', response.data.count)
             }).finally(() => {
@@ -119,18 +111,8 @@ export default {
                     commit('changeLoading', false)
                 });
         },
-        createStoredOrder({ commit, state }, storedOrderId) {
+        createStoredOrder({ commit, state }, data) {
             commit('changeLoading', true)
-            const data = {
-                stock: 0,
-                zone: 0,
-                rack: 0,
-                shelf: 0,
-                status: 0,
-                storedOrders: [
-                    0
-                ]
-            }
             this._vm.$api.cargoRegistration.createStoredOrder(data)
                 .then((response) => {
                     console.log('createStoredOrder - ', response)

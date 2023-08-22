@@ -6,7 +6,7 @@ export default function (instance) {
             });
         },
         createStoredOrder(data) {
-            return instance.post("api/v1/address_based_storage/cargo_registration", data);
+            return instance.post("api/v1/address_based_storage/cargo_registration/", data);
         },
         getStoredOrder(id) {
             return instance.get(`api/v1/address_based_storage/cargo_registration/${id}/`);

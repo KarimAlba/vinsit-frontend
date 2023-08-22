@@ -1,14 +1,26 @@
 <template>
-	<b-card>
-		<b-collapse v-model="visible" id="filters-collapse">
+	<b-card style="margin-left: -20px;">
+		<b-form-input 
+			class=""
+			placeholder="Номер заказа"
+			@input="onSearchInput"
+			v-model="filters.search"
+		/>
+		<b-collapse 
+			v-model="visible" 
+			id="filters-collapse"
+			class="pt-1"
+		>
 			<b-row>
                 <b-col class="mb-1" cols="12" md="4">
                     <v-select
 						label="name"
                         @search="onSearchStock"
+						:reduce="(item) => item.id"
 						:options="stocks"
 						placeholder="Склад"
 						:filterable="false"
+						v-model="filters.stock"
 					>
 						<template #no-options="{ search }">
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -19,10 +31,11 @@
 					<v-select
 						label="name"
                         @search="onSearchZone"
-						@input="(item) => filters.zone = item ? item.id : null"
+						:reduce="(item) => item.id"
 						:options="zones"
 						placeholder="Зона"
 						:filterable="false"
+						v-model="filters.zone"
 					>
 						<template #no-options="{ search }">
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -33,10 +46,11 @@
 					<v-select
 						label="name"
                         @search="onSearchRack"
-						@input="(item) => filters.rack = item ? item.id : null"
+						:reduce="(item) => item.id"
 						:options="racks"
 						placeholder="Стеллаж"
 						:filterable="false"
+						v-model="filters.rack"
 					>
 						<template #no-options="{ search }">
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -47,10 +61,11 @@
 					<v-select
 						label="name"
 						@search="onSearchShelf"
-						@input="(item) => filters.shelf = item ? item.id : null"
+						:reduce="(item) => item.id"
 						:options="shelves"
 						placeholder="Полка"
 						:filterable="false"
+						v-model="filters.shelf"
 					>
 						<template #no-options="{ search }">
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -60,11 +75,12 @@
 				<b-col class="mb-1" cols="12" md="4">
 					<v-select
 						label="name"
-						@search="onSearchStock"
-						@input="(item) => filters.status = item ? item.id : null"
+						@search="onSearchStatus"
+						:reduce="(item) => item.id"
 						:options="statuses"
 						placeholder="Статус"
 						:filterable="false"
+						v-model="filters.status"
 					>
 						<template #no-options="{ search }">
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -74,7 +90,10 @@
 			</b-row>
 		</b-collapse>
 		<template #footer>
-			<a class="filter-orders__btn mr-1" v-b-toggle="'filters-collapse'">
+			<a 
+				class="filter-orders__btn mr-1" 
+				v-b-toggle="'filters-collapse'"
+			>
 				<feather-icon
 					:icon="visible ? 'ChevronUpIcon' : 'ChevronDownIcon'"
 					size="12"
@@ -96,7 +115,7 @@
 </template>
 
 <script>
-	import { mapGetters, mapActions } from "vuex";
+	import { mapGetters, mapActions, mapMutations } from "vuex";
 	import { debounce } from "lodash";
 
 	import {
@@ -115,12 +134,11 @@
 		data() {
 			return {
 				visible: false,
-				search: null,
                 stocks: [],
                 zones: [],
                 racks: [],
                 shelves: [],
-                statuses: []
+                statuses: [],
 			};
 		},
 		components: {
@@ -137,18 +155,24 @@
 		directives: {
 			"b-toggle": VBToggle,
 		},
-		watch: {
-            stocks() {
-                console.log(this.$data.stocks);
-            }
-        },
 		computed: {
 			...mapGetters({
-				orderMode: "moduleOrders/getOrderMode",
 				filters: "moduleCargoRegistration/getFilters",
 			}),
 		},
+		watch: {
+			filters: {
+				handler() {
+					console.log(this.filters);
+					this.fetchStoredOrders();
+				},
+				deep: true,
+			}
+        },
 		methods: {
+			...mapMutations({
+				setFilters: "moduleCargoRegistration/setFilters"
+			}),
             ...mapActions({
 				fetchStoredOrders: "moduleCargoRegistration/fetchStoredOrders",
 				resetPagination: "moduleCargoRegistration/resetPagination",
@@ -206,10 +230,43 @@
                         loading(false);
                     });
 			}, 500),
+			onSearchStatus(search, loading) {
+				if (search.length) {
+					loading(true);
+					this.fetchStatus(search, loading, this);
+				}
+            },
+            fetchStatus: _.debounce((search, loading, vm) => {
+				vm.$api.cargoRegistration.getStoredOrderStatus({ search, limit: 100 })
+                    .then((response) => {
+						console.log(response);
+                        vm.statuses = [...response.data.results];
+                        loading(false);
+                    });
+			}, 500),
+			onSearchInput() {
+				this.setFilters({...this.filters, search: event.target.value});
+				console.log(this.filters)
+			},
+			createStoredOrder() {
+				this.$api.cargoRegistration.createStoredOrder({
+					zone: 1,
+					rack: 1,
+					shelf: 1,
+					status: 1,
+					orders: [24]
+				})
+				.then((response) => {
+					console.log(response);
+					loading(false);
+				})
+				.catch((error) => console.log(error));
+			}
         },
 		mounted() {
             this.resetFilters();
 			this.resetPagination();
+			//this.createStoredOrder();
         },
 	};
 </script>

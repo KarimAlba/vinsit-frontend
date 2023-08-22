@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<b-card class="px-1">
+		<b-card>
 			<div style="display: flex;">
 				<div 
 					class="d-flex align-items-center justify-content-right" 
@@ -41,56 +41,22 @@
 					</b-button>
 				</div>
 			</div>
-			<b-form-input 
-				class="mt-24"
-				style="margin-top: 24px;"
-				placeholder="Номер заказа"
-				@input="setSeacrhParams"
-			/>
-			<!-- <b-form-textarea
-				class="t-24 w-full ph-5"
-				style="margin-top: 24px;"
-				v-model="text"
-				placeholder=""
-			/> -->
+			<FiltrationCargoRegistration/>
 		</b-card>
-
-		<FiltrationCargoRegistration/>
 
 		<div style="display: flex; justify-content: space-between;">
 			<div>
 				<h3>Найдено: {{ count }} </h3>				
 			</div>
-			<div style="display: flex;">
-				<!-- <div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
-					<b-button 
-						variant="white"
-						v-if="!readOnly" 
-						:disabled="readOnly"
-						class="whiteBtn"
-					>
-						Отображать маршрут
-					</b-button>
-				</div>
-				<div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
-					<b-button 
-						variant="white"
-						v-if="!readOnly" 
-						:disabled="readOnly"
-						class="whiteBtn"
-					>
-						Раскладка/Сборка
-					</b-button>
-				</div> -->
-				<div class="d-flex align-items-center justify-content-right">
-					<b-button 
-						variant="primary" 
-						v-if="!readOnly" 
-						:disabled="readOnly"
-					>
-						Зарегистрировать груз
-					</b-button>
-				</div>
+			<div class="d-flex align-items-center justify-content-right">
+				<b-button 
+					variant="primary" 
+					v-if="!readOnly" 
+					:disabled="readOnly"
+					:to="{ name: 'stored-order' }"
+				>
+					Зарегистрировать груз
+				</b-button>
 			</div>
 		</div>
 		<b-card style="margin-top: 20px;">
@@ -202,12 +168,9 @@
 			formatDate(date) {
 				return this.dayjs(date).format("DD.MM.YYYY");
 			},
-			setSeacrhParams(event) {
-				console.log(event.target.value);
-			}
 		},
 		mounted() {
-        	this.fetchStoredOrders();
+        	//this.fetchStoredOrders();
 			this.resetPagination();
 		},
 	};
