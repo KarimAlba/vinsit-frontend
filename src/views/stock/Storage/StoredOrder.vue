@@ -34,6 +34,7 @@
                         placeholder="Стеллаж"
                         :filterable="false"
                         v-model="storedOrder.rack"
+                        :disabled="storedOrder.zone ? false : true"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -51,6 +52,7 @@
                         placeholder="Полка"
                         :filterable="false"
                         v-model="storedOrder.shelf"
+                        :disabled="storedOrder.rack ? false : true"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -68,6 +70,7 @@
                         placeholder="Статус"
                         :filterable="false"
                         v-model="storedOrder.status"
+                        :disabled="storedOrder.shelf ? false : true"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -83,7 +86,10 @@
                         :options="selectOrders"
                         placeholder="Заказы"
                         :filterable="false"
+                        taggable 
+                        multiple
                         v-model="storedOrder.orders"
+                        :disabled="storedOrder.status ? false : true"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -161,9 +167,9 @@ export default {
                 rack: null,
                 shelf: null,
                 status: null,
-                orders: null // - should be array 
+                orders: [] // - should be array 
             },
-            goodValidate: true,
+            goodValidate: false,
         };
     },
     directives: {
