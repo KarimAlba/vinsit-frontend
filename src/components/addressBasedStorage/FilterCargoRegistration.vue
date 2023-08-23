@@ -1,11 +1,23 @@
 <template>
-	<b-card style="margin-left: -20px;">
-		<b-form-input 
-			class=""
-			placeholder="Номер заказа"
-			@input="onSearchInput"
-			v-model="filters.search"
-		/>
+	<b-card style="margin: 0 0 0 -20px;">
+		<b-row>
+			<b-col class="mb-1" cols="12" md="4">
+				<v-select
+					label="search"
+					placeholder="Поиск по"
+					v-model="filters.search_fields"
+					:reduce="(searchName) => search_fields.find(field => field.name === searchName).key"
+					:options="search_fields.map((item) => item.name)"
+				/>
+			</b-col>
+			<b-col cols="12" md="8">
+				<b-form-input 
+					placeholder="Поиск"
+					v-model="filters.search"
+					:disabled="filters.search_fields.length ? false : true"
+				/>
+			</b-col>
+		</b-row>
 		<b-collapse 
 			v-model="visible" 
 			id="filters-collapse"
@@ -139,6 +151,25 @@
                 racks: [],
                 shelves: [],
                 statuses: [],
+				search_fields:  [
+					{
+						name: 'По номеру заказа',
+						key: 'id'
+					}, 
+					{
+						name: 'По дате создания',
+						key: 'date_created'
+					}, 
+					{
+						name: 'По названию офиса',
+						key: 'office'
+					}, 
+					{
+						name: 'ФИО оформителя',
+						key: 'user_created'
+					}
+				],
+				search: null,
 			};
 		},
 		components: {
@@ -162,11 +193,17 @@
 		},
 		watch: {
 			filters: {
-				handler() {
+				handler(val) {
+					if (val.search && !val.search_fields?.length) return;
+					this.resetPagination();
 					console.log(this.filters);
-					this.fetchStoredOrders();
+					// this.fetchStoredOrders();
+					// this.resetPagination();
 				},
 				deep: true,
+			},
+			'search'(value) {
+				this.handleSearchField(value, this);
 			}
         },
 		methods: {
@@ -185,7 +222,7 @@
 				}
             },
             fetchStocks: _.debounce((search, loading, vm) => {
-				vm.$api.cargoRegistration.getStocks({ search, limit: 100 })
+				vm.$api.addressBasedStorage.getStocks({ search, limit: 100 })
                     .then((response) => {
                         vm.stocks = [...response.data];
                         loading(false);
@@ -198,7 +235,7 @@
 				}
             },
             fetchZone: _.debounce((search, loading, vm) => {
-				vm.$api.cargoRegistration.getZones({ search, limit: 100 })
+				vm.$api.addressBasedStorage.getZones({ search, limit: 100, stock: vm.filters.stock })
                     .then((response) => {
                         vm.zones = [...response.data.results];
                         loading(false);
@@ -211,7 +248,7 @@
 				}
             },
             fetchRack: _.debounce((search, loading, vm) => {
-				vm.$api.cargoRegistration.getRacks({ search, limit: 100 })
+				vm.$api.addressBasedStorage.getRacks({ search, limit: 100, zone: vm.filters.zone })
                     .then((response) => {
                         vm.racks = [...response.data.results];
                         loading(false);
@@ -224,7 +261,7 @@
 				}
             },
             fetchShelf: _.debounce((search, loading, vm) => {
-				vm.$api.cargoRegistration.getShelves({ search, limit: 100 })
+				vm.$api.addressBasedStorage.getShelves({ search, limit: 100, rack: vm.filters.rack })
                     .then((response) => {
                         vm.shelves = [...response.data.results];
                         loading(false);
@@ -237,19 +274,15 @@
 				}
             },
             fetchStatus: _.debounce((search, loading, vm) => {
-				vm.$api.cargoRegistration.getStoredOrderStatus({ search, limit: 100 })
+				vm.$api.addressBasedStorage.getStoredOrderStatus({ search, limit: 100 })
                     .then((response) => {
 						console.log(response);
                         vm.statuses = [...response.data.results];
                         loading(false);
                     });
 			}, 500),
-			onSearchInput() {
-				this.setFilters({...this.filters, search: event.target.value});
-				console.log(this.filters)
-			},
 			createStoredOrder() {
-				this.$api.cargoRegistration.createStoredOrder({
+				this.$api.addressBasedStorage.createStoredOrder({
 					zone: 1,
 					rack: 1,
 					shelf: 1,
@@ -261,7 +294,10 @@
 					loading(false);
 				})
 				.catch((error) => console.log(error));
-			}
+			},
+			handleSearchField: _.debounce((value, vm) => {
+				vm.filters.search = value;
+			}, 500),
         },
 		mounted() {
             this.resetFilters();

@@ -41,7 +41,7 @@
 					</b-button>
 				</div>
 			</div>
-			<FiltrationCargoRegistration/>
+			<FilterCargoRegistration/>
 		</b-card>
 
 		<div style="display: flex; justify-content: space-between;">
@@ -91,7 +91,7 @@
 </template>
 
 <script>
-	import FiltrationCargoRegistration from '@/components/addressBasedStorage/FiltrationCargoRegistration'
+	import FilterCargoRegistration from '@/components/addressBasedStorage/FilterCargoRegistration'
 	import { mapGetters, mapActions, mapMutations } from "vuex";
 	import {
 		BRow,
@@ -139,7 +139,7 @@
 			BImg,
 			BFormTextarea,
 			BPagination,
-			FiltrationCargoRegistration
+			FilterCargoRegistration
 		},
 		watch: {},
 		computed: {

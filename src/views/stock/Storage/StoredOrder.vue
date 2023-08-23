@@ -100,16 +100,12 @@
 		</b-collapse>
 		<template #footer>
             <div class="stored-order-footer">
-                <a 
-                    class="filter-orders__btn" 
-                    @click="() => {
-                        resetFilters()
-                        // fetchStoredOrders()
-                    }"
+                <router-link
+                    :to="{ name: 'stock-storage' }"
+                    class="cancel-link"
                 >
-                    <feather-icon icon="XCircleIcon" size="12" />
-                    <span class="filter-orders__btn-text"> Сбросить все фильтры </span>
-                </a>
+                    Отмена
+                </router-link>
                 <div class="reg-btn-container">
                     <b-button 
                         variant="primary" 
@@ -197,7 +193,7 @@ export default {
             }
         },
         fetchZone: _.debounce((search, loading, vm) => {
-            vm.$api.cargoRegistration.getZones({ search, limit: 100 })
+            vm.$api.addressBasedStorage.getZones({ search, limit: 100 })
                 .then((response) => {
                     vm.zones = [...response.data.results];
                     loading(false);
@@ -210,7 +206,7 @@ export default {
             }
         },
         fetchRack: _.debounce((search, loading, vm) => {
-            vm.$api.cargoRegistration.getRacks({ search, limit: 100 })
+            vm.$api.addressBasedStorage.getRacks({ search, limit: 100, zone: vm.storedOrder.zone })
                 .then((response) => {
                     vm.racks = [...response.data.results];
                     loading(false);
@@ -223,7 +219,7 @@ export default {
             }
         },
         fetchShelf: _.debounce((search, loading, vm) => {
-            vm.$api.cargoRegistration.getShelves({ search, limit: 100 })
+            vm.$api.addressBasedStorage.getShelves({ search, limit: 100, rack: vm.storedOrder.rack })
                 .then((response) => {
                     vm.shelves = [...response.data.results];
                     loading(false);
@@ -236,7 +232,7 @@ export default {
             }
         },
         fetchStatus: _.debounce((search, loading, vm) => {
-            vm.$api.cargoRegistration.getStoredOrderStatus({ search, limit: 100 })
+            vm.$api.addressBasedStorage.getStoredOrderStatus({ search, limit: 100 })
                 .then((response) => {
                     console.log(response);
                     vm.statuses = [...response.data.results];
@@ -257,15 +253,6 @@ export default {
                     loading(false);
                 });
         }, 500),
-        resetFilters() {
-            this.$data.storedOrder = {
-                zone: null,
-                rack: null,
-                shelf: null,
-                status: null,
-                orders: null // - should be array 
-            };
-        },
         validateStoredOrder() {
             console.log(this.storedOrder)
             if (this.storedOrder.zone && this.storedOrder.rack
@@ -277,7 +264,7 @@ export default {
                 this.goodValidate = false;
             }
         },
-        handleRegBtnClick() {
+        handleCreateStoredOrder() { // handleCreateStoredOrder назвать 
             this.createStoredOrder(this.storedOrder);
         }
     },
@@ -287,6 +274,10 @@ export default {
 
 <style lang="scss">
 @import "@core/scss/vue/libs/vue-select.scss";
+
+.cancel-link{
+    margin-top: 10px;
+}
 
 .stored-order-footer{
     display: flex;

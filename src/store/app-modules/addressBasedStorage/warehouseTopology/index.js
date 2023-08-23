@@ -2,18 +2,12 @@ export default {
     namespaced: true,
     state: {
         storedOrders: [],
-        storedOrder: {},
-        editableStoredOrder: {},
         count: 0,
         loading: false,
         filters: {
-            search: null,
-            stock: null,
             zone: null,
             rack: null,
             shelf: null,
-            status: null,
-            search_fields: []
         },
         curPage: 1,
         countPerPage: 10,
@@ -21,12 +15,6 @@ export default {
     getters: {
         getStoredOrders: (state) => {
             return state.storedOrders
-        },
-        getStoredOrder: (state) => {
-            return state.storedOrder
-        },
-        getEditableStoredOrder: (state) => {
-            return state.editableStoredOrder
         },
         getCount: (state) => {
             return state.count
@@ -43,22 +31,10 @@ export default {
         getLoading: (state) => {
             return state.loading
         },
-        getStatuses: (state) => {
-            return state.statuses
-        }
     },
     mutations: {
         setStoredOrders(state, payload) {
             state.storedOrders = payload
-        },
-        setOrder(state, payload) {
-            state.storedOrder = payload;
-            state.editableStoredOrder = {
-                ...payload,
-            };
-        },
-        setEditableStoredOrder(state, payload) {
-            state.editableStoredOrder = payload;
         },
         setCount(state, payload) {
             state.count = payload
@@ -68,21 +44,13 @@ export default {
         },
         resetFilters(state) {
             state.filters = {
-                search: null,
-                stock: null,
                 zone: null,
                 rack: null,
-                shelf: null,
-                status: null,
-                search_fields: []
+                shelf: null
             }
         },
         resetPagination(state) {
             state.curPage = 1;
-        },
-        resetData(state) {
-            state.storedOrder = []
-            state.count = 0
         },
         changeLoading(state, payload) {
             state.loading = payload
@@ -107,26 +75,6 @@ export default {
             }).finally(() => {
 				commit('changeLoading', false)
 			});
-        },
-        fetchStoredOrder({ commit, state }, storedOrderId) {
-            commit('changeLoading', true);
-            this._vm.$api.addressBasedStorage.getStoredOrder(storedOrderId)
-                .then((response) => {
-                    commit('setStoredOrder', response.data)
-                })
-                .finally(() => {
-                    commit('changeLoading', false)
-                });
-        },
-        createStoredOrder({ commit, state }, data) {
-            commit('changeLoading', true)
-            this._vm.$api.addressBasedStorage.createStoredOrder(data)
-                .then((response) => {
-                    console.log('createStoredOrder - ', response)
-                })
-                .finally(() => {
-                    commit('changeLoading', false)
-                });
         },
         resetPagination({ commit, state }) {
             commit('resetPagination')

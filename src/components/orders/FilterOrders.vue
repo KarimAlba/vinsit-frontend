@@ -16,7 +16,7 @@
 			<b-col cols="12" md="8">
 				<b-form-input 
 					placeholder="Поиск"
-					v-model="search"
+					v-model="filters.search"
 				/>
 			</b-col>
 		</b-row>

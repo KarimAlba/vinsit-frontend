@@ -3,62 +3,63 @@
 		<b-card>
 			<b-row>
 				<b-col class="mb-1" cols="12" md="4">
-					<b-form-group>
-						<b-form-input
-							placeholder="Номер"
-							v-model="filters.number"
-						/>
-					</b-form-group>
+					<v-select
+						label="name"
+                        @search="onSearchZone"
+						:reduce="(item) => item.id"
+						:options="zones"
+						placeholder="Зона"
+						:filterable="false"
+						v-model="filters.zone"
+					>
+						<template #no-options="{ search }">
+							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
+						</template>
+					</v-select>
 				</b-col>
 				<b-col class="mb-1" cols="12" md="4">
-					<b-form-group>
-						<b-form-input
-							placeholder="Номер"
-							v-model="filters.number"
-						/>
-					</b-form-group>
+					<v-select
+						label="name"
+                        @search="onSearchRack"
+						:reduce="(item) => item.id"
+						:options="racks"
+						placeholder="Стеллаж"
+						:filterable="false"
+						v-model="filters.rack"
+						:disabled="filters.zone ? false : true"
+					>
+						<template #no-options="{ search }">
+							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
+						</template>
+					</v-select>
 				</b-col>
 				<b-col class="mb-1" cols="12" md="4">
-					<b-form-group>
-						<b-form-input
-							placeholder="Номер"
-							v-model="filters.number"
-						/>
-					</b-form-group>
+					<v-select
+						label="name"
+						@search="onSearchShelf"
+						:reduce="(item) => item.id"
+						:options="shelves"
+						placeholder="Полка"
+						:filterable="false"
+						v-model="filters.shelf"
+						:disabled="filters.rack ? false : true"
+					>
+						<template #no-options="{ search }">
+							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
+						</template>
+					</v-select>
 				</b-col>
 			</b-row>
-			<b-collapse v-model="visible" id="filters-collapse">
-				<b-row>
-				</b-row>
-			</b-collapse>
 			<template #footer>
-				<a class="filter-orders__btn mr-1" v-b-toggle="'filters-collapse'">
-					<feather-icon
-						:icon="visible ? 'ChevronUpIcon' : 'ChevronDownIcon'"
-						size="12"
-					/>
-					<span class="filter-orders__btn-text"> Все фильтры </span>
-				</a>
 				<a 
 					class="filter-orders__btn" 
-					@click="() => {
-						resetFilters(),
-						resetInputs(),
-						fetchPaymentOrders()
-					}"
+					@click="() => resetFilters()"
 				>
 					<feather-icon icon="XCircleIcon" size="12" />
 					<span class="filter-orders__btn-text"> Сбросить все фильтры </span>
 				</a>
 			</template>
 		</b-card>
-		<!-- <b-row>
-			<b-col class="mb-1" cols="12" md="4">
-				<v-select
-					label="type"
-				/>
-			</b-col>
-		</b-row> -->
 		<b-card style="margin-top: 20px;">
 			<b-table
 				:items="orders"
@@ -89,16 +90,11 @@
 		BCard,
 		BTable,
 		BButton,
-		BFormGroup,
 		BCollapse,
 		VBToggle,
-		BBadge,
-		BFormCheckbox,
-		BFormInput,
 		BPagination,
 		BIconXCircle,
 		BImg,
-		BFormTextarea,
 	} from "bootstrap-vue";
 	import { RoleConstants } from '@/utils/role';
 	import store from "@/store/index";
@@ -106,15 +102,15 @@
 		data() {
 			return {
 				visible: false,
-				filters: {
-					number: null,
-				},
 				fields: [
 					{ key: "storage", label: "ХРАНИЛИЩЕ" },
 					{ key: "name", label: "ИМЯ" },
 					{ key: "action", label: "ДЕЙСТВИЕ" },
 				],
 				orders: [],
+				zones: [],
+                racks: [],
+                shelves: []
 			};
 		},
 		components: {
@@ -123,15 +119,9 @@
 			BCard,
 			BTable,
 			BButton,
-			BFormGroup,
 			BCollapse,
-			VBToggle,
-			BBadge,
 			BIconXCircle,
-			BFormCheckbox,
-			BFormInput,
 			BImg,
-			BFormTextarea,
 			BPagination,
 			vSelect
 		},
@@ -146,12 +136,62 @@
 			},
 			readOnly() {
 				return store.state.app.user.role !== RoleConstants.AD && store.state.app.user.role !== RoleConstants.LG;
-			}
+			},
+			...mapGetters({
+				filters: "moduleWarehouseTopology/getFilters",
+			}),
 		},
 		methods: {
+			...mapMutations({
+				setFilters: "moduleWarehouseTopology/setFilters"
+			}),
+            ...mapActions({
+				fetchStoredOrders: "moduleWarehouseTopology/fetchStoredOrders",
+				resetPagination: "moduleWarehouseTopology/resetPagination",
+				resetFilters: "moduleWarehouseTopology/resetFilters",
+			}),
 			formatDate(date) {
 				return this.dayjs(date).format("DD.MM.YYYY");
 			},
+			onSearchZone(search, loading) {
+				if (search.length) {
+					loading(true);
+					this.fetchZone(search, loading, this);
+				}
+            },
+            fetchZone: _.debounce((search, loading, vm) => {
+				vm.$api.addressBasedStorage.getZones({ search, limit: 100 })
+                    .then((response) => {
+                        vm.zones = [...response.data.results];
+                        loading(false);
+                    });
+			}, 500),
+            onSearchRack(search, loading) {
+				if (search.length) {
+					loading(true);
+					this.fetchRack(search, loading, this);
+				}
+            },
+            fetchRack: _.debounce((search, loading, vm) => {
+				vm.$api.addressBasedStorage.getRacks({ search, limit: 100, zone: vm.filters.zone })
+                    .then((response) => {
+                        vm.racks = [...response.data.results];
+                        loading(false);
+                    });
+			}, 500),
+            onSearchShelf(search, loading) {
+				if (search.length) {
+					loading(true);
+					this.fetchShelf(search, loading, this);
+				}
+            },
+            fetchShelf: _.debounce((search, loading, vm) => {
+				vm.$api.addressBasedStorage.getShelves({ search, limit: 100, rack: vm.filters.rack })
+                    .then((response) => {
+                        vm.shelves = [...response.data.results];
+                        loading(false);
+                    });
+			}, 500),
 		},
 		mounted() {
 		},
