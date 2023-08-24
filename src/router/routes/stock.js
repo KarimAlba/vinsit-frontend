@@ -43,5 +43,27 @@ export default [
                 RoleConstants.CR,
             ]
         },
-    }
+    },
+    // {
+    //     path: '/stock/storage/tab/:tabIndex',
+    //     name: 'cargo-registration',
+    //     component: () => import('@/views/stock/Storage/CargoRegistration.vue'),
+    //     meta: {
+    //         pageTitle: 'Регистрация груза',
+    //         disabledRoles: [
+    //             RoleConstants.CR,
+    //         ]
+    //     },
+    // },
+    // {
+    //     path: '/stock/storage/tab/:tabIndex',
+    //     name: 'warehouse-topology',
+    //     component: () => import('@/views/stock/Storage/WarehouseTopology.vue'),
+    //     meta: {
+    //         pageTitle: 'Топология склада',
+    //         disabledRoles: [
+    //             RoleConstants.CR,
+    //         ]
+    //     },
+    // }
 ]

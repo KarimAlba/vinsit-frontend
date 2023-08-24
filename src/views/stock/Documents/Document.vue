@@ -1,25 +1,20 @@
 <template>
 	<div style="padding-bottom: 20px;">
-        <h1>Создать документ {{title}} {{ nameDocument }} от {{idDocument ? dayjs(editDocument.date_created).format("DD.MM.YYYY") : dataNow}}</h1>
+        <h1>Создать документ {{title}} от {{'05.10.2022'}}</h1>
         <b-row class="row equal-cols">
             <b-col cols="8">
                 <b-card>
                     <b-row style="margin-bottom: 24px;">
                         <b-col cols="6">
-                            <b-form-group>
-                                <select-offices
-                                    :placeholder="'Текущий офис'"
-                                    v-model="editDocument.current_office"
-                                    :disabled="readOnly"
-                                    :allOfices="offices"
-                                />
-                            </b-form-group>
+                            <b-form-input 
+                                placeholder="Офис"
+                                v-model="document.office"
+                            />
                         </b-col>
                         <b-col cols="6">
                             <b-form-input 
                                 placeholder="Номер пломбы"
-                                v-model="editDocument.seal_number"
-                                type="number"
+                                v-model="document.number_seal"
                             />
                         </b-col>
                     </b-row>
@@ -28,45 +23,43 @@
                             <b-form-checkbox
                                 value="true"
                                 :unchecked-value="null"
-                                v-model="editDocument.route_display"
+                                v-model="document.route_display"
                             >
                                 Отображения маршрута
                             </b-form-checkbox>
                         </b-col>
-                        <!-- <b-col cols="6">
+                        <b-col cols="6">
                             <b-form-input 
                                 placeholder="Номер пломбы"
-                                v-model="editDocument.number_seal"
+                                v-model="document.number_seal"
                             />
-                        </b-col> -->
+                        </b-col>
                     </b-row>
                     <b-row align-v="center" style="margin-bottom: 24px;">
                         <b-col cols="6">
-                            <b-form-group>
-                                <select-offices
-                                    :placeholder="'Офис назначения груза'"
-                                    v-model="editDocument.final_destination_office	"
-                                    :disabled="readOnly"
-                                    :allOfices="offices"
-                                />
-                            </b-form-group>
+                            <b-form-input 
+                                placeholder="Склад"
+                                v-model="document.stock"
+                            />
                         </b-col>
                         <b-col cols="6">
                             <b-form-datepicker
                                 label="date"
                                 placeholder="Дата заказа"
-                                v-model="editDocument.doc_close_datetime"
+                                v-model="document.date"
                                 :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
+                                @input="changeOrder($event, 'date')"
                             />
                         </b-col>
                     </b-row>
                     <b-row align-v="center" style="margin-bottom: 24px;">
                         <b-col cols="6">
-                            <select-users
+                            <select-clients
                                 :disabled="false"
                                 :disabledAddBtn="true"
-                                :reduce="(counterparty) => counterparty.id"
-                                v-model="editDocument.provided_by"
+                                :reduce="(counterparty) => counterparty"
+                                :value="document.counterparty"
+                                @input="handleFilterFieldChange($event, 'counterparty')"
                                 placeholder="Оформил"
                                 :clearable="false"
                             />
@@ -80,14 +73,10 @@
                     </b-row>
                     <b-row align-v="center" style="margin-bottom: 24px;">
                         <b-col cols="6">
-                            <b-form-group>
-                                <select-offices
-                                    :placeholder="'Офис следующего назначения груза'"
-                                    v-model="editDocument.next_destination_office"
-                                    :disabled="readOnly"
-                                    :allOfices="offices"
-                                />
-                            </b-form-group>
+                            <b-form-input 
+                                placeholder="В офис"
+                                v-model="document.in_office"
+                            />
                         </b-col>
                         <!-- <b-col cols="6">
                         </b-col> -->
@@ -102,20 +91,16 @@
                         </b-col>
                     </b-row>
                     <b-row align-v="center" style="margin-bottom: 24px;">
-                        <b-col cols="12">
-                            <b-form-group>
-                                <select-orders
-                                    :placeholder="'Номера заказов'"
-                                    :value="selectOrder"
-                                    :disabled="readOnly"
-                                    @input="handleAddOrder($event)"
-                                />
-                            </b-form-group>
+                        <b-col>
+                            <b-form-input 
+                                placeholder="Номера заказов"
+                                v-model="document.number_order"
+                            />
                         </b-col>
                     </b-row>
                     <b-row align-v="center" style="margin-bottom: 24px;">
                         <b-col>
-                            <b-img :src="editDocument.scan" class="mr-1" height="72" />
+                            <b-img :src="document.scan" class="mr-1" height="72" />
                         </b-col>
                     </b-row>
                 </b-card>
@@ -154,25 +139,25 @@
                         @row-clicked="(item) => $set(item, '_showDetails', !item._showDetails)"
                     >
                         <template #cell(id)="data">
-                            <router-link
-                                style="border-bottom: 1px dotted blue"
-                                :to="{ name: 'order', params: { id: data.item.id } }"
-                            >
-                                {{ data.item.id}}
-                            </router-link
-                            >
+                            <!-- :to="{ name: 'order', params: { id: data.item.id } }" -->
+                        <router-link
+                            style="border-bottom: 1px dotted blue"
+                        >
+                            {{ data.item.id }}
+                        </router-link
+                        >
                         </template>
 
                         <template #cell(SK_GM)="data">
                             {{ data.item.SK_GM ? data.item.SK_GM : '-'}}
                         </template>
 
-                        <template #cell(total_weight)="data">
-                            {{ data.item.total_weight ? data.item.total_weight : '-' }}
+                        <template #cell(weight)="data">
+                            {{ data.item.weight ? data.item.weight : '-' }}
                         </template>
 
-                        <template #cell(date_created)="data">
-                            {{ data.item.date_created ? formatDate(data.item.date_created) : '-' }}
+                        <template #cell(date)="data">
+                            {{ data.item.date ? formatDate(data.item.date) : '-' }}
                         </template>
 
                         <template #cell(sending_office)="data">
@@ -183,10 +168,10 @@
                             {{ data.item.destination_office ? data.item.destination_office : '-' }}
                         </template>
 
-                        <template #cell(problem)="data">
+                        <template #cell(problems)="data">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <span>
-                                    {{ data.item.problem ? data.item.problem : '-' }}
+                                    {{ data.item.problems ? data.item.problems : '-' }}
                                 </span>
                                 <b-icon-basket/>
                             </div>
@@ -196,7 +181,7 @@
                         v-if="showPagination"
                         :total-rows="count"
                         :per-page="perPage"
-                        @change="changeCurPage"
+                        @change="changePage"
                         :value="curPage"
                         align="right"
                     />
@@ -207,7 +192,7 @@
             <b-col cols="12">
                 <b-form-textarea
                     class="w-full ph-5"
-                    v-model="editDocument.note"
+                    v-model="document.note"
                     placeholder="Примечание"
                 />
             </b-col>
@@ -219,7 +204,6 @@
                 :disabled="readOnly" 
                 class="whiteBtn"
                 style="margin-right: 10px;"
-                :to="{name: 'stock-documents'}"
             >
                 Отмена
             </b-button>
@@ -228,7 +212,6 @@
                 v-if="!readOnly" 
                 :disabled="readOnly"
                 style="margin-right: 15px;"
-                @click="handleSave()"
             >
                 Создать
             </b-button>
@@ -238,8 +221,6 @@
 
 <script>
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import ToastificationContent from "@core/components/toastification/ToastificationContent.vue";
-import vSelect from "vue-select";
 
 import {
     BRow,
@@ -250,7 +231,6 @@ import {
     BBadge,
     BFormCheckbox,
     BFormInput,
-    BFormGroup,
     BPagination,
     BFormDatepicker,
     BIconXCircle,
@@ -263,38 +243,31 @@ import { RoleConstants } from '@/utils/role';
 import store from "@/store/index";
 import AppDatepicker from "@/@core/components/app-datepicker/AppDatepicker";
 import SelectClients from "@/components/ui/selectClients/selectClients.vue";
-import SelectOffices from "@/components/ui/selectOffices/selectOffices.vue";
-import SelectOrders from "@/components/ui/selectOrder/selectOrder.vue";
-import SelectUsers from "@/components/ui/selectUsers/selectUsers.vue";
 
 export default {
     props: ['title'],
 	data() {
 		return {
-            offices: null,
-            selectOrder: null,
-            documentTemplate: {
-                next_destination_office: 0,
-                seal_number: null,
-                // route_display: null,
-                // stock: null,
-                current_office: null,
-                doc_close_datetime: null,
-                provided_by: null,
-                final_destination_office: 0,
-                orders: [],
-                // scan: null,
+            document: {
+                office: null,
+                number_seal: null,
+                route_display: null,
+                stock: null,
+                date: null,
+                counterparty: null,
+                in_office: null,
+                number_order: null,
+                scan: null,
                 note: null,
-                type: null,
             },
             fields: [
                 { key: "id", label: "Номер документа" },
                 { key: "SK_GM", label: "ШК ГМ" },
-                { key: "total_weight", label: "ФИЗ. ВЕС, КГ" },
-                { key: "date_created", label: "Дата" },
+                { key: "weight", label: "ФИЗ. ВЕС, КГ" },
+                { key: "date", label: "Дата" },
                 { key: "sending_office", label: "Офис-отправитель" },
                 { key: "destination_office", label: "Офис-получатель" },
-                { key: "problem", label: "Проблемы" },
+                { key: "problems", label: "Проблемы" },
             ],
             orders: [],
 		};
@@ -309,25 +282,14 @@ export default {
         BIconXCircle,
         BFormCheckbox,
         BFormInput,
-        BFormGroup,
 		BFormDatepicker,
         SelectClients,
-        SelectOffices,
-        SelectOrders,
-        SelectUsers,
         BImg,
         BFormTextarea,
         BPagination,
         BIconBasket,
-        vSelect,
-
 	},
 	watch: {
-        'document'(nextValue) {
-            if (this.idDocument) {
-                this.documentTemplate = nextValue;
-            }
-        },
 	},
 	computed: {
 		...mapGetters({
@@ -336,7 +298,6 @@ export default {
             perPage: "moduleDocuments/getCountPerPage",
             curPage: "moduleDocuments/getCurPage",
             documents: "moduleDocuments/getDocuments",
-            document: "moduleDocuments/getDocument",
 
             // orderMode: "moduleDocuments/getOrderMode",
             clientType: "moduleClients/getClientType",
@@ -346,31 +307,11 @@ export default {
         },
         readOnly() {
             return store.state.app.user.role !== RoleConstants.AD && store.state.app.user.role !== RoleConstants.LG;
-        },
-        idDocument() {
-            return this.$route.params.id || null;
-        },
-        nameDocument() {
-            if (this.$route.params.type === "PR") return "Первичный приход"
-            if (this.$route.params.type === "CN") return "Консолидация"
-            if (this.$route.params.type === "DE") return "Выдача на доставку"
-            if (this.$route.params.type === "AC") return "Расконсолидация"
-        },
-        dataNow() {
-            return this.dayjs(new Date).format("DD.MM.YYYY")
-        },
-        editDocument: {
-            get() {
-                return this.documentTemplate;
-            },
-            set(value) {
-                this.documentTemplate = value;
-            }
-        },
+        }
 	},
 	methods: {
 		...mapActions({
-            fetchDocument: "moduleDocuments/fetchDocument",
+            // fetchDocument: "moduleDocuments/fetchDocument",
             // createDocument: "moduleDocuments/createDocument",
             resetPagination: "moduleDocuments/resetPagination",
         }),
@@ -383,57 +324,8 @@ export default {
         getClientType(clientType) {
             return this.clientType.find((type) => type.id === clientType)?.short_title;
         },
-        handleSave() {
-            this.createDocument(this.editDocument)
-        },
-        createDocument(newDocument) {
-            console.log('doc', newDocument)
-            newDocument.type = this.$route.params.type;
-            this.$api.documents.createDocument(newDocument).then((response) => {
-                if (response.status !== 400) {
-                    this.$toast({
-                        component: ToastificationContent,
-                        props: {
-                        title: "Успешно",
-                        text: "Документ создан",
-                        icon: "CheckCircleIcon",
-                        variant: "success",
-                        },
-                    });
-                    this.$router.push({
-                        name: "stock-documents",
-                    });
-                } else {
-                this.$toast({
-                    component: ToastificationContent,
-                    props: {
-                    title: "Ошибка",
-                    text: "Не удалось создать документ.",
-                    icon: "XIcon",
-                    variant: "danger",
-                    },
-                });
-                }
-            });
-        },
-        handleAddOrder(id) {
-            this.$api.orders.getOrder(id).then((response) => {
-                this.editDocument.orders.push(id);
-                this.orders = [...this.orders, response.data]
-            });
-        },
-        fetchOffices() {
-            this.$api.office.getOffices({ limit: 100 }).then((response) => {
-                this.offices = response.data;
-                loading ? loading(false) : null;
-            });
-        }, 
 	},
 	mounted() {
-        this.fetchOffices();
-        if (this.idDocument) {
-            this.fetchDocument(this.idDocument);
-        }
 	},
 };
 </script>
