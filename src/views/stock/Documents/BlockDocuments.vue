@@ -13,18 +13,23 @@
                 </b-button>
             </div>
             <div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
-                <b-button variant="primary" :to="{ name: 'create-stock-document', params: {title: 'Выдача на доставку'} }" v-if="!readOnly" :disabled="readOnly">
+                <b-button variant="primary" :to="{ name: 'stock-document', params: { type: 'PR' } }" v-if="!readOnly" :disabled="readOnly">
                     PR
                 </b-button>
             </div>
             <div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
-                <b-button variant="primary" :to="{ name: 'create-stock-document' }" v-if="!readOnly" :disabled="readOnly">
+                <b-button variant="primary" :to="{ name: 'stock-document', params: { type: 'CN' } }" v-if="!readOnly" :disabled="readOnly">
                     CN
                 </b-button>
             </div>
-            <div class="d-flex align-items-center justify-content-right">
-                <b-button variant="primary" :to="{ name: 'create-stock-document' }" v-if="!readOnly" :disabled="readOnly">
+            <div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
+                <b-button variant="primary" :to="{ name: 'stock-document', params: { type: 'DE' } }" v-if="!readOnly" :disabled="readOnly">
                     DE
+                </b-button>
+            </div>
+            <div class="d-flex align-items-center justify-content-right">
+                <b-button variant="primary" :to="{ name: 'stock-document', params: { type: 'AC' } }" v-if="!readOnly" :disabled="readOnly">
+                    AC
                 </b-button>
             </div>
         </div>
@@ -37,13 +42,13 @@
                 @row-clicked="(item) => $set(item, '_showDetails', !item._showDetails)"
             >
                 <template #cell(id)="data">
-                <router-link
-                    style="border-bottom: 1px dotted blue"
-                    :to="{ name: 'order', params: { id: data.item.id } }"
-                >
-                    {{ data.item.id }}
-                </router-link
-                >
+                    <router-link
+                        style="border-bottom: 1px dotted blue"
+                        :to="{ name: 'stock-document', params: { id: data.item.id, type: data.item.type } }"
+                    >
+                        {{ data.item.id }}
+                    </router-link
+                    >
                 </template>
 
                 <template #cell(date_created)="data">
@@ -78,8 +83,8 @@
                     {{ data.item.places_amount ? data.item.places_amount : '-' }}
                 </template>
 
-                <template #cell(seal_numbers)="data">
-                    {{ data.item.seal_numbers ? data.item.seal_numbers : '-' }}
+                <template #cell(seal_number)="data">
+                    {{ data.item.seal_number ? data.item.seal_number : '-' }}
                 </template>
 
                 <template #cell(note)="data">
@@ -126,9 +131,9 @@ export default {
                 { key: "issued_by", label: "Оформил" },
                 { key: "current_office", label: "Офис текущий" },
                 { key: "office", label: "Офис откуда" },
-                { key: "next_destination_office", label: "Офис куда" },
+                { key: "final_destination_office", label: "Офис куда" },
                 { key: "places_amount", label: "Количество грузомест" },
-                { key: "seal_numbers", label: "Пломбы" },
+                { key: "seal_number", label: "Пломбы" },
                 { key: "note", label: "Примечание" },
                 // { key: "sender_full_name", label: "Отправитель" },
                 // { key: "sender_city.name", label: "Город отправителя" },

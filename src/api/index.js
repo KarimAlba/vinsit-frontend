@@ -18,6 +18,8 @@ import placesModule from "./places";
 import paymentDocumentsModule from "./payment-documents";
 import servicesModule from "./services";
 import accountingBank from "./accounting-bank";
+import office from "./office";
+import user from "./user";
 
 export const instance = new Instance().getAxiosIns();
 
@@ -40,4 +42,6 @@ export default {
     payDoc: paymentDocumentsModule(instance),
     services: servicesModule(instance),
     lprDocs: lprDocsModule(instance),
+    office: office(instance),
+    user: user(instance),
 };
