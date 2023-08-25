@@ -26,7 +26,7 @@
 						placeholder="Стеллаж"
 						:filterable="false"
 						v-model="filters.rack"
-						:disabled="filters.zone ? false : true"
+						:disabled="filters.zone || filters.rack ? false : true"
 					>
 						<template #no-options="{ search }">
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -42,7 +42,7 @@
 						placeholder="Полка"
 						:filterable="false"
 						v-model="filters.shelf"
-						:disabled="filters.rack ? false : true"
+						:disabled="filters.rack || filters.shelf ? false : true"
 					>
 						<template #no-options="{ search }">
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -62,12 +62,13 @@
 		</b-card>
 		<b-card style="margin-top: 20px;">
 			<b-table
-				:items="orders"
+				:items="stocks"
 				:fields="fields"
 				striped
 				responsive
 				@row-clicked="(item) => $set(item, '_showDetails', !item._showDetails)"
 			>
+
 			</b-table>
 			<b-pagination
 				v-if="showPagination"
@@ -103,7 +104,7 @@
 			return {
 				visible: false,
 				fields: [
-					{ key: "storage", label: "ХРАНИЛИЩЕ" },
+					{ key: "id", label: "ХРАНИЛИЩЕ" },
 					{ key: "name", label: "ИМЯ" },
 					{ key: "action", label: "ДЕЙСТВИЕ" },
 				],
@@ -129,6 +130,9 @@
 			"b-toggle": VBToggle,
 		},
 		watch: {
+			stocks() {
+				console.log(this.stocks);
+			}
 		},
 		computed: {
 			showPagination() {
@@ -139,6 +143,7 @@
 			},
 			...mapGetters({
 				filters: "moduleWarehouseTopology/getFilters",
+				stocks: "moduleWarehouseTopology/getStocks",
 			}),
 		},
 		methods: {
@@ -146,9 +151,9 @@
 				setFilters: "moduleWarehouseTopology/setFilters"
 			}),
             ...mapActions({
-				fetchStoredOrders: "moduleWarehouseTopology/fetchStoredOrders",
 				resetPagination: "moduleWarehouseTopology/resetPagination",
 				resetFilters: "moduleWarehouseTopology/resetFilters",
+				fetchStocks: "moduleWarehouseTopology/fetchStocks",
 			}),
 			formatDate(date) {
 				return this.dayjs(date).format("DD.MM.YYYY");
@@ -194,6 +199,7 @@
 			}, 500),
 		},
 		mounted() {
+			this.fetchStocks();
 		},
 	};
 </script>

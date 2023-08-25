@@ -196,9 +196,7 @@
 				handler(val) {
 					if (val.search && !val.search_fields?.length) return;
 					this.resetPagination();
-					console.log(this.filters);
-					// this.fetchStoredOrders();
-					// this.resetPagination();
+					this.fetchStoredOrders();
 				},
 				deep: true,
 			},
@@ -276,25 +274,10 @@
             fetchStatus: _.debounce((search, loading, vm) => {
 				vm.$api.addressBasedStorage.getStoredOrderStatus({ search, limit: 100 })
                     .then((response) => {
-						console.log(response);
                         vm.statuses = [...response.data.results];
                         loading(false);
                     });
 			}, 500),
-			createStoredOrder() {
-				this.$api.addressBasedStorage.createStoredOrder({
-					zone: 1,
-					rack: 1,
-					shelf: 1,
-					status: 1,
-					orders: [24]
-				})
-				.then((response) => {
-					console.log(response);
-					loading(false);
-				})
-				.catch((error) => console.log(error));
-			},
 			handleSearchField: _.debounce((value, vm) => {
 				vm.filters.search = value;
 			}, 500),
@@ -302,7 +285,6 @@
 		mounted() {
             this.resetFilters();
 			this.resetPagination();
-			//this.createStoredOrder();
         },
 	};
 </script>

@@ -17,6 +17,7 @@ export default {
         },
         curPage: 1,
         countPerPage: 10,
+        ordering: '-date_created',
     },
     getters: {
         getStoredOrders: (state) => {
@@ -45,6 +46,9 @@ export default {
         },
         getStatuses: (state) => {
             return state.statuses
+        },
+        getOrdering: (state) => {
+            return state.ordering
         }
     },
     mutations: {
@@ -53,9 +57,7 @@ export default {
         },
         setOrder(state, payload) {
             state.storedOrder = payload;
-            state.editableStoredOrder = {
-                ...payload,
-            };
+            state.editableStoredOrder = {...payload};
         },
         setEditableStoredOrder(state, payload) {
             state.editableStoredOrder = payload;
@@ -90,6 +92,21 @@ export default {
         setFilters(state, payload) {
             state.filters = Object.assign({}, {...payload})
         },
+        changeOrdering(state, payload) {
+            state.ordering = payload
+        },
+        resetOrdering(state) {
+            state.ordering = null
+        },
+        resetEditableStoredOrder(state) {
+            state.editableStoredOrder = {
+                zone: null,
+                rack: null,
+                shelf: null,
+                status: null,
+                orders: []
+            }
+        }
     },
     actions: {
         fetchStoredOrders({ commit, state }) {
@@ -99,9 +116,9 @@ export default {
             this._vm.$api.addressBasedStorage.getStoredOrders({
                 ...state.filters,
                 offset: ((state.curPage - 1) * state.countPerPage),
-                limit: state.countPerPage
+                limit: state.countPerPage,
+                ordering: state.ordering,
             }).then((response) => {
-                console.log(response);
                 commit('setStoredOrders', response.data.results)
                 commit('setCount', response.data.count)
             }).finally(() => {
@@ -112,7 +129,7 @@ export default {
             commit('changeLoading', true);
             this._vm.$api.addressBasedStorage.getStoredOrder(storedOrderId)
                 .then((response) => {
-                    commit('setStoredOrder', response.data)
+                    commit('setEditableStoredOrder', response.data)
                 })
                 .finally(() => {
                     commit('changeLoading', false)
@@ -133,6 +150,12 @@ export default {
         },
         resetFilters({ commit, state }) {
             commit('resetFilters')
+        },
+        resetOrdering({ commit, state }) {
+            commit('resetOrdering')
+        },
+        resetEditableStoredOrder({ commit, state }) {
+            commit('resetEditableStoredOrder')
         }
     },
 }

@@ -1,7 +1,7 @@
 export default {
     namespaced: true,
     state: {
-        storedOrders: [],
+        stocks: [],
         count: 0,
         loading: false,
         filters: {
@@ -13,8 +13,8 @@ export default {
         countPerPage: 10,
     },
     getters: {
-        getStoredOrders: (state) => {
-            return state.storedOrders
+        getStocks: (state) => {
+            return state.stocks
         },
         getCount: (state) => {
             return state.count
@@ -33,8 +33,8 @@ export default {
         },
     },
     mutations: {
-        setStoredOrders(state, payload) {
-            state.storedOrders = payload
+        setStocks(state, payload) {
+            state.stocks = [...payload];
         },
         setCount(state, payload) {
             state.count = payload
@@ -60,17 +60,17 @@ export default {
         },
     },
     actions: {
-        fetchStoredOrders({ commit, state }) {
+        fetchStocks({ commit, state }) {
             commit('changeLoading', true);
-            commit('resetData');
+            //commit('resetData');
 
-            this._vm.$api.addressBasedStorage.getStoredOrders({
+            this._vm.$api.addressBasedStorage.getStocks({
                 ...state.filters,
                 offset: ((state.curPage - 1) * state.countPerPage),
                 limit: state.countPerPage
             }).then((response) => {
                 console.log(response);
-                commit('setStoredOrders', response.data.results)
+                commit('setStocks', response.data)
                 commit('setCount', response.data.count)
             }).finally(() => {
 				commit('changeLoading', false)

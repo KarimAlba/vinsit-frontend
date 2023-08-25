@@ -1,7 +1,8 @@
 <template>
     <b-card>
         <section class="order pb-0">
-            <h1>Регистрация груза</h1>
+            <h1 v-if="idStoredOrder">Заказ №{{ idStoredOrder }}</h1>
+            <h1 v-else>Регистрация груза</h1>
         </section>
 		<b-collapse 
 			v-model="visible" 
@@ -34,7 +35,7 @@
                         placeholder="Стеллаж"
                         :filterable="false"
                         v-model="storedOrder.rack"
-                        :disabled="storedOrder.zone ? false : true"
+                        :disabled="storedOrder.zone || storedOrder.rack ? false : true"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -52,7 +53,7 @@
                         placeholder="Полка"
                         :filterable="false"
                         v-model="storedOrder.shelf"
-                        :disabled="storedOrder.rack ? false : true"
+                        :disabled="storedOrder.rack || storedOrder.shelf ? false : true"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -70,7 +71,7 @@
                         placeholder="Статус"
                         :filterable="false"
                         v-model="storedOrder.status"
-                        :disabled="storedOrder.shelf ? false : true"
+                        :disabled="storedOrder.shelf || storedOrder.status ? false : true"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -81,15 +82,16 @@
             <b-row>
                 <b-col class="p-1">
                     <v-select
-                        label="name"
+                        label="id"
                         :reduce="(item) => item.id"
+                        @search="onSearchOrders"
                         :options="selectOrders"
-                        placeholder="Заказы"
+                        placeholder="Номера заказов"
                         :filterable="false"
                         taggable 
                         multiple
                         v-model="storedOrder.orders"
-                        :disabled="storedOrder.status ? false : true"
+                        :disabled="storedOrder.status || storedOrder.orders.length > 0 ? false : true"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -101,6 +103,7 @@
 		<template #footer>
             <div class="stored-order-footer">
                 <router-link
+                    @click="handleExit"
                     :to="{ name: 'stock-storage' }"
                     class="cancel-link"
                 >
@@ -109,7 +112,17 @@
                 <div class="reg-btn-container">
                     <b-button 
                         variant="primary" 
-                        v-if="goodValidate"
+                        v-if="idStoredOrder && goodValidate"
+                        @click="handleUpdateStoredOrder"
+                        :to="{ name: 'stock-storage' }"
+                    >
+                        Обновить значения
+                    </b-button>
+                    <b-button 
+                        variant="primary" 
+                        v-else-if="goodValidate"
+                        @click="handleCreateStoredOrder"
+                        :to="{ name: 'stock-storage' }"
                     >
                         Зарегистрировать груз
                     </b-button>
@@ -120,7 +133,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 import {
     BRow,
@@ -157,13 +170,13 @@ export default {
             racks: [],
             shelves: [],
             statuses: [],
-            selectOrders: [{name: 'ExampleOrder1', id: 1}, {name: 'ExampleOrder2', id: 2}, {name: 'ExampleOrder3', id: 3}],
+            selectOrders: [],
             storedOrder: {
                 zone: null,
                 rack: null,
                 shelf: null,
                 status: null,
-                orders: [] // - should be array 
+                orders: []
             },
             goodValidate: false,
         };
@@ -177,14 +190,24 @@ export default {
                 this.validateStoredOrder();
             },
             deep: true,
+        },
+        editableStoredOrder() {
+            this.storedOrder = {...this.editableStoredOrder};
         }
     },
     computed: {
-        ...mapGetters({}),
+        ...mapGetters({
+            editableStoredOrder: "moduleCargoRegistration/getEditableStoredOrder"
+        }),
+        idStoredOrder() {
+            return this.$route.params.id || null;
+        },
     },
     methods: {
         ...mapActions({
-            createStoredOrder: "moduleCargoRegistration/createStoredOrder"
+            createStoredOrder: "moduleCargoRegistration/createStoredOrder",
+            fetchStoredOrder: "moduleCargoRegistration/fetchStoredOrder",
+            resetEditableStoredOrder: "moduleCargoRegistration/resetEditableStoredOrder"
         }),
         onSearchZone(search, loading) {
             if (search.length) {
@@ -234,7 +257,6 @@ export default {
         fetchStatus: _.debounce((search, loading, vm) => {
             vm.$api.addressBasedStorage.getStoredOrderStatus({ search, limit: 100 })
                 .then((response) => {
-                    console.log(response);
                     vm.statuses = [...response.data.results];
                     loading(false);
                 });
@@ -246,29 +268,46 @@ export default {
             }
         },
         fetchOrders: _.debounce((search, loading, vm) => {
-            vm.$api.orders.getOrders({ search, limit: 100 })
+            vm.$api.orders.getOrders({ limit: 100, id: search })
                 .then((response) => {
-                    console.log(response);
                     vm.selectOrders = [...response.data.results];
                     loading(false);
                 });
         }, 500),
         validateStoredOrder() {
-            console.log(this.storedOrder)
             if (this.storedOrder.zone && this.storedOrder.rack
                 && this.storedOrder.shelf && this.storedOrder.status
-                && this.storedOrder.orders
+                && this.storedOrder.orders.length
             ) {
                 this.goodValidate = true;
             } else {
                 this.goodValidate = false;
             }
         },
-        handleCreateStoredOrder() { // handleCreateStoredOrder назвать 
+        handleCreateStoredOrder() {
             this.createStoredOrder(this.storedOrder);
-        }
+        },
+        handleUpdateStoredOrder() {
+            this.fetchEditableStoredOrder(this);            
+        },
+        fetchEditableStoredOrder(vm) {
+            vm.$api.addressBasedStorage.updateStoredOrder(vm.idStoredOrder, vm.storedOrder)
+                .then((response) => {
+                    console.log('success updated');
+                });
+        },
+        onStoredOrderMount () {
+            if (this.idStoredOrder) {
+                this.fetchStoredOrder(this.idStoredOrder);
+            }
+        },
+        handleExit() {
+            this.resetEditableStoredOrder();
+        },
     },
-    mounted() {},
+    mounted() {
+        this.onStoredOrderMount();
+    },
 };
 </script>
 

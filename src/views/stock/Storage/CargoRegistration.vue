@@ -65,10 +65,17 @@
 				:fields="fields"
 				striped
 				responsive
-				@row-clicked="(item) => $set(item, '_showDetails', !item._showDetails)"
+
+				:sort-by.sync="sortBy"
+                :sort-desc.sync="sortDesc"
+                :no-local-sorting="true"
 			>
+
 				<template #cell(id)="data">
-					<router-link style="border-bottom: 1px dotted blue">
+					<router-link 
+						:to="{ name: 'stored-order', params: { id: data.item.id } }"
+						style="border-bottom: 1px dotted blue"
+					>
 						{{ data.item.id }}
 					</router-link>
 				</template>
@@ -76,6 +83,16 @@
 				<template #cell(number_GM)="data">
 					{{ data.item.number_GM ? data.item.number_GM : '-'}}
 				</template>
+
+                <template #cell(date_created)="data">
+                    {{ formatDate(data.item.date_created) }}
+                </template>
+
+				<template #cell(status)="data">
+                    <b-badge :variant="getColorStatus(data.item.status)">
+                        {{ data.item.status || "Не задан" }}
+                    </b-badge>
+                </template>
 
 			</b-table>
 			<b-pagination
@@ -115,15 +132,18 @@
 		data() {
 			return {
 				fields: [
-					{ key: "id", label: "НОМЕР ЗАКАЗА" },
-					{ key: "number_GM", label: "НОМЕР ГМ" },
-					{ key: "shelf", label: "ПОЛКА" },
-					{ key: "Shelving_zone", label: "СТЕЛАЖ ЗОНА" },
-					{ key: "Time_registration", label: "ВРЕМЯ РЕГИСТРАЦИИ" },
-					{ key: "user", label: "ПОЛЬЗОВАТЕЛЬ" },
-					{ key: "status", label: "СТАТУС" },
-					{ key: "office", label: "ОФИС" },
+					{ key: "id", label: "НОМЕР ЗАКАЗА", sortable: true },
+					{ key: "number_GM", label: "НОМЕР ГМ", sortable: false },
+					{ key: "shelf", label: "ПОЛКА", sortable: false },
+					{ key: "zone", label: "СТЕЛАЖ ЗОНА", sortable: false },
+					{ key: "date_created", label: "ДАТА РЕГИСТРАЦИИ", sortable: true },
+					{ key: "user_created", label: "ПОЛЬЗОВАТЕЛЬ", sortable: false },
+					{ key: "status", label: "СТАТУС", sortable: false },
+					{ key: "office", label: "ОФИС", sortable: false },
 				],
+				orderStatus: [],
+				sortBy: 'date_created',
+            	sortDesc: false,
 			};
 		},
 		components: {
@@ -141,7 +161,15 @@
 			BPagination,
 			FilterCargoRegistration
 		},
-		watch: {},
+		watch: {
+			'sortBy'(newValue) {
+				if (!newValue) return;
+				this.sortTable();
+			},
+			'sortDesc'(newValue) {
+				this.sortTable();
+			}
+		},
 		computed: {
 			...mapGetters({
 				loading: "moduleCargoRegistration/getLoading",
@@ -149,6 +177,9 @@
 				perPage: "moduleCargoRegistration/getCountPerPage",
 				curPage: "moduleCargoRegistration/getCurPage",
 				storedOrders: "moduleCargoRegistration/getStoredOrders",
+				ordering: "moduleCargoRegistration/getOrdering",
+				clientType: "moduleClients/getClientType",
+				editableStoredOrder: "moduleCargoRegistration/getEditableStoredOrder"
 			}),
 			showPagination() {
 				return Math.ceil(this.count / this.perPage) > 1;
@@ -164,13 +195,44 @@
 			}),
 			...mapMutations({
 				changeCurPage: "moduleCargoRegistration/changePage",
+				changeOrdering: "moduleCargoRegistration/changeOrdering",
 			}),
 			formatDate(date) {
 				return this.dayjs(date).format("DD.MM.YYYY");
 			},
+			changePage(page) {
+				this.changeCurPage(page);
+				this.fetchStoredOrders();
+			},
+			checkSortName() {
+				switch(this.sortBy) {
+					case 'id':
+						return 'id';
+					default:
+						return this.sortBy;
+				};
+			},
+			sortTable() {
+				let ordering = this.checkSortName();
+				if (this.sortDesc) {
+					this.changeOrdering(ordering);
+				} else {
+					this.changeOrdering(`-${ordering}`);
+				};
+
+				this.resetPagination();
+				setTimeout(() => {
+					this.fetchStoredOrders();
+				}, 0);
+			},
+			getColorStatus(status) {
+				return (
+					this.orderStatus.find((x) => x.title === status)?.color || "secondary"
+				);
+			}
 		},
 		mounted() {
-        	//this.fetchStoredOrders();
+        	this.fetchStoredOrders();
 			this.resetPagination();
 		},
 	};
