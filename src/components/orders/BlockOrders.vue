@@ -1,15 +1,15 @@
 <template>
     <div class="block-orders">
         <div class="mb-4 d-flex align-items-center justify-content-between">
-        <span
-            >Найдено: <b>{{ count }}</b></span
-        >
+            <span
+                >Найдено: <b>{{ count }}</b></span
+            >
 
-        <div>
-            <b-button variant="primary" :to="{ name: 'order-create' }" v-if="!readOnly" :disabled="readOnly">
-                Создать
-            </b-button>
-        </div>
+            <div>
+                <b-button variant="primary" :to="{ name: 'order-create' }" v-if="!readOnly" :disabled="readOnly">
+                    Создать
+                </b-button>
+            </div>
         </div>
 
         <b-card>

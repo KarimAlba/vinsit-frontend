@@ -62,16 +62,14 @@ export default {
     actions: {
         fetchStocks({ commit, state }) {
             commit('changeLoading', true);
-            //commit('resetData');
 
             this._vm.$api.addressBasedStorage.getStocks({
                 ...state.filters,
                 offset: ((state.curPage - 1) * state.countPerPage),
                 limit: state.countPerPage
             }).then((response) => {
-                console.log(response);
                 commit('setStocks', response.data)
-                commit('setCount', response.data.count)
+                commit('setCount', response.data.length)
             }).finally(() => {
 				commit('changeLoading', false)
 			});

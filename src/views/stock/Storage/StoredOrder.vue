@@ -17,7 +17,7 @@
                         :options="zones"
                         placeholder="Зона"
                         :filterable="false"
-                        v-model="storedOrder.zone"
+                        v-model="zone"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -34,8 +34,8 @@
                         :options="racks"
                         placeholder="Стеллаж"
                         :filterable="false"
-                        v-model="storedOrder.rack"
-                        :disabled="storedOrder.zone || storedOrder.rack ? false : true"
+                        v-model="rack"
+                        :disabled="zone || rack ? false : true"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -52,8 +52,8 @@
                         :options="shelves"
                         placeholder="Полка"
                         :filterable="false"
-                        v-model="storedOrder.shelf"
-                        :disabled="storedOrder.rack || storedOrder.shelf ? false : true"
+                        v-model="shelf"
+                        :disabled="rack || shelf ? false : true"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -70,8 +70,8 @@
                         :options="statuses"
                         placeholder="Статус"
                         :filterable="false"
-                        v-model="storedOrder.status"
-                        :disabled="storedOrder.shelf || storedOrder.status ? false : true"
+                        v-model="status"
+                        :disabled="shelf || status ? false : true"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -90,8 +90,8 @@
                         :filterable="false"
                         taggable 
                         multiple
-                        v-model="storedOrder.orders"
-                        :disabled="storedOrder.status || storedOrder.orders.length > 0 ? false : true"
+                        v-model="orders"
+                        :disabled="status || orders.length > 0 ? false : true"
                     >
                         <template #no-options="{ search }">
                             {{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -165,19 +165,25 @@ export default {
     },
     data() {
         return {
+            idStoredOrder: this.$route.params.id || null,
             visible: true,
             zones: [],
             racks: [],
             shelves: [],
             statuses: [],
             selectOrders: [],
-            storedOrder: {
-                zone: null,
-                rack: null,
-                shelf: null,
-                status: null,
-                orders: []
-            },
+            // storedOrder: {
+            //     zone: null,
+            //     rack: null,
+            //     shelf: null,
+            //     status: null,
+            //     orders: []
+            // },
+            zone: null,
+            rack: null,
+            shelf: null,
+            status: null,
+            orders: [],
             goodValidate: false,
         };
     },
@@ -185,23 +191,77 @@ export default {
 		"b-toggle": VBToggle,
 	},
     watch: {
-        storedOrder: {
-            handler() {
-                this.validateStoredOrder();
-            },
-            deep: true,
+        // storedOrder: {
+        //     handler() {
+        //         console.log(this.storedOrder);
+        //         this.validateStoredOrder();
+        //         this.checkStoredOrdersFields(); // - отрабатывает, но ругается, мол not a function((
+        //     },
+        //     deep: true,
+        // },
+        idStoredOrder() {
+            console.log(this.idStoredOrder)
+        },
+        zone() {
+            if (!this.zone || this.zone !== this.editableStoredOrder.zone) {
+                this.rack = null
+            }
+            this.editableStoredOrder.zone = this.zone
+        },
+        rack() {
+            if (!this.rack || this.rack !== this.editableStoredOrder.rack) {
+                this.shelf = null
+            }
+            this.editableStoredOrder.rack = this.rack
+        },
+        shelf() {
+            if (!this.shelf || this.shelf !== this.editableStoredOrder.shelf) {
+                this.status = null
+            }
+            this.editableStoredOrder.shelf = this.shelf
+        },
+        status() {
+            console.log()
+            if (!this.status || this.status !== this.editableStoredOrder.status) {
+                this.orders = []
+            }
+            this.editableStoredOrder.status = this.status
+        },
+        orders() {
+            this.validating();
         },
         editableStoredOrder() {
-            this.storedOrder = {...this.editableStoredOrder};
+            this.zone = this.editableStoredOrder.zone,
+            this.rack = this.editableStoredOrder.rack,
+            this.shelf = this.editableStoredOrder.shelf,
+            this.status = this.editableStoredOrder.status,
+            this.orders = [...this.editableStoredOrder.orders]
         }
     },
     computed: {
         ...mapGetters({
             editableStoredOrder: "moduleCargoRegistration/getEditableStoredOrder"
         }),
-        idStoredOrder() {
-            return this.$route.params.id || null;
-        },
+        // idStoredOrder() {
+        //     return this.$route.params.id || null;
+        // },
+        // checkStoredOrdersFields() {
+        //     if (!this.storedOrder.zone) {
+        //         this.storedOrder.rack = null;
+        //     }
+
+        //     if (!this.storedOrder.rack) {
+        //         this.storedOrder.shelf = null;
+        //     }
+
+        //     if (!this.storedOrder.shelf) {
+        //         this.storedOrder.status = null;
+        //     }
+
+        //     if (!this.storedOrder.status) {
+        //         this.storedOrder.orders = [];
+        //     }
+        // }
     },
     methods: {
         ...mapActions({
@@ -229,7 +289,7 @@ export default {
             }
         },
         fetchRack: _.debounce((search, loading, vm) => {
-            vm.$api.addressBasedStorage.getRacks({ search, limit: 100, zone: vm.storedOrder.zone })
+            vm.$api.addressBasedStorage.getRacks({ search, limit: 100, zone: vm.zone })
                 .then((response) => {
                     vm.racks = [...response.data.results];
                     loading(false);
@@ -239,10 +299,11 @@ export default {
             if (search.length) {
                 loading(true);
                 this.fetchShelf(search, loading, this);
+
             }
         },
         fetchShelf: _.debounce((search, loading, vm) => {
-            vm.$api.addressBasedStorage.getShelves({ search, limit: 100, rack: vm.storedOrder.rack })
+            vm.$api.addressBasedStorage.getShelves({ search, limit: 100, rack: vm.rack })
                 .then((response) => {
                     vm.shelves = [...response.data.results];
                     loading(false);
@@ -255,7 +316,7 @@ export default {
             }
         },
         fetchStatus: _.debounce((search, loading, vm) => {
-            vm.$api.addressBasedStorage.getStoredOrderStatus({ search, limit: 100 })
+            vm.$api.addressBasedStorage.getStoredOrderStatus({ limit: 100, name: search })
                 .then((response) => {
                     vm.statuses = [...response.data.results];
                     loading(false);
@@ -274,26 +335,36 @@ export default {
                     loading(false);
                 });
         }, 500),
-        validateStoredOrder() {
-            if (this.storedOrder.zone && this.storedOrder.rack
-                && this.storedOrder.shelf && this.storedOrder.status
-                && this.storedOrder.orders.length
-            ) {
+        validating() {
+            if (this.orders.length) {
                 this.goodValidate = true;
             } else {
                 this.goodValidate = false;
             }
         },
         handleCreateStoredOrder() {
-            this.createStoredOrder(this.storedOrder);
+            this.createStoredOrder({
+                zone: this.zone,
+                rack: this.rack,
+                shelf: this.shelf,
+                status: this.status,
+                orders: this.orders
+            });
         },
         handleUpdateStoredOrder() {
             this.fetchEditableStoredOrder(this);            
         },
         fetchEditableStoredOrder(vm) {
-            vm.$api.addressBasedStorage.updateStoredOrder(vm.idStoredOrder, vm.storedOrder)
+            let updatedOrder = {
+                zone: vm.zone,
+                rack: vm.rack,
+                shelf: vm.shelf,
+                status: vm.status,
+                orders: vm.orders
+            }
+            vm.$api.addressBasedStorage.updateStoredOrder(vm.idStoredOrder, updatedOrder)
                 .then((response) => {
-                    console.log('success updated');
+                    console.log("updated:", response);
                 });
         },
         onStoredOrderMount () {

@@ -21,7 +21,7 @@ export default function (instance) {
             return instance.delete(`api/v1/address_based_storage/cargo_registration/${id}/`);
         },
         getStoredOrderStatus() {
-            return instance.get("api/v1/address_based_storage/cargo_registration_status");
+            return instance.get("api/v1/address_based_storage/cargo_registration_status/");
         },
         getStocks(data) {
             return instance.get("api/v1/stock", {

@@ -151,6 +151,10 @@
                 racks: [],
                 shelves: [],
                 statuses: [],
+				stockControlValue: null,
+				zoneControlValue: null,
+				rackControlValue: null,
+				shelfControlValue: null,
 				search_fields:  [
 					{
 						name: 'По номеру заказа',
@@ -195,6 +199,7 @@
 			filters: {
 				handler(val) {
 					if (val.search && !val.search_fields?.length) return;
+					this.controlFilters();
 					this.resetPagination();
 					this.fetchStoredOrders();
 				},
@@ -205,6 +210,27 @@
 			}
         },
 		methods: {
+			controlFilters() {
+				if (this.filters.stock !== this.stockControlValue) {
+					this.filters.zone = null
+					this.stockControlValue = this.filters.stock
+				}
+
+				if (this.filters.zone !== this.zoneControlValue) {
+					this.filters.rack = null
+					this.zoneControlValue = this.filters.zone
+				}
+
+				if (this.filters.rack !== this.rackControlValue) {
+					this.filters.shelf = null
+					this.rackControlValue = this.filters.rack
+				}
+
+				if (this.filters.shelf !== this.shelfControlValue) {
+					this.filters.status = null
+					this.shelfControlValue = this.filters.shelf
+				}
+			},
 			...mapMutations({
 				setFilters: "moduleCargoRegistration/setFilters"
 			}),
@@ -271,8 +297,8 @@
 					this.fetchStatus(search, loading, this);
 				}
             },
-            fetchStatus: _.debounce((search, loading, vm) => {
-				vm.$api.addressBasedStorage.getStoredOrderStatus({ search, limit: 100 })
+            fetchStatus: _.debounce(( search, loading, vm) => {
+				vm.$api.addressBasedStorage.getStoredOrderStatus()
                     .then((response) => {
                         vm.statuses = [...response.data.results];
                         loading(false);

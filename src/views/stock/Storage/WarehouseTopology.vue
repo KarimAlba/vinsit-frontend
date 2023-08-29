@@ -61,13 +61,38 @@
 			</template>
 		</b-card>
 		<b-card style="margin-top: 20px;">
+			<div class="mb-1 d-flex align-items-center justify-content-between">
+				<span>
+					Найдено: <b>{{ count }}</b>
+				</span>
+			</div>
 			<b-table
 				:items="stocks"
 				:fields="fields"
 				striped
 				responsive
-				@row-clicked="(item) => $set(item, '_showDetails', !item._showDetails)"
+				@row-clicked="(stockVal) => handleStocksRowClicked(stockVal)"
 			>
+				<template #row-details="stockVal">
+					<b-table
+						:items="stockVal.zones"
+						:fields="fields"
+						striped
+						responsive
+						@row-clicked="(zoneVal) => handleZoneRowClicked(zoneVal)"
+					>
+						<template #row-details="zoneVal">
+							<b-table
+								:items="zoneVal.racks"
+								:fields="fields"
+								striped
+								responsive
+								@row-clicked="(rackVal) => handleZoneRowClicked(rackVal)"
+							>
+							</b-table>
+						</template>
+					</b-table>
+                </template>
 
 			</b-table>
 			<b-pagination
@@ -95,6 +120,7 @@
 		VBToggle,
 		BPagination,
 		BIconXCircle,
+		BFormCheckbox,
 		BImg,
 	} from "bootstrap-vue";
 	import { RoleConstants } from '@/utils/role';
@@ -107,8 +133,9 @@
 					{ key: "id", label: "ХРАНИЛИЩЕ" },
 					{ key: "name", label: "ИМЯ" },
 					{ key: "action", label: "ДЕЙСТВИЕ" },
+					{ key: "show_details", label: "" },
 				],
-				orders: [],
+				//stocks: [],
 				zones: [],
                 racks: [],
                 shelves: []
@@ -122,6 +149,7 @@
 			BButton,
 			BCollapse,
 			BIconXCircle,
+			BFormCheckbox,
 			BImg,
 			BPagination,
 			vSelect
@@ -131,7 +159,21 @@
 		},
 		watch: {
 			stocks() {
-				console.log(this.stocks);
+				console.log(this.stocks)
+			},
+			filters: {
+				handler() {
+					if (!this.filters.zone) {
+						this.filters.rack = null;
+					}
+
+					if (!this.filters.rack) {
+						this.filters.shelf = null;
+					}
+
+					this.fetchStocks();
+				},
+				deep: true
 			}
 		},
 		computed: {
@@ -142,6 +184,7 @@
 				return store.state.app.user.role !== RoleConstants.AD && store.state.app.user.role !== RoleConstants.LG;
 			},
 			...mapGetters({
+				count: "moduleWarehouseTopology/getCount",
 				filters: "moduleWarehouseTopology/getFilters",
 				stocks: "moduleWarehouseTopology/getStocks",
 			}),
@@ -197,6 +240,23 @@
                         loading(false);
                     });
 			}, 500),
+			handleStockRowClicked(stockVal) {
+				//$set(stockVal, '_showDetails', !stockVal._showDetails)
+				console.log(stockVal);
+				this.$api.addressBasedStorage.getZones({ limit: 100, stock: stockVal.id })
+                    .then((response) => {
+                        stockVal.zones = [...response.data.results];
+                        //loading(false);
+                    });
+			},
+			handleZoneRowClicked(zoneVal) {
+				//$set(zoneVal, '_showDetails', !zoneVal._showDetails)
+				this.$api.addressBasedStorage.getRacks({ limit: 100, zone: zoneVal.id })
+                    .then((response) => {
+                        zoneVal.racks = [...response.data.results];
+                        //loading(false);
+                    });
+			},
 		},
 		mounted() {
 			this.fetchStocks();
