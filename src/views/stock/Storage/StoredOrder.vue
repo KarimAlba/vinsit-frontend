@@ -13,7 +13,6 @@
                     <v-select
                         label="name"
                         @search="onSearchZone"
-                        :reduce="(item) => item.id"
                         :options="zones"
                         placeholder="Зона"
                         :filterable="false"
@@ -30,7 +29,6 @@
                     <v-select
                         label="name"
                         @search="onSearchRack"
-                        :reduce="(item) => item.id"
                         :options="racks"
                         placeholder="Стеллаж"
                         :filterable="false"
@@ -48,7 +46,6 @@
                     <v-select
                         label="name"
                         @search="onSearchShelf"
-                        :reduce="(item) => item.id"
                         :options="shelves"
                         placeholder="Полка"
                         :filterable="false"
@@ -66,7 +63,6 @@
                     <v-select
                         label="name"
                         @search="onSearchStatus"
-                        :reduce="(item) => item.id"
                         :options="statuses"
                         placeholder="Статус"
                         :filterable="false"
@@ -172,13 +168,6 @@ export default {
             shelves: [],
             statuses: [],
             selectOrders: [],
-            // storedOrder: {
-            //     zone: null,
-            //     rack: null,
-            //     shelf: null,
-            //     status: null,
-            //     orders: []
-            // },
             zone: null,
             rack: null,
             shelf: null,
@@ -191,18 +180,11 @@ export default {
 		"b-toggle": VBToggle,
 	},
     watch: {
-        // storedOrder: {
-        //     handler() {
-        //         console.log(this.storedOrder);
-        //         this.validateStoredOrder();
-        //         this.checkStoredOrdersFields(); // - отрабатывает, но ругается, мол not a function((
-        //     },
-        //     deep: true,
-        // },
         idStoredOrder() {
             console.log(this.idStoredOrder)
         },
         zone() {
+            console.log(this.zone)
             if (!this.zone || this.zone !== this.editableStoredOrder.zone) {
                 this.rack = null
             }
@@ -221,7 +203,6 @@ export default {
             this.editableStoredOrder.shelf = this.shelf
         },
         status() {
-            console.log()
             if (!this.status || this.status !== this.editableStoredOrder.status) {
                 this.orders = []
             }
@@ -242,26 +223,6 @@ export default {
         ...mapGetters({
             editableStoredOrder: "moduleCargoRegistration/getEditableStoredOrder"
         }),
-        // idStoredOrder() {
-        //     return this.$route.params.id || null;
-        // },
-        // checkStoredOrdersFields() {
-        //     if (!this.storedOrder.zone) {
-        //         this.storedOrder.rack = null;
-        //     }
-
-        //     if (!this.storedOrder.rack) {
-        //         this.storedOrder.shelf = null;
-        //     }
-
-        //     if (!this.storedOrder.shelf) {
-        //         this.storedOrder.status = null;
-        //     }
-
-        //     if (!this.storedOrder.status) {
-        //         this.storedOrder.orders = [];
-        //     }
-        // }
     },
     methods: {
         ...mapActions({
@@ -289,7 +250,7 @@ export default {
             }
         },
         fetchRack: _.debounce((search, loading, vm) => {
-            vm.$api.addressBasedStorage.getRacks({ search, limit: 100, zone: vm.zone })
+            vm.$api.addressBasedStorage.getRacks({ search, limit: 100, zone: vm.zone.id })
                 .then((response) => {
                     vm.racks = [...response.data.results];
                     loading(false);
@@ -303,7 +264,7 @@ export default {
             }
         },
         fetchShelf: _.debounce((search, loading, vm) => {
-            vm.$api.addressBasedStorage.getShelves({ search, limit: 100, rack: vm.rack })
+            vm.$api.addressBasedStorage.getShelves({ search, limit: 100, rack: vm.rack.id })
                 .then((response) => {
                     vm.shelves = [...response.data.results];
                     loading(false);
@@ -344,10 +305,10 @@ export default {
         },
         handleCreateStoredOrder() {
             this.createStoredOrder({
-                zone: this.zone,
-                rack: this.rack,
-                shelf: this.shelf,
-                status: this.status,
+                zone: this.zone.id,
+                rack: this.rack.id,
+                shelf: this.shelf.id,
+                status: this.status.id,
                 orders: this.orders
             });
         },
@@ -355,12 +316,18 @@ export default {
             this.fetchEditableStoredOrder(this);            
         },
         fetchEditableStoredOrder(vm) {
+            var requestOrders = [...vm.orders];
+
+            if (vm.orders[0].id) {
+                requestOrders = [...vm.orders.map(order => order.id)]
+            } 
+
             let updatedOrder = {
-                zone: vm.zone,
-                rack: vm.rack,
-                shelf: vm.shelf,
-                status: vm.status,
-                orders: vm.orders
+                zone: vm.zone.id,
+                rack: vm.rack.id,
+                shelf: vm.shelf.id,
+                status: vm.status.id,
+                orders: requestOrders
             }
             vm.$api.addressBasedStorage.updateStoredOrder(vm.idStoredOrder, updatedOrder)
                 .then((response) => {

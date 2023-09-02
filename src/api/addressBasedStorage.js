@@ -42,6 +42,30 @@ export default function (instance) {
             return instance.get("api/v1/address_based_storage/shelf", {
                 params: data
             });
-        }  
+        },
+        deleteStock(id) {
+            return instance.delete(`api/v1/stock/${id}`);
+        },
+        deleteZone(id) {
+            return instance.delete(`api/v1/address_based_storage/zone/${id}`);
+        },
+        deleteRack(id) {
+            return instance.delete(`api/v1/address_based_storage/rack/${id}`);
+        },
+        deleteShelf(id) {
+            return instance.delete(`api/v1/address_based_storage/shelf/${id}`);
+        },
+        createStock(data) {
+            return instance.post("api/v1/stock/", data);
+        },
+        createZone(data) {
+            return instance.post("api/v1/address_based_storage/zone/", data);
+        },
+        createRack(data) {
+            return instance.post("api/v1/address_based_storage/rack/", data);
+        },
+        createShelf(data) {
+            return instance.post("api/v1/address_based_storage/shelf/", data);
+        },
     }
 }

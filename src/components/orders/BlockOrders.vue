@@ -40,8 +40,7 @@
                         :to="{ name: 'order', params: { id: data.item.id } }"
                     >
                         {{ data.item.id }}
-                    </router-link
-                    >
+                    </router-link>
                 </template>
 
                 <template #row-details="data">

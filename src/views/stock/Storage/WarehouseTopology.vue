@@ -71,30 +71,223 @@
 				:fields="fields"
 				striped
 				responsive
-				@row-clicked="(stockVal) => handleStocksRowClicked(stockVal)"
+				@row-clicked="(item) => handleStockRowClicked(item)"
 			>
-				<template #row-details="stockVal">
+				<template #cell(action)="data">
+					<b-button
+						class="mr-2"
+						variant="success"
+						@click="() => checkStockId(data.item.id)"
+						v-b-modal.modal-prevent-closing-zone
+					>
+						Добавить зону
+					</b-button>
+					<b-button 
+						variant="danger"
+						@click="() => handleDeleteStock(data)" 
+					>
+						Удалить склад
+					</b-button>
+					<b-modal
+						id="modal-prevent-closing-zone"
+						ref="modal"
+						title="Введите имя зоны"
+						@show="resetZoneModal"
+						@hidden="resetZoneModal"
+						@ok="(event) => handleZoneOk(event, data.item)"
+					>
+						<form ref="form" @submit.stop.prevent="handleZoneSubmit">
+							<b-form-group
+								label="Имя зоны"
+								label-for="zone-input"
+								invalid-feedback="Zone is required"
+								:state="zoneState"
+							>
+								<b-form-input
+									id="zone-input"
+									v-model="zone"
+									:state="zoneState"
+									required
+								>
+								</b-form-input>
+							</b-form-group>
+						</form>
+					</b-modal>
+				</template>
+
+				<template #row-details="data">
 					<b-table
-						:items="stockVal.zones"
-						:fields="fields"
+						:items="data.item.zones"
+						:fields="zoneFields"
 						striped
 						responsive
-						@row-clicked="(zoneVal) => handleZoneRowClicked(zoneVal)"
+						@row-clicked="(item) => handleZoneRowClicked(data.item.id, item)"
 					>
-						<template #row-details="zoneVal">
+						<template #cell(action)="data">
+							<b-button
+								class="mr-2"
+								variant="success"
+								v-b-modal.modal-prevent-closing-rack
+								@click="() => checkZoneId(data.item.id)"
+							>
+								Добавить стеллаж
+							</b-button>
+							<b-button 
+								variant="danger" 
+								@click="() => handleDeleteZone(data)"
+							>
+								Удалить зону
+							</b-button>
+							<b-modal
+								id="modal-prevent-closing-rack"
+								ref="modal"
+								title="Введите имя стеллажа"
+								@show="resetRackModal"
+								@hidden="resetRackModal"
+								@ok="(event) => handleRackOk(event, data.item.id)"
+							>
+								<form ref="form" @submit.stop.prevent="handleRackSubmit">
+									<b-form-group
+										label="Имя стеллажа"
+										label-for="rack-input"
+										invalid-feedback="Rack is required"
+										:state="rackState"
+									>
+										<b-form-input
+											id="rack-input"
+											v-model="rack"
+											:state="rackState"
+											required
+										>
+										</b-form-input>
+									</b-form-group>
+								</form>
+							</b-modal>
+						</template>
+
+						<template #row-details="data">
 							<b-table
-								:items="zoneVal.racks"
-								:fields="fields"
+								class="w-100"
+								:items="data.item.racks"
+								:fields="rackFields"
 								striped
 								responsive
-								@row-clicked="(rackVal) => handleZoneRowClicked(rackVal)"
+								@row-clicked="(item) => handleRackRowClicked(data.item, data.item.id, item)"
 							>
+								<template #cell(action)="data">
+									<b-button
+										class="mr-2"
+										variant="success"
+										v-b-modal.modal-prevent-closing-shelf
+										@click="() => checkRackId(data.item.id)"
+									>
+										Добавить полку
+									</b-button>
+									<b-button  
+										variant="danger" 
+										@click="() => handleDeleteRack(data)" 
+									>
+										Удалить стеллаж
+									</b-button>
+									<b-modal
+										id="modal-prevent-closing-shelf"
+										ref="modal"
+										title="Введите имя полки"
+										@show="resetShelfModal"
+										@hidden="resetShelfModal"
+										@ok="(event) => handleShelfOk(event, data.item.id)"
+									>
+										<form ref="form" @submit.stop.prevent="handleShelfSubmit">
+											<b-form-group
+												label="Имя полки"
+												label-for="shelf-input"
+												invalid-feedback="Shelf is required"
+												:state="shelfState"
+											>
+												<b-form-input
+													id="shelf-input"
+													v-model="shelf"
+													:state="shelfState"
+													required
+												>
+												</b-form-input>
+											</b-form-group>
+										</form>
+									</b-modal>
+								</template>
+								<template #row-details="data">
+									<b-table
+										:items="data.item.shelves"
+										:fields="shelfFields"
+										striped
+										responsive
+										@row-clicked="(item) => handleShelfRowClicked(data, item)"
+									>
+										<template #cell(action)="data">
+											<b-button 
+												v-b-modal.modal-delete 
+												variant="danger"
+												@click="() => handleDeleteShelf(data)" 
+											>
+												Удалить полку
+											</b-button>
+										</template>
+										<template #row-details="data">
+											<b-card class="mb-1">
+												<h5>Полка №{{data.item.id}}</h5>
+												<b-table
+													:items="data.item.storedOrders"
+													:fields="shelfInfoFields"
+													striped
+													responsive
+												>
+													<template #cell(date_created)="data">
+														{{ formatDate(data.item.date_created) }}
+													</template>
+												</b-table>
+											</b-card>	
+										</template>
+									</b-table>
+								</template>
 							</b-table>
 						</template>
 					</b-table>
                 </template>
-
 			</b-table>
+			<b-button
+				style="float: right"
+				variant="success"
+				v-b-modal.modal-prevent-closing-stock
+			>
+				Добавить склад
+			</b-button>
+
+			<b-modal
+				id="modal-prevent-closing-stock"
+				ref="modal"
+				title="Введите имя склада"
+				@show="resetStockModal"
+				@hidden="resetStockModal"
+				@ok="handleStockOk"
+			>
+				<form ref="form" @submit.stop.prevent="handleStockSubmit">
+					<b-form-group
+						label="Имя склада"
+						label-for="stock-input"
+						invalid-feedback="Stock is required"
+						:state="stockState"
+					>
+						<b-form-input
+							id="stock-input"
+							v-model="stock"
+							:state="stockState"
+							required
+						>
+						</b-form-input>
+					</b-form-group>
+				</form>
+			</b-modal>
+
 			<b-pagination
 				v-if="showPagination"
 				:total-rows="count"
@@ -122,20 +315,56 @@
 		BIconXCircle,
 		BFormCheckbox,
 		BImg,
+		BFormInput,
+		BFormGroup,
 	} from "bootstrap-vue";
 	import { RoleConstants } from '@/utils/role';
 	import store from "@/store/index";
 	export default {
 		data() {
 			return {
+				stock: '',
+				stockState: null,
+				stockIdValue: null, 
+				zone: '',
+				zoneState: null,
+				zoneIdValue: null,
+				rack: '',
+				rackState: null,
+				rackIdValue: null,
+				shelf: '',
+				shelfState: null,
 				visible: false,
 				fields: [
-					{ key: "id", label: "ХРАНИЛИЩЕ" },
+					{ key: "id", label: "СКЛАД" },
 					{ key: "name", label: "ИМЯ" },
 					{ key: "action", label: "ДЕЙСТВИЕ" },
 					{ key: "show_details", label: "" },
 				],
-				//stocks: [],
+				zoneFields: [
+					{ key: "id", label: "ЗОНА" },
+					{ key: "name", label: "ИМЯ" },
+					{ key: "action", label: "ДЕЙСТВИЕ" },
+					{ key: "show_details", label: "" },
+				],
+				rackFields: [
+					{ key: "id", label: "СТЕЛЛАЖ" },
+					{ key: "name", label: "ИМЯ" },
+					{ key: "action", label: "ДЕЙСТВИЕ" },
+					{ key: "show_details", label: "" },
+				],
+				shelfFields: [
+					{ key: "id", label: "ПОЛКА" },
+					{ key: "name", label: "ИМЯ" },
+					{ key: "action", label: "ДЕЙСТВИЕ" },
+					{ key: "show_details", label: "" },
+				],
+				shelfInfoFields: [
+					{ key: "id", label: "НОМЕР" },
+					{ key: "date_created", label: "ДАТА РЕГИСТРАЦИИ" },
+					{ key: "status", label: "СТАТУС" },
+					{ key: "user_created", label: "СОЗДАТЕЛЬ" },
+				],
 				zones: [],
                 racks: [],
                 shelves: []
@@ -152,15 +381,14 @@
 			BFormCheckbox,
 			BImg,
 			BPagination,
-			vSelect
+			vSelect,
+			BFormInput,
+			BFormGroup,
 		},
 		directives: {
 			"b-toggle": VBToggle,
 		},
 		watch: {
-			stocks() {
-				console.log(this.stocks)
-			},
 			filters: {
 				handler() {
 					if (!this.filters.zone) {
@@ -240,26 +468,216 @@
                         loading(false);
                     });
 			}, 500),
-			handleStockRowClicked(stockVal) {
-				//$set(stockVal, '_showDetails', !stockVal._showDetails)
-				console.log(stockVal);
-				this.$api.addressBasedStorage.getZones({ limit: 100, stock: stockVal.id })
+			handleStockRowClicked(item) {
+				this.$set(item, '_showDetails', !item._showDetails); 
+				let index = this.stocks.findIndex(stock => stock.id === item.id);
+				this.$api.addressBasedStorage.getZones({ limit: 100, stock: item.id })
                     .then((response) => {
-                        stockVal.zones = [...response.data.results];
-                        //loading(false);
+						let stockWithZones = {
+							...item,
+							zones: [...response.data.results] 
+						}
+						this.stocks.splice(index, 1, stockWithZones);
                     });
 			},
-			handleZoneRowClicked(zoneVal) {
-				//$set(zoneVal, '_showDetails', !zoneVal._showDetails)
-				this.$api.addressBasedStorage.getRacks({ limit: 100, zone: zoneVal.id })
-                    .then((response) => {
-                        zoneVal.racks = [...response.data.results];
-                        //loading(false);
-                    });
+			handleZoneRowClicked(id, item) {
+				this.$set(item, '_showDetails', !item._showDetails); 
+				let parentIndex = this.stocks.findIndex(stock => stock.id === id);
+				let index = this.stocks[parentIndex].zones.findIndex(zone => zone.id === item.id);
+				this.$api.addressBasedStorage.getRacks({ limit: 100, zone: item.id })
+					.then((response) => {
+						let racksResult = response.data.results.map(item => item = {...item, stock: id})
+						let zoneWithRacks = {
+							...item,
+							racks: [...racksResult] 
+						}
+						this.stocks[parentIndex].zones.splice(index, 1, zoneWithRacks);
+					});
+			},
+			handleRackRowClicked(zone,  zoneId, item) {
+				this.$set(item, '_showDetails', !item._showDetails); 
+				let stockIndex = this.stocks.findIndex(stock => stock.id === zone.stock);
+				let zoneIndex = this.stocks[stockIndex].zones.findIndex(zone => zone.id === zoneId);
+				let index = this.stocks[stockIndex].zones[zoneIndex].racks.findIndex(racks => racks.id === item.id);
+
+				this.$api.addressBasedStorage.getShelves({ limit: 100, rack: item.id })
+					.then((response) => {
+						let rackWithShelves = {
+							...item,
+							shelves: [...response.data.results] 
+						}
+						this.stocks[stockIndex].zones[zoneIndex].racks.splice(index, 1, rackWithShelves);
+					});
+			},
+			handleShelfRowClicked(data, item) {
+				this.$set(item, '_showDetails', !item._showDetails);
+				let stockIndex = this.stocks.findIndex(stock => stock.id === data.item.stock);
+				let zoneIndex = this.stocks[stockIndex].zones.findIndex(zone => zone.id === data.item.zone);
+				let shelfIndex = this.stocks[stockIndex].zones[zoneIndex].racks[data.index].shelves.findIndex(shelf => shelf.id === item.id);
+				this.$api.addressBasedStorage.getStoredOrders({shelf: item.id})
+					.then((response) => {
+							let shelfWithInfo = {
+								...item,
+								storedOrders: response.data.results 
+							}
+							this.stocks[stockIndex].zones[zoneIndex].racks[data.index].shelves.splice(shelfIndex, 1, shelfWithInfo)
+						})
+			},
+			checkStockId(id) {
+				this.stockIdValue = id
+			},
+			checkZoneId(id) {
+				this.zoneIdValue = id
+			},
+			checkRackId(id) {
+				this.rackIdValue = id
+			},
+			handleAddStock() {
+				this.$api.addressBasedStorage.createStock({name: this.stock})
+					.then((response) => {
+							this.fetchStocks();
+						})
+			},
+			handleDeleteStock(stockData) {
+				this.$api.addressBasedStorage.deleteStock(stockData.item.id)
+					.then((response) => {
+							this.fetchStocks();
+						})
+			},
+			handleAddZone() {
+				this.$api.addressBasedStorage.createZone({name: this.zone, stock: this.stockIdValue})
+					.then((response) => {
+							this.stockIdValue = null
+							this.fetchStocks();
+						})
+			},
+			handleDeleteZone(zoneData) {
+				this.$api.addressBasedStorage.deleteZone(zoneData.item.id)
+					.then((response) => {
+							this.fetchStocks();
+						})
+			},
+			handleAddRack() {
+				this.$api.addressBasedStorage.createRack({name: this.rack, zone: this.zoneIdValue})
+					.then((response) => {
+							this.zoneIdValue = null;
+							this.fetchStocks();
+						})
+			},
+			handleDeleteRack(rackData) {
+				this.$api.addressBasedStorage.deleteRack(rackData.item.id)
+					.then((response) => {
+							this.fetchStocks();
+						})
+			},
+			handleAddShelf() {
+				this.$api.addressBasedStorage.createShelf({name: this.shelf, rack: this.rackIdValue})
+					.then((response) => {
+							this.rackIdValue = null;
+							this.fetchStocks();
+						})
+			},
+			handleDeleteShelf(shelfData) {
+				this.$api.addressBasedStorage.deleteShelf(shelfData.item.id)
+					.then((response) => {
+							this.fetchStocks();
+						})
+			},
+			checkStockFormValidity() {
+				const valid = this.$refs.form.checkValidity()
+				this.stockState = valid
+				return valid
+			},
+			resetStockModal() {
+				this.stock = ''
+				this.stockState = null
+			},
+			handleStockOk(bvModalEvent) {
+				bvModalEvent.preventDefault()
+				this.handleStockSubmit()
+			},
+			handleStockSubmit() {
+				if (!this.checkStockFormValidity()) {
+					return
+				}
+				this.handleAddStock();
+				this.$nextTick(() => {
+					this.$bvModal.hide('modal-prevent-closing-stock')
+				})
+			},
+
+			checkZoneFormValidity() {
+				const valid = this.$refs.form.checkValidity()
+				this.zoneState = valid
+				return valid
+			},
+			resetZoneModal() {
+				this.zone = ''
+				this.zoneState = null
+			},
+			handleZoneOk(bvModalEvent) {
+				bvModalEvent.preventDefault()
+				this.handleZoneSubmit()
+			},
+			handleZoneSubmit() {
+				if (!this.checkZoneFormValidity()) {
+					return
+				}
+				this.handleAddZone();
+				this.$nextTick(() => {
+					this.$bvModal.hide('modal-prevent-closing-zone')
+				})
+			},
+
+			checkRackFormValidity() {
+				const valid = this.$refs.form.checkValidity()
+				this.rackState = valid
+				return valid
+			},
+			resetRackModal() {
+				this.rack = ''
+				this.rackState = null
+			},
+			handleRackOk(bvModalEvent) {
+				bvModalEvent.preventDefault()
+				this.handleRackSubmit()
+			},
+			handleRackSubmit() {
+				if (!this.checkRackFormValidity()) {
+					return
+				}
+				this.handleAddRack();
+				this.$nextTick(() => {
+					this.$bvModal.hide('modal-prevent-closing-rack')
+				})
+			},
+
+			checkShelfFormValidity() {
+				const valid = this.$refs.form.checkValidity()
+				this.shelfState = valid
+				return valid
+			},
+			resetShelfModal() {
+				this.shelf = ''
+				this.shelfState = null
+			},
+			handleShelfOk(bvModalEvent, rackId) {
+				console.log(rackId);
+				bvModalEvent.preventDefault()
+				this.handleShelfSubmit(rackId)
+			},
+			handleShelfSubmit(rackId) {
+				if (!this.checkShelfFormValidity()) {
+					return
+				}
+				this.handleAddShelf(rackId);
+				this.$nextTick(() => {
+					this.$bvModal.hide('modal-prevent-closing-shelf')
+				})
 			},
 		},
 		mounted() {
-			this.fetchStocks();
+			this.fetchStocks();  
 		},
 	};
 </script>
