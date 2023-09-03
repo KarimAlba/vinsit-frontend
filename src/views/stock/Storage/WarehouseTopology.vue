@@ -66,14 +66,14 @@
 					Найдено: <b>{{ count }}</b>
 				</span>
 			</div>
-			<b-table
+			<b-table 
 				:items="stocks"
 				:fields="fields"
 				striped
 				responsive
 				@row-clicked="(item) => handleStockRowClicked(item)"
 			>
-				<template #cell(action)="data">
+				<template #cell(action)="data" >
 					<b-button
 						class="mr-2"
 						variant="success"
@@ -164,7 +164,6 @@
 								</form>
 							</b-modal>
 						</template>
-
 						<template #row-details="data">
 							<b-table
 								class="w-100"
@@ -254,8 +253,9 @@
 					</b-table>
                 </template>
 			</b-table>
+			
 			<b-button
-				style="float: right"
+				class="mt-1"
 				variant="success"
 				v-b-modal.modal-prevent-closing-stock
 			>
@@ -336,15 +336,15 @@
 				shelfState: null,
 				visible: false,
 				fields: [
-					{ key: "id", label: "СКЛАД" },
-					{ key: "name", label: "ИМЯ" },
-					{ key: "action", label: "ДЕЙСТВИЕ" },
+					{ key: "id", label: "СКЛАД", class: "col-3" },
+					{ key: "name", label: "ИМЯ", class: "col-3" },
+					{ key: "action", label: "ДЕЙСТВИЕ", class: "col-7" },
 					{ key: "show_details", label: "" },
 				],
 				zoneFields: [
-					{ key: "id", label: "ЗОНА" },
-					{ key: "name", label: "ИМЯ" },
-					{ key: "action", label: "ДЕЙСТВИЕ" },
+					{ key: "id", label: "ЗОНА", class: "col-3" },
+					{ key: "name", label: "ИМЯ", class: "col-3" },
+					{ key: "action", label: "ДЕЙСТВИЕ", class: "col-7" },
 					{ key: "show_details", label: "" },
 				],
 				rackFields: [
@@ -413,13 +413,16 @@
 			},
 			...mapGetters({
 				count: "moduleWarehouseTopology/getCount",
+				perPage: "moduleWarehouseTopology/getCountPerPage",
+				curPage: "moduleWarehouseTopology/getCurPage",
 				filters: "moduleWarehouseTopology/getFilters",
 				stocks: "moduleWarehouseTopology/getStocks",
 			}),
 		},
 		methods: {
 			...mapMutations({
-				setFilters: "moduleWarehouseTopology/setFilters"
+				setFilters: "moduleWarehouseTopology/setFilters",
+				changeCurPage: "moduleWarehouseTopology/changePage",
 			}),
             ...mapActions({
 				resetPagination: "moduleWarehouseTopology/resetPagination",
@@ -675,9 +678,14 @@
 					this.$bvModal.hide('modal-prevent-closing-shelf')
 				})
 			},
+			changePage(page) {
+				this.changeCurPage(page);
+				this.fetchStocks();
+			},
 		},
 		mounted() {
-			this.fetchStocks();  
+			this.fetchStocks(); 
+			console.log('start') 
 		},
 	};
 </script>
