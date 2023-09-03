@@ -84,7 +84,6 @@
                         :options="selectOrders"
                         placeholder="Номера заказов"
                         :filterable="false"
-                        taggable 
                         multiple
                         v-model="orders"
                         :disabled="status || orders.length > 0 ? false : true"
@@ -180,11 +179,7 @@ export default {
 		"b-toggle": VBToggle,
 	},
     watch: {
-        idStoredOrder() {
-            console.log(this.idStoredOrder)
-        },
         zone() {
-            console.log(this.zone)
             if (!this.zone || this.zone !== this.editableStoredOrder.zone) {
                 this.rack = null
             }
@@ -217,7 +212,7 @@ export default {
             this.shelf = this.editableStoredOrder.shelf,
             this.status = this.editableStoredOrder.status,
             this.orders = [...this.editableStoredOrder.orders]
-        }
+        },
     },
     computed: {
         ...mapGetters({
@@ -230,6 +225,17 @@ export default {
             fetchStoredOrder: "moduleCargoRegistration/fetchStoredOrder",
             resetEditableStoredOrder: "moduleCargoRegistration/resetEditableStoredOrder"
         }),
+        getUniqueOrders(arr) {
+            let result = [];
+
+            for (let str of arr) {
+                if (!result.includes(str)) {
+                result.push(str);
+                }
+            }
+
+            return result;
+        },
         onSearchZone(search, loading) {
             if (search.length) {
                 loading(true);
@@ -290,9 +296,9 @@ export default {
             }
         },
         fetchOrders: _.debounce((search, loading, vm) => {
-            vm.$api.orders.getOrders({ limit: 100, id: search })
+            vm.$api.orders.getOrders({ limit: 100, search_fields:"id", search: search })
                 .then((response) => {
-                    vm.selectOrders = [...response.data.results];
+                    vm.selectOrders = [... vm.selectOrders, ...response.data.results];
                     loading(false);
                 });
         }, 500),
