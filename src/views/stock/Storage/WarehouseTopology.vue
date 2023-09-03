@@ -116,7 +116,11 @@
 				</template>
 
 				<template #row-details="data">
+					<div v-if="data.item.zones && !data.item.zones.length">
+						<h5>Ничего не найдено</h5>
+					</div>
 					<b-table
+						v-else
 						:items="data.item.zones"
 						:fields="zoneFields"
 						striped
@@ -165,7 +169,11 @@
 							</b-modal>
 						</template>
 						<template #row-details="data">
+							<div v-if="data.item.racks && !data.item.racks.length">
+								<h5>Ничего не найдено</h5>
+							</div>
 							<b-table
+								v-else
 								class="w-100"
 								:items="data.item.racks"
 								:fields="rackFields"
@@ -215,7 +223,11 @@
 									</b-modal>
 								</template>
 								<template #row-details="data">
+									<div v-if="data.item.shelves && !data.item.shelves.length">
+										<h5>Ничего не найдено</h5>
+									</div>
 									<b-table
+										v-else
 										:items="data.item.shelves"
 										:fields="shelfFields"
 										striped
@@ -234,7 +246,11 @@
 										<template #row-details="data">
 											<b-card class="mb-1">
 												<h5>Полка №{{data.item.id}}</h5>
+												<div v-if="data.item.storedOrders && !data.item.storedOrders.length">
+													<h5>Полка пуста</h5>
+												</div>
 												<b-table
+													v-else
 													:items="data.item.storedOrders"
 													:fields="shelfInfoFields"
 													striped
@@ -342,8 +358,8 @@
 					{ key: "show_details", label: "" },
 				],
 				zoneFields: [
-					{ key: "id", label: "ЗОНА", class: "col-3" },
-					{ key: "name", label: "ИМЯ", class: "col-3" },
+					{ key: "id", label: "ЗОНА", class: "col-2" },
+					{ key: "name", label: "ИМЯ", class: "col-2" },
 					{ key: "action", label: "ДЕЙСТВИЕ", class: "col-7" },
 					{ key: "show_details", label: "" },
 				],
