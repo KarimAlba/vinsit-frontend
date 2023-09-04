@@ -8,7 +8,7 @@ export default function (instance) {
         getDocument(id) {
             return instance.get(`api/v1/stock_document/${id}/`);
         },
-        updateDocument(id, data) {
+        editDocument(id, data) {
             return instance.patch(`api/v1/stock_document/${id}/`, data);
         },
         createDocument(data) {

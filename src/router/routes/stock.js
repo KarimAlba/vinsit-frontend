@@ -13,14 +13,24 @@ export default [
         },
     },
     {
-        path: '/stock/documents/create',
-        name: 'create-stock-document',
-        component: () => import('@/views/stock/Documents/CreateDocument.vue'),
+        path: '/stock/documents/create/:type?/:id?',
+        name: 'stock-document',
+        component: () => import('@/views/stock/Documents/Document.vue'),
         meta: {
             pageTitle: 'Простые документы',
             disabledRoles: [
                 RoleConstants.CR,
-            ]
+            ],
+            breadcrumb: [
+                {
+                    text: 'Документы',
+                    to: "/stock/documents"
+                },
+                {
+                    text: 'Документ',
+                    active: true,
+                },
+            ],
         },
     },
     {

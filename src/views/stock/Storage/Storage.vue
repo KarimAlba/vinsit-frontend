@@ -10,7 +10,8 @@
 </template>
 
 <script>
-	import CargoRegistration from './CargoRegistration.vue';
+	import { getHomeRouteForLoggedInUser } from '@/auth/utils';
+import CargoRegistration from './CargoRegistration.vue';
 	import WarehouseTopology from './WarehouseTopology.vue';
 	import {
 		BTab,
