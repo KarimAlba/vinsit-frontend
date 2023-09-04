@@ -17,7 +17,8 @@ import moduleAccountingBank from './app-modules/accounting/bank';
 import modulePayers from './app-modules/payers';
 import moduleRecipients from './app-modules/recipients';
 import moduleSenders from './app-modules/senders';
-
+import moduleCargoRegistration from './app-modules/addressBasedStorage/cargoRegistration';
+import moduleWarehouseTopology from './app-modules/addressBasedStorage/warehouseTopology';
 
 Vue.use(Vuex);
 
@@ -37,7 +38,9 @@ export default new Vuex.Store({
 		moduleAccountingBank,
 		modulePayers,
 		moduleRecipients,
-		moduleSenders
+		moduleSenders,
+		moduleCargoRegistration,
+		moduleWarehouseTopology
   	},
   	strict: process.env.DEV,
 });

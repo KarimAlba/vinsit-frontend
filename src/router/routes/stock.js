@@ -44,6 +44,17 @@ export default [
             ]
         },
     },
+    {
+        path: '/stock/storage/stored-order',
+        name: 'stored-order',
+        component: () => import('@/views/stock/Storage/StoredOrder.vue'),
+        meta: {
+            pageTitle: 'Адресное хранение', //тут наверное надо маршрут показать, а не title
+            disabledRoles: [
+                RoleConstants.CR,
+            ]
+        },
+    },
     // {
     //     path: '/stock/storage/tab/:tabIndex',
     //     name: 'cargo-registration',

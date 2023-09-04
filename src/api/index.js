@@ -18,6 +18,7 @@ import placesModule from "./places";
 import paymentDocumentsModule from "./payment-documents";
 import servicesModule from "./services";
 import accountingBank from "./accounting-bank";
+import addressBasedStorage from './addressBasedStorage';
 import office from "./office";
 import user from "./user";
 
@@ -42,6 +43,7 @@ export default {
     payDoc: paymentDocumentsModule(instance),
     services: servicesModule(instance),
     lprDocs: lprDocsModule(instance),
+    addressBasedStorage: addressBasedStorage(instance),
     office: office(instance),
     user: user(instance),
 };
