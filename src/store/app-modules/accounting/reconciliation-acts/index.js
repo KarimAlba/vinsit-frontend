@@ -8,7 +8,7 @@ export default {
         curPage: 1,
         countPerPage: 20,
         filters: {
-            type: null,
+            search: null,
         },
         ordering: '-date_created',
 
@@ -51,7 +51,7 @@ export default {
         },
         resetFilters(state) {
             state.filters = {
-                type: null,
+                search: null,
             };
         },
         resetData(state) {
