@@ -22,7 +22,7 @@ import _ from "lodash";
 
 export default {
     props: {
-            placeholder: {
+        placeholder: {
             type: String,
         },
         disabled: {
@@ -30,13 +30,13 @@ export default {
             default: false,
         },
         value: {
-            type: [Number, String, Object],
+            type: String
         },
     },
     data() {
         return {
-        cities: [],
-        city: null,
+            cities: [],
+            city: null,
         };
     },
     components: {
@@ -44,10 +44,7 @@ export default {
     },
     watch: {
         'value'() {
-            // console.log('tut');
-            // console.log('value', this.value);
             if (!this.value) {
-                // console.log('no city');
                 this.city = null;
                 return;
             }
@@ -56,39 +53,34 @@ export default {
     },
     methods: {
         onSearchCities(search, loading) {
-        if (search.length) {
-            loading(true);
-
-            this.fetchCities(search, loading, this);
-        }
+            if (search.length) {
+                loading(true);
+                this.fetchCities(search, loading, this);
+            }
         },
         fetchCities: _.debounce((search, loading, vm) => {
-        vm.$api.cities.getCities({ search, limit: 100 }).then((response) => {
-            // console.log('i am dsfds')
-            vm.cities = response.data.results;
-
-            loading ? loading(false) : null;
-        });
+            vm.$api.cities.getCities({ name: search, limit: 100 })
+                .then((response) => {
+                    vm.cities = response.data.results;
+                    loading ? loading(false) : null;
+                });
         }, 500),
         getCityById(id) {
             this.$api.cities.getCity(id).then((response) => {
-                // console.log('zdes kosyak')
-                // console.log(response.data)
                 this.cities = [response.data];
                 this.city = response.data;
             });
         },
         input(c) {
-        this.$emit("input", c);
+            this.$emit("input", c);
         },
     },
     mounted() {
-        // console.log('city value - ', this.value);
         this.value ? this.getCityById(this.value) : null;
     },
 };
 </script>
 
 <style lang="scss">
-@import "@core/scss/vue/libs/vue-select.scss";
+    @import "@core/scss/vue/libs/vue-select.scss";
 </style>
