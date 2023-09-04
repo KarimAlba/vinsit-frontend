@@ -63,8 +63,8 @@
                     {{ data.item.type ? data.item.type : '-' }}
                 </template>
 
-                <template #cell(issued_by)="data">
-                    {{ data.item.issued_by ? data.item.issued_by : '-' }}
+                <template #cell(provided_by)="data">
+                    {{ data.item.issued_by ? data.item.provided_by : '-' }}
                 </template>
 
                 <template #cell(current_office)="data">
@@ -128,7 +128,7 @@ export default {
                 { key: "date_created", label: "Дата" },
                 { key: "doc_close_datetime", label: "Дата и время закрытия" },
                 { key: "type", label: "Тип документа" },
-                { key: "issued_by", label: "Оформил" },
+                { key: "provided_by", label: "Оформил" },
                 { key: "current_office", label: "Офис текущий" },
                 { key: "office", label: "Офис откуда" },
                 { key: "final_destination_office", label: "Офис куда" },

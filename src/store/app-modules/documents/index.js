@@ -5,14 +5,11 @@ export default {
         document: {
             next_destination_office: 0,
             seal_number: null,
-            // route_display: null,
-            // stock: null,
             current_office: null,
             doc_close_datetime: null,
             provided_by: null,
             final_destination_office: 0,
             orders: [],
-            // scan: null,
             note: null,
             type: null,
         },
@@ -41,20 +38,6 @@ export default {
         },
         curPage: 1,
         countPerPage: 10,
-        // placeStatus: [
-        //     { id: "D", title: "Вручено", color: "success" },
-        //     { id: "U", title: "Не вручено", color: "primary" },
-        //     { id: "C", title: "Отменен", color: "secondary" },
-        // ],
-        // documentMode: [
-        //     { id: "DD", title: "дверь-дверь" },
-        //     { id: "DS", title: "дверь-склад" },
-        //     { id: "SD", title: "склад-дверь" },
-        // ],
-        // documentType: [
-        //     { id: "D", title: "Доставка" },
-        //     { id: "C", title: "Забор груза" },
-        // ],
     },
     getters: {
         getDocuments: (state) => {
@@ -78,15 +61,6 @@ export default {
         getFilters: (state) => {
             return state.filters
         },
-        // getPlaceStatus: (state) => {
-        //     return state.placeStatus
-        // },
-        // getDocumentMode: (state) => {
-        //     return state.documentMode
-        // },
-        // getDocumentType: (state) => {
-        //     return state.documentType
-        // },
         getLoading: (state) => {
             return state.loading
         }
@@ -96,7 +70,6 @@ export default {
             state.documents = payload
         },
         setDocument(state, payload) {
-            // console.log(payload);
             state.document = payload;
             state.editableDocument = {
                 ...payload,
@@ -105,27 +78,6 @@ export default {
         setEditableDocument(state, payload) {
             state.editableDocument = payload;
         },
-        // setTotalPrice(state, payload) {
-        //     state.document.total_price = payload;
-        //     state.editableDocument.total_price = payload;
-        // },
-		// setDocumentSender(state, payload) {
-		// 	// console.log(payload);
-		// 	if (!state.document.sender_counterparty) return;
-		// 	state.document.sender_counterparty.id = payload.id
-		// 	state.document.sender_counterparty.name = payload.name
-		// },
-		// setDocumentRecipient(state, payload) {
-		// 	if (!state.document.recipient_counterparty) return;
-		// 	state.document.recipient_counterparty.id = payload.id
-		// 	state.document.recipient_counterparty.name = payload.name
-		// },
-        // addDocumentPhones(state, payload) {
-        //     state.document[`${payload.prefix}_counterparty`].client_phones.unshift(payload.phone);
-        // },
-        // deleteDocumentPhone(state, payload) {
-        //     state.document[`${payload.prefix}_counterparty`].client_phones.splice(payload.index, 1);
-        // },
         setCount(state, payload) {
             state.count = payload
         },
@@ -169,52 +121,41 @@ export default {
             commit('changeLoading', true)
 
             this._vm.$api.documents.getDocument(idDocument).then((response) => {
-                // console.log('documentzresponse - ', response.data)
-                commit('setDocument', response.data)
+                const document = {
+                    ...response.data,
+                    next_destination_office: response.data.next_destination_office.id,
+                    current_office: response.data.current_office.id,
+                    provided_by: response.data.provided_by.id,
+                    final_destination_office: response.data.final_destination_office.id,
+                }
+                commit('setDocument', document)
             })
                 .finally(() => {
                     commit('changeLoading', false)
                 });
         },
-        createDocument({ commit, state }, idDocument) {
-            commit('changeLoading', true)
-            const data = {
-                note: 'test 2',
-                type: 1,
-                current_office: 1,
-                origin_office: 1,
-                final_destination_office: 1,
-                provided_by: 2,
-                next_destination_office: 1,
-                orders: [
-                    27
-                ]
-            }
-            this._vm.$api.documents.createDocument(data).then((response) => {
-                console.log('createDocument - ', response)
-                // commit('setDocument', response.data)
-            })
-                .finally(() => {
-                    commit('changeLoading', false)
-                });
-        },
-        // fetchTotalPrice({ commit, state }, idDocument) {
+        // createDocument({ commit, state }) {
         //     commit('changeLoading', true)
-
-        //     this._vm.$api.documents.getDocument(idDocument).then((response) => {
-        //         // console.log('documentzresponse - ', response.data)
-        //         commit('setTotalPrice', response.data.total_price)
+        //     const data = {
+        //         note: 'test 2',
+        //         type: 1,
+        //         current_office: 1,
+        //         origin_office: 1,
+        //         final_destination_office: 1,
+        //         provided_by: 2,
+        //         next_destination_office: 1,
+        //         orders: [
+        //             27
+        //         ]
+        //     }
+        //     this._vm.$api.documents.createDocument(data).then((response) => {
+        //         console.log('createDocument - ', response)
+        //         // commit('setDocument', response.data)
         //     })
         //         .finally(() => {
         //             commit('changeLoading', false)
         //         });
         // },
-		// setDocumentSenderCounterPartyId({ commit, state }, senderId) {
-		// 	commit('setDocumentSenderId', senderId);
-		// },
-		// setDocumentRecipientCounterPartyId({ commit, state }, recipientId) {
-		// 	commit('setDocumentRecipientId', recipientId);
-		// },
         resetPagination({ commit, state }) {
             commit('resetPagination')
         },

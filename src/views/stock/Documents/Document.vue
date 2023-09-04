@@ -1,10 +1,6 @@
 <template>
 	<div style="padding-bottom: 20px;">
-<<<<<<< HEAD:src/views/stock/Documents/Document.vue
-        <h1>Создать документ {{title}} {{ nameDocument }} от {{idDocument ? dayjs(editDocument.date_created).format("DD.MM.YYYY") : dataNow}}</h1>
-=======
-        <h1>Создать документ {{ this.$route.params.title}} от {{'05.10.2022'}}</h1>
->>>>>>> 2af5abf67f51a9497da00220b297b023ebba08aa:src/views/stock/Documents/CreateDocument.vue
+        <h1>Создать документ {{ nameDocument }} от {{documentId ? dayjs(editDocument.date_created).format("DD.MM.YYYY") : dataNow}}</h1>
         <b-row class="row equal-cols">
             <b-col cols="8">
                 <b-card>
@@ -151,7 +147,7 @@
                         </div>
                     </div>
                     <b-table
-                        :items="orders"
+                        :items="editDocument.orders"
                         :fields="fields"
                         striped
                         responsive
@@ -192,7 +188,7 @@
                                 <span>
                                     {{ data.item.problem ? data.item.problem : '-' }}
                                 </span>
-                                <b-icon-basket/>
+                                <b-icon-basket @click="deliteOrder(data.index)"/>
                             </div>
                         </template>
                     </b-table>
@@ -327,7 +323,7 @@ export default {
 	},
 	watch: {
         'document'(nextValue) {
-            if (this.idDocument) {
+            if (this.documentId) {
                 this.documentTemplate = nextValue;
             }
         },
@@ -350,7 +346,7 @@ export default {
         readOnly() {
             return store.state.app.user.role !== RoleConstants.AD && store.state.app.user.role !== RoleConstants.LG;
         },
-        idDocument() {
+        documentId() {
             return this.$route.params.id || null;
         },
         nameDocument() {
@@ -374,7 +370,6 @@ export default {
 	methods: {
 		...mapActions({
             fetchDocument: "moduleDocuments/fetchDocument",
-            // createDocument: "moduleDocuments/createDocument",
             resetPagination: "moduleDocuments/resetPagination",
         }),
         ...mapMutations({
@@ -387,12 +382,50 @@ export default {
             return this.clientType.find((type) => type.id === clientType)?.short_title;
         },
         handleSave() {
-            this.createDocument(this.editDocument)
+            this.documentId 
+                ? this.updateDocument()
+                : this.createDocument(this.editDocument);
         },
         createDocument(newDocument) {
-            console.log('doc', newDocument)
-            newDocument.type = this.$route.params.type;
-            this.$api.documents.createDocument(newDocument).then((response) => {
+            const payload = {
+                ...newDocument,
+                type:  this.$route.params.type,
+                orders: newDocument.orders.map(it => it.id),
+            }
+            this.$api.documents.createDocument(payload).then((response) => {
+                if (response.status !== 400) {
+                    this.$toast({
+                        component: ToastificationContent,
+                        props: {
+                        title: "Успешно",
+                        text: "Документ создан",
+                        icon: "CheckCircleIcon",
+                        variant: "success",
+                        },
+                    });
+                    this.$router.push({
+                        name: "stock-documents",
+                    });
+                } else {
+                this.$toast({
+                    component: ToastificationContent,
+                    props: {
+                    title: "Ошибка",
+                    text: "Не удалось создать документ.",
+                    icon: "XIcon",
+                    variant: "danger",
+                    },
+                });
+                }
+            });
+        },
+        updateDocument() {
+            const payload = {
+                ...this.editDocument,
+                type:  this.$route.params.type,
+                orders: this.editDocument.orders.map(it => it.id),
+            }
+            this.$api.documents.editDocument(this.documentId, payload).then((response) => {
                 if (response.status !== 400) {
                     this.$toast({
                         component: ToastificationContent,
@@ -421,9 +454,11 @@ export default {
         },
         handleAddOrder(id) {
             this.$api.orders.getOrder(id).then((response) => {
-                this.editDocument.orders.push(id);
-                this.orders = [...this.orders, response.data]
+                this.editDocument.orders.push(response.data);
             });
+        },
+        deliteOrder(index) {
+            this.editDocument.orders = [...this.editDocument.orders.slice(0, index), ...this.editDocument.orders.slice(index + 1)];
         },
         fetchOffices() {
             this.$api.office.getOffices({ limit: 100 }).then((response) => {
@@ -434,8 +469,8 @@ export default {
 	},
 	mounted() {
         this.fetchOffices();
-        if (this.idDocument) {
-            this.fetchDocument(this.idDocument);
+        if (this.documentId) {
+            this.fetchDocument(this.documentId);
         }
 	},
 };
