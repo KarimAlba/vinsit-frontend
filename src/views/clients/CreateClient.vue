@@ -43,8 +43,8 @@
                             <td class="pb-1" >Форма<br>собственности</td>
                             <td>
                                 <v-select
-                                    label="title"
-                                    :reduce="(type) => type"
+                                    label="short_name"
+                                    :reduce="(type) => type.id"
                                     :options="formsOwnership"
                                     :clearable="false"
                                     v-model="client.form_of_ownership"
@@ -494,7 +494,7 @@
                                         <validation-provider #default="{ errors }">
                                             <span v-if="client.client_phones.length > 1" style="text-align: left; margin-bottom: 15px;">{{ i + 1 }})</span>
                                             <b-form-input
-                                                v-model="phone.phone_number"
+                                                v-model="client.client_phones[i].phone_number"
                                                 :state="errors.length > 0 ? false : null"
                                                 :disabled="readOnly"
                                                 type="tel"
@@ -719,16 +719,7 @@ export default {
             },
             message: null,
             contracts: [{ value: '' }],
-            formsOwnership: [
-                'ООО',
-                'АО',
-                'ПАО',
-                'ЗАО',
-                'ИП',
-                'ТСЖ',
-                'СХП',
-                'СТ'
-            ],
+            formsOwnership: [],
             // statusResponsiblePerson: [
             //     'Доверенность',
             //     'Договор',
@@ -762,6 +753,13 @@ export default {
     ...mapMutations({
       changeLoading: "moduleClients/changeLoading",
     }),
+    deleteContract(index) {
+        if (this.contracts.length === 1) {
+            this.contracts = [{value: ''}];
+            return
+        }
+        this.contracts = [...this.contracts.slice(0, index), ...this.contracts.slice(index + 1)];
+    },
     isValidHttpUrl(string) {
       var pattern = new RegExp(
         "^(https?:\\/\\/)?" + // protocol
@@ -947,10 +945,20 @@ export default {
                 .catch((error) => {
                     console.log('lpr - ', error)
                 })
-        }
+        },
+        getFormsOwnership() {
+            this.$api.formsOwnership.getFormsOwnership()
+                .then((response) => {
+                    this.formsOwnership = response.data.results;
+                })
+                .catch((error) => {
+                    console.log('lpr - ', error)
+                })
+        },
     },
     mounted() {
         this.getLprDocs();
+        this.getFormsOwnership();
     },
 };
 </script>
