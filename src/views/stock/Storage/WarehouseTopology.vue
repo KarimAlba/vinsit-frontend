@@ -73,6 +73,15 @@
 				responsive
 				@row-clicked="(item) => handleStockRowClicked(item)"
 			>
+				<template #cell(name)="data" >
+					<span>
+						{{data.item.name}}
+					</span>
+					<feather-icon
+						:icon="'ChevronDownIcon'"
+						size="18"
+					/>
+				</template>
 				<template #cell(action)="data" >
 					<b-button
 						class="mr-2"
@@ -84,7 +93,8 @@
 					</b-button>
 					<b-button 
 						variant="danger"
-						@click="() => handleDeleteStock(data)" 
+						@click="() => checkStockId(data.item.id)"
+						v-b-modal.modal-delete-stock
 					>
 						Удалить склад
 					</b-button>
@@ -114,7 +124,6 @@
 						</form>
 					</b-modal>
 				</template>
-
 				<template #row-details="data">
 					<div v-if="data.item.zones && !data.item.zones.length">
 						<h5>Ничего не найдено</h5>
@@ -127,6 +136,15 @@
 						responsive
 						@row-clicked="(item) => handleZoneRowClicked(data.item.id, item)"
 					>
+						<template #cell(name)="data" >
+							<span>
+								{{data.item.name}}
+							</span>
+							<feather-icon
+								:icon="'ChevronDownIcon'"
+								size="18"
+							/>
+						</template>
 						<template #cell(action)="data">
 							<b-button
 								class="mr-2"
@@ -138,7 +156,7 @@
 							</b-button>
 							<b-button 
 								variant="danger" 
-								@click="() => handleDeleteZone(data)"
+								v-b-modal.modal-delete-zone
 							>
 								Удалить зону
 							</b-button>
@@ -167,6 +185,18 @@
 									</b-form-group>
 								</form>
 							</b-modal>
+							<b-modal
+								id="modal-delete-zone"
+								title="Удалить?"
+								@ok="() => handleDeleteZone(data)"
+								ok-title="Удалить"
+								ok-variant="danger"
+								header-bg-variant="danger"
+								cancel-title="Отмена"
+								size="sm"
+							>
+								<p>Удалить зону?</p>
+							</b-modal>
 						</template>
 						<template #row-details="data">
 							<div v-if="data.item.racks && !data.item.racks.length">
@@ -181,6 +211,15 @@
 								responsive
 								@row-clicked="(item) => handleRackRowClicked(data.item, data.item.id, item)"
 							>
+								<template #cell(name)="data" >
+									<span>
+										{{data.item.name}}
+									</span>
+									<feather-icon
+										:icon="'ChevronDownIcon'"
+										size="18"
+									/>
+								</template>
 								<template #cell(action)="data">
 									<b-button
 										class="mr-2"
@@ -192,7 +231,7 @@
 									</b-button>
 									<b-button  
 										variant="danger" 
-										@click="() => handleDeleteRack(data)" 
+										v-b-modal.modal-delete-rack
 									>
 										Удалить стеллаж
 									</b-button>
@@ -221,6 +260,18 @@
 											</b-form-group>
 										</form>
 									</b-modal>
+									<b-modal
+										id="modal-delete-rack"
+										title="Удалить?"
+										@ok="() => handleDeleteRack(data)"
+										ok-title="Удалить"
+										ok-variant="danger"
+										header-bg-variant="danger"
+										cancel-title="Отмена"
+										size="sm"
+									>
+										<p>Удалить стеллаж?</p>
+									</b-modal>
 								</template>
 								<template #row-details="data">
 									<div v-if="data.item.shelves && !data.item.shelves.length">
@@ -234,14 +285,34 @@
 										responsive
 										@row-clicked="(item) => handleShelfRowClicked(data, item)"
 									>
+										<template #cell(name)="data" >
+											<span>
+												{{data.item.name}}
+											</span>
+											<feather-icon
+												:icon="'ChevronDownIcon'"
+												size="18"
+											/>
+										</template>
 										<template #cell(action)="data">
 											<b-button 
-												v-b-modal.modal-delete 
+												v-b-modal.modal-delete-shelf 
 												variant="danger"
-												@click="() => handleDeleteShelf(data)" 
 											>
 												Удалить полку
 											</b-button>
+											<b-modal
+												id="modal-delete-shelf"
+												title="Удалить?"
+												@ok="() => handleDeleteShelf(data)"
+												ok-title="Удалить"
+												ok-variant="danger"
+												header-bg-variant="danger"
+												cancel-title="Отмена"
+												size="sm"
+											>
+												<p>Удалить полку?</p>
+											</b-modal>
 										</template>
 										<template #row-details="data">
 											<b-card class="mb-1">
@@ -303,7 +374,18 @@
 					</b-form-group>
 				</form>
 			</b-modal>
-
+			<b-modal
+				id="modal-delete-stock"
+				title="Удалить?"
+				@ok="handleDeleteStock"
+				ok-title="Удалить"
+				ok-variant="danger"
+				header-bg-variant="danger"
+				cancel-title="Отмена"
+				size="sm"
+			>
+				<p>Удалить склад?</p>
+			</b-modal>
 			<b-pagination
 				v-if="showPagination"
 				:total-rows="count"
@@ -352,26 +434,22 @@
 				shelfState: null,
 				visible: false,
 				fields: [
-					{ key: "id", label: "СКЛАД", class: "col-3" },
-					{ key: "name", label: "ИМЯ", class: "col-3" },
+					{ key: "name", label: "СКЛАД", class: "col-6" },
 					{ key: "action", label: "ДЕЙСТВИЕ", class: "col-7" },
 					{ key: "show_details", label: "" },
 				],
 				zoneFields: [
-					{ key: "id", label: "ЗОНА", class: "col-2" },
-					{ key: "name", label: "ИМЯ", class: "col-2" },
+					{ key: "name", label: "ЗОНА", class: "col-4" },
 					{ key: "action", label: "ДЕЙСТВИЕ", class: "col-7" },
 					{ key: "show_details", label: "" },
 				],
 				rackFields: [
-					{ key: "id", label: "СТЕЛЛАЖ" },
-					{ key: "name", label: "ИМЯ" },
+					{ key: "name", label: "СТЕЛЛАЖ" },
 					{ key: "action", label: "ДЕЙСТВИЕ" },
 					{ key: "show_details", label: "" },
 				],
 				shelfFields: [
-					{ key: "id", label: "ПОЛКА" },
-					{ key: "name", label: "ИМЯ" },
+					{ key: "name", label: "ПОЛКА" },
 					{ key: "action", label: "ДЕЙСТВИЕ" },
 					{ key: "show_details", label: "" },
 				],
@@ -557,8 +635,8 @@
 							this.fetchStocks();
 						})
 			},
-			handleDeleteStock(stockData) {
-				this.$api.addressBasedStorage.deleteStock(stockData.item.id)
+			handleDeleteStock() {
+				this.$api.addressBasedStorage.deleteStock(this.stockIdValue)
 					.then((response) => {
 							this.fetchStocks();
 						})
@@ -698,10 +776,24 @@
 				this.changeCurPage(page);
 				this.fetchStocks();
 			},
+			fillOptions(vm) {
+				vm.$api.addressBasedStorage.getZones({ limit: 100 })
+                    .then((response) => {
+                        vm.zones = [...response.data.results];
+                    });
+				vm.$api.addressBasedStorage.getRacks({ limit: 100 })
+                    .then((response) => {
+                        vm.racks = [...response.data.results];
+                    });
+				vm.$api.addressBasedStorage.getShelves({ limit: 100 })
+                    .then((response) => {
+                        vm.shelves = [...response.data.results];
+                    });
+			}
 		},
 		mounted() {
-			this.fetchStocks(); 
-			console.log('start') 
+			this.fetchStocks();
+			this.fillOptions(this); 
 		},
 	};
 </script>
