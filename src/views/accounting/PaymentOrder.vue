@@ -107,9 +107,9 @@
 						</b-col> -->
 
 						<b-col class="mb-1">
-							<b-form-group :label="typePaymentOrder === 'O' ? 'Поставщик' : 'Получатель'">
+							<b-form-group :label="typePaymentOrder === 'O' ? 'Поставщик' : 'Клиент'">
 								<select-clients
-									:placeholder="typePaymentOrder === 'O' ? 'Поставщик' : 'Получатель'"
+									:placeholder="typePaymentOrder === 'O' ? 'Поставщик' : 'Клиент'"
 									:reduce="(client) => client.id"
 									v-model="editPaymentOrder.counterparty"
 									@input="handleCounterparty($event)"
