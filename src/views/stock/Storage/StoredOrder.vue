@@ -348,9 +348,32 @@ export default {
         handleExit() {
             this.resetEditableStoredOrder();
         },
+        fillOptions(vm) {
+				vm.$api.addressBasedStorage.getZones({ limit: 100 })
+                    .then((response) => {
+                        vm.zones = [...response.data.results];
+                    });
+				vm.$api.addressBasedStorage.getRacks({ limit: 100 })
+                    .then((response) => {
+                        vm.racks = [...response.data.results];
+                    });
+				vm.$api.addressBasedStorage.getShelves({ limit: 100 })
+                    .then((response) => {
+                        vm.shelves = [...response.data.results];
+                    });
+                vm.$api.addressBasedStorage.getStoredOrderStatus({ limit: 100 })
+                    .then((response) => {
+                        vm.statuses = [...response.data.results];
+                    });
+                vm.$api.orders.getOrders({ limit: 100 })
+                    .then((response) => {
+                        vm.selectOrders = [...response.data.results];
+                    });
+			}
     },
     mounted() {
         this.onStoredOrderMount();
+        this.fillOptions(this); 
     },
 };
 </script>

@@ -776,9 +776,24 @@
 				this.changeCurPage(page);
 				this.fetchStocks();
 			},
+			fillOptions(vm) {
+				vm.$api.addressBasedStorage.getZones({ limit: 100 })
+                    .then((response) => {
+                        vm.zones = [...response.data.results];
+                    });
+				vm.$api.addressBasedStorage.getRacks({ limit: 100 })
+                    .then((response) => {
+                        vm.racks = [...response.data.results];
+                    });
+				vm.$api.addressBasedStorage.getShelves({ limit: 100 })
+                    .then((response) => {
+                        vm.shelves = [...response.data.results];
+                    });
+			}
 		},
 		mounted() {
-			this.fetchStocks(); 
+			this.fetchStocks();
+			this.fillOptions(this); 
 		},
 	};
 </script>

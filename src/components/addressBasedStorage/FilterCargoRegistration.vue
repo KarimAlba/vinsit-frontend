@@ -297,7 +297,7 @@
 					this.fetchStatus(search, loading, this);
 				}
             },
-            fetchStatus: _.debounce(( search, loading, vm) => {
+            fetchStatus: _.debounce(( loading, vm) => {
 				vm.$api.addressBasedStorage.getStoredOrderStatus()
                     .then((response) => {
                         vm.statuses = [...response.data.results];
@@ -307,10 +307,33 @@
 			handleSearchField: _.debounce((value, vm) => {
 				vm.filters.search = value;
 			}, 500),
+			fillOptions(vm) {
+				vm.$api.addressBasedStorage.getStocks({ limit: 100 })
+                    .then((response) => {
+                        vm.stocks = [...response.data];
+                    });
+				vm.$api.addressBasedStorage.getZones({ limit: 100 })
+                    .then((response) => {
+                        vm.zones = [...response.data.results];
+                    });
+				vm.$api.addressBasedStorage.getRacks({ limit: 100 })
+                    .then((response) => {
+                        vm.racks = [...response.data.results];
+                    });
+				vm.$api.addressBasedStorage.getShelves({ limit: 100 })
+                    .then((response) => {
+                        vm.shelves = [...response.data.results];
+                    });
+                vm.$api.addressBasedStorage.getStoredOrderStatus({ limit: 100 })
+                    .then((response) => {
+                        vm.statuses = [...response.data.results];
+                    });
+			}
         },
 		mounted() {
             this.resetFilters();
 			this.resetPagination();
+			this.fillOptions(this);
         },
 	};
 </script>
