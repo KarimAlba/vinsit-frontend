@@ -846,6 +846,7 @@ export default {
 
         this.changeLoading(true);
 
+        // Логику по физ лицу сюда (Проверка на тип контрагента --> ...)
         if (this.client.client_phones.length === 1) {
             this.client.client_phones[0] = {
                 full_name: this.client.responsible_person.name,
@@ -861,6 +862,7 @@ export default {
                 is_lpr: true,
             });
         }
+        // 
 
         console.log(this.client);
 

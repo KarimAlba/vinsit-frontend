@@ -12,9 +12,9 @@
                     </b-form-group>
                 </b-col>
             </b-row>
-            <b-collapse v-model="visible" id="filters-collapse">
+            <!-- <b-collapse v-model="visible" id="filters-collapse">
                 <b-row>
-                    <b-col class="mb-1" cols="12" md="4">
+                    <b-col class="mb-1" cols="12" md="4"> -->
                         <!-- <b-form-group>
                             <v-select
                                 label="label"
@@ -24,10 +24,10 @@
                             >
                             </v-select>
                         </b-form-group> -->
-                    </b-col>
+                    <!-- </b-col>
                 </b-row>
-            </b-collapse>
-            <template #footer>
+            </b-collapse> -->
+            <!-- <template #footer>
                 <a class="filter-act__btn mr-1" v-b-toggle="'filters-collapse'">
                     <feather-icon
                         :icon="visible ? 'ChevronUpIcon' : 'ChevronDownIcon'"
@@ -44,7 +44,7 @@
                     <feather-icon icon="XCircleIcon" size="12" />
                     <span class="filter-act__btn-text"> Сбросить все фильтры </span>
                 </a>
-            </template>
+            </template> -->
         </b-card>
 
         <b-card>

@@ -9,6 +9,7 @@ export default {
         countPerPage: 20,
         filters: {
             search: null,
+            type: 'O',
         },
         ordering: '-date_created',
 
@@ -52,6 +53,7 @@ export default {
         resetFilters(state) {
             state.filters = {
                 search: null,
+                type: 'O',
             };
         },
         resetData(state) {
