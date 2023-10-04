@@ -10,7 +10,6 @@
                 <b-col>
                     <b-card>
                     <b-card-title>Основная информация</b-card-title>
-
                     <table class="w-100">
                         <tr>
                             <td class="pb-1">Это компания?</td>
@@ -21,7 +20,7 @@
                                     name="is-company-check"
                                     :value="true"
                                     :unchecked-value="false"
-                                ></b-form-checkbox>
+                                />
                             </td>
                         </tr>
                         <tr>
@@ -207,6 +206,7 @@
                                             v-model="client.INN"
                                             type="text"
                                             :state="errors.length > 0 ? false : null"
+                                            maxLength="12"
                                         ></b-form-input>
                                     </b-form-group>
                                 </validation-provider>
@@ -311,6 +311,7 @@
                                                 v-model="client.INN"
                                                 type="text"
                                                 :state="errors.length > 0 ? false : null"
+                                                maxLength="10"
                                             ></b-form-input>
                                         </b-form-group>
                                     </validation-provider>
@@ -847,20 +848,32 @@ export default {
         this.changeLoading(true);
 
         // Логику по физ лицу сюда (Проверка на тип контрагента --> ...)
-        if (this.client.client_phones.length === 1) {
+        if (this.client.type === "I") {
             this.client.client_phones[0] = {
-                full_name: this.client.responsible_person.name,
-                position: this.client.responsible_person.position,
-                documents: [this.client.responsible_person.status],
-                is_lpr: true,
+                    full_name: this.client.name,
+                    email: this.client.email,
+                    phone_number: this.client.client_phones[0].phone_number,
+                }
+        }
+
+        if (this.client.type === "E") {
+            if (this.client.client_phones.length === 1) {
+                this.client.client_phones[0] = {
+                    full_name: this.client.responsible_person.name,
+                    position: this.client.responsible_person.position,
+                    documents: [this.client.responsible_person.status],
+                    is_lpr: true,
+                    email: this.client.client_phones[0].email,
+                    phone_number: this.client.client_phones[0].phone_number,
+                }
+            } else {
+                this.client.client_phones.push({
+                    full_name: this.client.responsible_person.name,
+                    position: this.client.responsible_person.position,
+                    documents: [this.client.responsible_person.status],
+                    is_lpr: true,
+                });
             }
-        } else {
-            this.client.client_phones.push({
-                full_name: this.client.responsible_person.name,
-                position: this.client.responsible_person.position,
-                documents: [this.client.responsible_person.status],
-                is_lpr: true,
-            });
         }
         // 
 

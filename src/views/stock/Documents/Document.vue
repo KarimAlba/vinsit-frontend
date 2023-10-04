@@ -4,6 +4,28 @@
         <b-row class="row equal-cols">
             <b-col cols="8">
                 <b-card>
+                    <b-row align-v="center" style="margin-bottom: 24px;">
+                        <b-col cols="6" align-v="center">
+                            <v-select
+                                v-model="editDocument.product_type"
+                                :options="productTypes"
+                                :clearable="false"
+                                placeholder="Тип доставки"
+                            >
+                            </v-select>
+                        </b-col>
+                        <b-col cols="6" align-v="center">
+                            <select-users
+                                v-if="this.$route.params.type === 'DC'"
+                                :reduce="(counterparty) => counterparty.id"
+                                v-model="editDocument.client"
+                                :disabled="false"
+                                :disabledAddBtn="true"
+                                :clearSearchOnBlur="false"
+                                placeholder="Выдача клиенту"
+                            />
+                        </b-col>
+                    </b-row>
                     <b-row style="margin-bottom: 24px;">
                         <b-col cols="6">
                             <b-form-group>
@@ -16,14 +38,15 @@
                             </b-form-group>
                         </b-col>
                         <b-col cols="6">
-                            <b-form-input 
+                            <b-form-input
+                                v-if="this.$route.params.type !== 'DC'"
                                 placeholder="Номер пломбы"
                                 v-model="editDocument.seal_number"
                                 type="number"
                             />
                         </b-col>
                     </b-row>
-                    <b-row align-v="center" style="margin-bottom: 24px;">
+                    <b-row align-v="center" style="margin-bottom: 24px;" v-if="this.$route.params.type === 'TEST'">
                         <b-col cols="6" align-v="center">
                             <b-form-checkbox
                                 value="true"
@@ -40,16 +63,14 @@
                             />
                         </b-col> -->
                     </b-row>
-                    <b-row align-v="center" style="margin-bottom: 24px;">
+                    <b-row align-v="center" style="margin-bottom: 24px;" v-if="this.$route.params.type !== 'DC'">
                         <b-col cols="6">
-                            <b-form-group>
-                                <select-offices
-                                    :placeholder="'Офис назначения груза'"
-                                    v-model="editDocument.final_destination_office	"
-                                    :disabled="readOnly"
-                                    :allOfices="offices"
-                                />
-                            </b-form-group>
+                            <select-offices
+                                :placeholder="'Офис назначения груза'"
+                                v-model="editDocument.final_destination_office	"
+                                :disabled="readOnly"
+                                :allOfices="offices"
+                            />
                         </b-col>
                         <b-col cols="6">
                             <b-form-datepicker
@@ -60,25 +81,52 @@
                             />
                         </b-col>
                     </b-row>
-                    <b-row align-v="center" style="margin-bottom: 24px;">
+                    <b-row
+                        align-v="center"
+                        style="margin-bottom: 24px;"
+                        v-if="editDocument.product_type !== 'Логистика' && this.$route.params.type !== 'DC'"
+                    >
                         <b-col cols="6">
                             <select-users
-                                :disabled="false"
-                                :disabledAddBtn="true"
                                 :reduce="(counterparty) => counterparty.id"
                                 v-model="editDocument.provided_by"
+                                :disabled="false"
+                                :disabledAddBtn="true"
+                                :clearSearchOnBlur="false"
                                 placeholder="Оформил"
-                                :clearable="false"
                             />
                         </b-col>
                         <b-col cols="6">
-                           <b-row align-v="center" justify-content-center>
-                                <b-icon-x-circle class="ml-2 mr-1"/>
-                                <span>Нет данных для отображения</span>
-                           </b-row>
                         </b-col>
                     </b-row>
-                    <b-row align-v="center" style="margin-bottom: 24px;">
+                    <b-row
+                        align-v="center"
+                        style="margin-bottom: 24px;"
+                        v-if="editDocument.product_type === 'Логистика' || this.$route.params.type === 'DC'"
+                    >
+                        <b-col cols="6">
+                            <label>Выберите тип</label>
+                            <v-select
+                                v-model="editDocument.clientType"
+                                :options="clientTypes"
+                                :clearable="false"
+                                placeholder="Оформил"
+                            >
+                            </v-select>
+                        </b-col>
+                        <b-col cols="6">
+                            <label></label>
+                            <b-form-input
+                                v-model="editDocument.client_fullname"
+                                type="text"
+                            ></b-form-input>
+                        </b-col>
+                    </b-row>
+                    <!-- <b-row align-v="center" justify-content-center>
+                        <b-icon-x-circle class="ml-2 mr-1"/>
+                        <span>Нет данных для отображения</span>
+                    </b-row> -->
+                    <b-row align-v="center" style="margin-bottom: 24px;" v-if="this.$route.params.type === 'TEST'">
                         <b-col cols="6">
                             <b-form-group>
                                 <select-offices
@@ -139,7 +187,7 @@
                             <b-button 
                                 variant="white"
                                 v-if="!readOnly" 
-                                :disabled="readOnly"
+                                :disabled="true"
                                 class="whiteBtn"
                             >
                                 Экспорт в CSV
@@ -270,6 +318,8 @@ import SelectUsers from "@/components/ui/selectUsers/selectUsers.vue";
 export default {
 	data() {
 		return {
+            productTypes: ["Логистика", "Фулфилмент"],
+            clientTypes: ["Клиент", "Сотрудник"],
             offices: null,
             selectOrder: null,
             documentTemplate: {
@@ -354,6 +404,7 @@ export default {
             if (this.$route.params.type === "CN") return "Консолидация"
             if (this.$route.params.type === "DE") return "Выдача на доставку"
             if (this.$route.params.type === "AC") return "Расконсолидация"
+            if (this.$route.params.type === "DC") return "Выдача клиенту"
         },
         dataNow() {
             return this.dayjs(new Date).format("DD.MM.YYYY")

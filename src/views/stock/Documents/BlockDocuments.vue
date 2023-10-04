@@ -6,7 +6,7 @@
                     variant="white" 
                     :to="{ name: 'create-stock-document' }" 
                     v-if="!readOnly" 
-                    :disabled="readOnly"
+                    :disabled="true"
                     class="whiteBtn"
                 >
                     Экспорт в CSV
@@ -27,9 +27,14 @@
                     DE
                 </b-button>
             </div>
-            <div class="d-flex align-items-center justify-content-right">
+            <div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
                 <b-button variant="primary" :to="{ name: 'stock-document', params: { type: 'AC' } }" v-if="!readOnly" :disabled="readOnly">
                     AC
+                </b-button>
+            </div>
+            <div class="d-flex align-items-center justify-content-right">
+                <b-button variant="primary" :to="{ name: 'stock-document', params: { type: 'DC' } }" v-if="!readOnly" :disabled="readOnly">
+                    DC
                 </b-button>
             </div>
         </div>

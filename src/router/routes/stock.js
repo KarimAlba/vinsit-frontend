@@ -45,7 +45,7 @@ export default [
         },
     },
     {
-        path: '/stock/storage/stored-order',
+        path: '/stock/storage/stored-order/:id',
         name: 'stored-order',
         component: () => import('@/views/stock/Storage/StoredOrder.vue'),
         meta: {

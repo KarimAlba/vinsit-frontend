@@ -129,6 +129,7 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import _ from "lodash";
 
 import {
     BRow,
@@ -160,7 +161,7 @@ export default {
     },
     data() {
         return {
-            idStoredOrder: this.$route.params.id || null,
+            idStoredOrder: this.$route.params.id,
             visible: true,
             zones: [],
             racks: [],
@@ -296,7 +297,7 @@ export default {
             }
         },
         fetchOrders: _.debounce((search, loading, vm) => {
-            vm.$api.orders.getOrders({ limit: 100, search_fields:"id", search: search })
+            vm.$api.orders.getOrders({ limit: 100, search_fields: "id", search: search })
                 .then((response) => {
                     vm.selectOrders = [... vm.selectOrders, ...response.data.results];
                     loading(false);
@@ -341,8 +342,8 @@ export default {
                 });
         },
         onStoredOrderMount () {
-            if (this.idStoredOrder) {
-                this.fetchStoredOrder(this.idStoredOrder);
+            if (this.$route.params.id) {
+                this.fetchStoredOrder(this.$route.params.id);
             }
         },
         handleExit() {
@@ -372,6 +373,7 @@ export default {
 			}
     },
     mounted() {
+        if (this.$route.params.id) console.log(this.$route.params.id);
         this.onStoredOrderMount();
         this.fillOptions(this); 
     },
