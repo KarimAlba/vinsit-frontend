@@ -33,5 +33,9 @@ export default function (instance) {
         deleteDocumentType(id) {
             return instance.delete(`api/v1/stock_document_type/${id}/`);
         },
+        exportCSV(ids) {
+            const params = ids.join('&ids=');
+            return instance.get(`api/v1/stock_document/export_csv/?ids=${params}`);
+        },
     };
 }

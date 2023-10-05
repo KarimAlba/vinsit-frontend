@@ -514,7 +514,6 @@ export default {
         fetchOffices() {
             this.$api.office.getOffices({ limit: 100 }).then((response) => {
                 this.offices = response.data;
-                loading ? loading(false) : null;
             });
         }, 
 	},

@@ -4,10 +4,9 @@
             <div class="d-flex align-items-center justify-content-right" style="margin-right: 18px;">
                 <b-button 
                     variant="white" 
-                    :to="{ name: 'create-stock-document' }" 
                     v-if="!readOnly" 
-                    :disabled="true"
                     class="whiteBtn"
+                    @click="handleExportCSVClick"
                 >
                     Экспорт в CSV
                 </b-button>
@@ -201,6 +200,11 @@ export default {
         getClientType(clientType) {
             return this.clientType.find((type) => type.id === clientType)?.short_title;
         },
+        handleExportCSVClick() {
+            this.$api.documents.exportCSV([29])
+                .then(response => console.log(response))
+                .catch(error => console.log(error))
+        }
     },
     mounted() {
         this.resetPagination();
