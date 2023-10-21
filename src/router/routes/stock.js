@@ -13,14 +13,24 @@ export default [
         },
     },
     {
-        path: '/stock/documents/create',
-        name: 'create-stock-document',
-        component: () => import('@/views/stock/Documents/CreateDocument.vue'),
+        path: '/stock/documents/create/:type?/:id?',
+        name: 'stock-document',
+        component: () => import('@/views/stock/Documents/Document.vue'),
         meta: {
             pageTitle: 'Простые документы',
             disabledRoles: [
                 RoleConstants.CR,
-            ]
+            ],
+            breadcrumb: [
+                {
+                    text: 'Документы',
+                    to: "/stock/documents"
+                },
+                {
+                    text: 'Документ',
+                    active: true,
+                },
+            ],
         },
     },
     {
@@ -29,6 +39,17 @@ export default [
         component: () => import('@/views/stock/Storage/Storage.vue'),
         meta: {
             pageTitle: 'Адресное хранение',
+            disabledRoles: [
+                RoleConstants.CR,
+            ]
+        },
+    },
+    {
+        path: '/stock/storage/stored-order/:id',
+        name: 'stored-order',
+        component: () => import('@/views/stock/Storage/StoredOrder.vue'),
+        meta: {
+            pageTitle: 'Адресное хранение', //тут наверное надо маршрут показать, а не title
             disabledRoles: [
                 RoleConstants.CR,
             ]

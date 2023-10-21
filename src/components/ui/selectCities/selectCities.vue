@@ -30,7 +30,7 @@ export default {
             default: false,
         },
         value: {
-            type: String
+            type: Number
         },
     },
     data() {
@@ -76,7 +76,7 @@ export default {
         },
     },
     mounted() {
-        this.value ? this.getCityById(this.value) : null;
+        this.value ? this.getCityById(this.value) : this.fetchCities('', null, this);
     },
 };
 </script>

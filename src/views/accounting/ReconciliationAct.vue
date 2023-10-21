@@ -235,7 +235,7 @@ export default {
             this.fetchInvoices();
         },
         handleSearchField: _.debounce((value, vm) => {
-            vm.filters.type = value;
+            vm.filters.search = value;
         }, 500),
     },
     mounted() {

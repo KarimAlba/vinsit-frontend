@@ -1,43 +1,66 @@
 <template>
 	<b-card>
 		<b-row>
-			<b-col class="mb-1" md="4">
-				<b-form-group>
-                    <b-form-datepicker
-                        label="date"
-                        v-model="filter.date_created"
-						placeholder="Дата создания"
-                        @input="changeOrder($event, 'delivery_date')"
-                    />
-                </b-form-group>
-			</b-col>
-			<b-col cols="12" md="4">
-				<b-form-input 
-					placeholder="Номер грузоместа"
-					v-model="filter.number_place"
+			<b-col class="mb-1" cols="12" md="4">
+				<v-select
+					label="name"
+					placeholder="Поиск по"
+					v-model="filters.search_fields"
+					:reduce="(search) => search.search"
+					:options="search_fields"
 				/>
 			</b-col>
-			<b-col cols="12" md="4">
+			<b-col cols="12" md="8">
 				<b-form-input 
-					placeholder="Офис склада"
-					v-model="filter.office"
+					debounce="500"
+					:disabled="!filters.search_fields"
+					placeholder="Поиск"
+					v-model="filters.search"
 				/>
 			</b-col>
 		</b-row>
 		<b-collapse v-model="visible" id="filters-collapse">
 			<b-row>
-                <b-col class="mb-1" md="4">
+				<b-col class="mb-1" md="4">
+					<b-form-group>
+						<b-form-datepicker
+							label="date"
+							v-model="filters.date_created_after"
+							placeholder="Дата создания(после)"
+							@input="changeOrder($event, 'delivery_date')"
+						/>
+					</b-form-group>
+				</b-col>
+				<!-- <b-col cols="12" md="4">
 					<b-form-input 
-						placeholder="Из офиса"
-						v-model="filter.from_office"
+						placeholder="Номер грузоместа"
+						v-model="filter.number_place"
 					/>
-                </b-col>
+				</b-col> -->
+				<b-col cols="12" md="4">
+					<b-form-group>
+						<select-offices
+							:placeholder="'Офис склада'"
+							v-model="filters.stock"
+						/>
+					</b-form-group>
+				</b-col>
+				<b-col class="mb-1" md="4">
+					<b-form-group>
+						<select-offices
+							:placeholder="'Из офиса'"
+							v-model="filters.office"
+						/>
+					</b-form-group>
+				</b-col>
+			</b-row>
+			<b-row>
 				<b-col class="mb-1" cols="12" md="4">
 					<select-clients
 						:disabled="false"
 						:disabledAddBtn="true"
 						:reduce="(counterparty) => counterparty"
-						:value="filter.counterparty"
+						:value="counterparty"
 						@input="handleFilterFieldChange($event, 'counterparty')"
 						placeholder="Оформил"
 						:clearable="false"
@@ -46,50 +69,45 @@
 				<b-col class="mb-1" cols="12" md="4">
 					<v-select
 						label="name"
-						@search="onSearchCities"
-						@close="resetCities"
-						@input="(item) => filters.sender_city = item ? item.id : null"
-						:options="cities"
+						:options="types"
+						:reduce="(types) => types.type"
 						placeholder="Тип документа"
-						:filterable="false"
-						:value="filter.type"
+						v-model="filters.type"
 					>
 						<template #no-options="{ search }">
 							{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
 						</template>
 					</v-select>
 				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
+				<!-- <b-col class="mb-1" cols="12" md="4">
 					<b-form-input 
 						placeholder="Номер п.п"
 						v-model="filter.number_p"
 					/>
-				</b-col>
+				</b-col> -->
 				<b-col class="mb-1" cols="12" md="4">
 					<b-form-input 
+						debounce="500"
 						placeholder="Номер заказов"
-						v-model="filter.number_order"
+						v-model="filters.orders"
 					/>
 				</b-col>
 				<b-col class="mb-1" cols="12" md="4">
 					<b-form-input 
-						placeholder="Номер документова"
-						v-model="filter.number_document"
-					/>
-				</b-col>
-				<b-col class="mb-1" cols="12" md="4">
-					<b-form-input 
+						debounce="500"
 						placeholder="Номер пломбы"
-						v-model="filter.number_seal"
+						v-model="filters.seal_number"
 					/>
 				</b-col>
 				<b-col class="mb-1" cols="12" md="4">
-					<b-form-input 
-						placeholder="В офис"
-						v-model="filter.in_office"
-					/>
+					<b-form-group>
+						<select-offices
+							:placeholder="'В офис'"
+							v-model="filters.final_destination_office"
+						/>
+					</b-form-group>
 				</b-col>
-				<b-col class="mb-1" cols="12" md="4" align-v="center">
+				<!-- <b-col class="mb-1" cols="12" md="4" align-v="center">
 					<b-form-checkbox
 						value="true"
 						:unchecked-value="null"
@@ -97,7 +115,7 @@
 					>
 						Только открытые документы
 					</b-form-checkbox>
-				</b-col>
+				</b-col> -->
 			</b-row>
 		</b-collapse>
 		<template #footer>
@@ -111,8 +129,9 @@
 			<a 
 				class="filter-orders__btn" 
 				@click="() => {
+					resetInputs(),
 					resetFilters(), 
-					fetchOrders()
+					fetchDocuments()
 				}"
 			>
 				<feather-icon icon="XCircleIcon" size="12" />
@@ -141,26 +160,47 @@
 	import vSelect from "vue-select";
 	import { debounce } from "lodash";
 	import AppDatepicker from "@/@core/components/app-datepicker/AppDatepicker";
+	import SelectOffices from "@/components/ui/selectOffices/selectOffices.vue";
 
 	export default {
 		data() {
 			return {
-				filter: {
-					date_created: null,
-					number_place: null,
-					office: null,
-					from_office: null,
-					counterparty: null,
-					type: null,
-					number_p: null,
-					number_order: null,
-					number_document: null,
-					number_seal: null,
-					in_office: null,
-					is_overdue: null,
-				},
+				search_fields: [
+					{name: 'Номер заказа', search: 'id'},
+					// {name: 'Дата создания', search: 'date_created'},
+					{name: 'Офис', search: 'office'},
+					{name: 'Склад', search: 'stock'},
+					{name: 'ФИО выдавшего', search: 'issued_by'},
+					// {name: 'Тип', search: 'type'},
+					// {name: 'Дата закрытия', search: 'doc_close_datetime'},
+					{name: 'Текущий офис', search: 'current_office'},
+					{name: 'Конечный офис', search: 'final_destination_office'},
+					{name: 'Примечание', search: 'note'},
+					{name: 'ФИО предоставившего', search: 'provided_by'},
+					{name: 'Номер заказа', search: 'orders'},
+					{name: 'Следующий офис', search: 'next_destination_office'},
+					{name: 'Номер пломбы', search: 'seal_number'},
+				],
+				counterparty: null,
 				visible: false,
-				cities: [],
+				types: [
+					{
+						type: 'PR',
+						name: 'Приход',
+					},
+					{
+						type: 'CN',
+						name: 'Консолидация',
+					},
+					{
+						type: 'DE',
+						name: 'Выдача на доставку',
+					},
+					{
+						type: 'AC',
+						name: 'Расконсолидация',
+					},
+				]
 			};
 		},
 		components: {
@@ -178,6 +218,7 @@
 			vSelect,
 			SelectAllContracts,
 			SelectClients,
+			SelectOffices,
 		},
 		directives: {
 			"b-toggle": VBToggle,
@@ -185,63 +226,36 @@
 		watch: {
 			filters: {
 				handler(val) {
-					if (val.search && !val.search_fields?.length) return;
 					this.resetPagination();
-					this.fetchOrders();
-					// this.resetPagination();
+					this.fetchDocuments();
 				},
 				deep: true,
 			},
-			'search'(value) {
-				this.handleSearchField(value, this);
-			}
 		},
 		computed: {
 			...mapGetters({
-				orderMode: "moduleOrders/getOrderMode",
-				filters: "moduleOrders/getFilters",
+				filters: "moduleDocuments/getFilters",
 			}),
 		},
 		methods: {
 			...mapActions({
-				fetchOrders: "moduleOrders/fetchOrders",
-				resetPagination: "moduleOrders/resetPagination",
-				resetFilters: "moduleOrders/resetFilters",
+				fetchDocuments: "moduleDocuments/fetchDocuments",
+				resetPagination: "moduleDocuments/resetPagination",
+				resetFilters: "moduleDocuments/resetFilters",
 			}),
+			resetInputs() {
+				this.counterparty = null;
+			},
 			changeDatesCreated(dates) {
 				this.filters.date_created_after = this.dayjs(dates.start).format( "YYYY-MM-DD");
 				this.filters.date_created_before = this.dayjs(dates.end).format("YYYY-MM-DD");
 			},
-			changeDatesStatus(dates) {
-				this.filters.status_changed_date_after = this.dayjs(dates.start).format("YYYY-MM-DD");
-				this.filters.status_changed_date_before = this.dayjs(dates.end).format("YYYY-MM-DD");
-			},
-			onSearchCities(search, loading) {
-				if (search.length) {
-					loading(true);
-					this.fetchCities(search, loading, this);
-				}
-			},
-			fetchCities: _.debounce((search, loading, vm) => {
-				vm.$api.cities.getCities({ search, limit: 100 }).then((response) => {
-					vm.cities = response.data.results;
-					loading(false);
-				});
-			}, 500),
-			resetCities() {
-				this.cities = [];
-			},
-			fetchStatus() {
-				this.$api.orderStatus.getOrderStatusList({limit: 10, offset: 0})
-					.then((response) => {
-						// console.log('response status - ', response);
-						this.orderStatus = response.data.results;
-				});
-			},
 			handleFilterFieldChange(value, key) {
 				if (key === 'counterparty') {
 					value ? this.counterparty = value.id : null;
-					this.filters[key] = value ? value.name : null;
+					this.filters.provided_by = value ? value.id : null;
+					this.fetchDocuments();
+					console.log('counterparty fil', this.filters.provided_by)
 					return;
 				}
                 this[key] = value;
@@ -253,7 +267,6 @@
 		mounted() {
 			this.resetFilters();
 			this.resetPagination();
-			this.fetchStatus();
 		},
 	};
 </script>

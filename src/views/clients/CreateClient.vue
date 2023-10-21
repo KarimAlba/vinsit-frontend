@@ -10,7 +10,6 @@
                 <b-col>
                     <b-card>
                     <b-card-title>Основная информация</b-card-title>
-
                     <table class="w-100">
                         <tr>
                             <td class="pb-1">Это компания?</td>
@@ -21,7 +20,7 @@
                                     name="is-company-check"
                                     :value="true"
                                     :unchecked-value="false"
-                                ></b-form-checkbox>
+                                />
                             </td>
                         </tr>
                         <tr>
@@ -43,8 +42,8 @@
                             <td class="pb-1" >Форма<br>собственности</td>
                             <td>
                                 <v-select
-                                    label="title"
-                                    :reduce="(type) => type"
+                                    label="short_name"
+                                    :reduce="(type) => type.id"
                                     :options="formsOwnership"
                                     :clearable="false"
                                     v-model="client.form_of_ownership"
@@ -207,6 +206,7 @@
                                             v-model="client.INN"
                                             type="text"
                                             :state="errors.length > 0 ? false : null"
+                                            maxLength="12"
                                         ></b-form-input>
                                     </b-form-group>
                                 </validation-provider>
@@ -311,6 +311,7 @@
                                                 v-model="client.INN"
                                                 type="text"
                                                 :state="errors.length > 0 ? false : null"
+                                                maxLength="10"
                                             ></b-form-input>
                                         </b-form-group>
                                     </validation-provider>
@@ -494,7 +495,7 @@
                                         <validation-provider #default="{ errors }">
                                             <span v-if="client.client_phones.length > 1" style="text-align: left; margin-bottom: 15px;">{{ i + 1 }})</span>
                                             <b-form-input
-                                                v-model="phone.phone_number"
+                                                v-model="client.client_phones[i].phone_number"
                                                 :state="errors.length > 0 ? false : null"
                                                 :disabled="readOnly"
                                                 type="tel"
@@ -719,16 +720,7 @@ export default {
             },
             message: null,
             contracts: [{ value: '' }],
-            formsOwnership: [
-                'ООО',
-                'АО',
-                'ПАО',
-                'ЗАО',
-                'ИП',
-                'ТСЖ',
-                'СХП',
-                'СТ'
-            ],
+            formsOwnership: [],
             // statusResponsiblePerson: [
             //     'Доверенность',
             //     'Договор',
@@ -762,6 +754,13 @@ export default {
     ...mapMutations({
       changeLoading: "moduleClients/changeLoading",
     }),
+    deleteContract(index) {
+        if (this.contracts.length === 1) {
+            this.contracts = [{value: ''}];
+            return
+        }
+        this.contracts = [...this.contracts.slice(0, index), ...this.contracts.slice(index + 1)];
+    },
     isValidHttpUrl(string) {
       var pattern = new RegExp(
         "^(https?:\\/\\/)?" + // protocol
@@ -848,21 +847,35 @@ export default {
 
         this.changeLoading(true);
 
-        if (this.client.client_phones.length === 1) {
+        // Логику по физ лицу сюда (Проверка на тип контрагента --> ...)
+        if (this.client.type === "I") {
             this.client.client_phones[0] = {
-                full_name: this.client.responsible_person.name,
-                position: this.client.responsible_person.position,
-                documents: [this.client.responsible_person.status],
-                is_lpr: true,
-            }
-        } else {
-            this.client.client_phones.push({
-                full_name: this.client.responsible_person.name,
-                position: this.client.responsible_person.position,
-                documents: [this.client.responsible_person.status],
-                is_lpr: true,
-            });
+                    full_name: this.client.name,
+                    email: this.client.email,
+                    phone_number: this.client.client_phones[0].phone_number,
+                }
         }
+
+        if (this.client.type === "E") {
+            if (this.client.client_phones.length === 1) {
+                this.client.client_phones[0] = {
+                    full_name: this.client.responsible_person.name,
+                    position: this.client.responsible_person.position,
+                    documents: [this.client.responsible_person.status],
+                    is_lpr: true,
+                    email: this.client.client_phones[0].email,
+                    phone_number: this.client.client_phones[0].phone_number,
+                }
+            } else {
+                this.client.client_phones.push({
+                    full_name: this.client.responsible_person.name,
+                    position: this.client.responsible_person.position,
+                    documents: [this.client.responsible_person.status],
+                    is_lpr: true,
+                });
+            }
+        }
+        // 
 
         console.log(this.client);
 
@@ -947,10 +960,20 @@ export default {
                 .catch((error) => {
                     console.log('lpr - ', error)
                 })
-        }
+        },
+        getFormsOwnership() {
+            this.$api.formsOwnership.getFormsOwnership()
+                .then((response) => {
+                    this.formsOwnership = response.data.results;
+                })
+                .catch((error) => {
+                    console.log('lpr - ', error)
+                })
+        },
     },
     mounted() {
         this.getLprDocs();
+        this.getFormsOwnership();
     },
 };
 </script>

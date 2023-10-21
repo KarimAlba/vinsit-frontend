@@ -1,18 +1,15 @@
 <template>
 	<div style="position: relative;">
-		<div v-if="!disabledBtn && !disabledAddBtn" class="addIcon" @click="addClient">
-			<b-icon-plus-square style="width: 50px;" ></b-icon-plus-square>
-		</div>
 		<v-select
-			label="name"
-			@search="onSearchClients"
+			label="full_name"
+			@search="onSearch"
 			@input="input"
-			:options="clients"
+			:options="users"
 			:placeholder="placeholder"
 			:filterable="false"
 			:disabled="disabled"
 			:reduce="reduce"
-			:value="client"
+			:value="user"
 			:clearSearchOnBlur="() => clearSearchOnBlur"
 			:clearable="clearable"
 		>
@@ -32,6 +29,10 @@
 		props: {
 			placeholder: {
 				type: String,
+			},
+			productType: {
+				type: String,
+				default: 'Фулфилмент',
 			},
 			disabled: {
 				type: Boolean,
@@ -62,10 +63,10 @@
 		},
 		data() {
 			return {
-				clients: [],
-				client: null,
+				users: [],
+				user: null,
 				disabledBtn: true,
-				newClientName: '',
+				newUserName: '',
 			};
 		},
 		components: {
@@ -74,10 +75,10 @@
 		},
         watch: {
             'value'() {
-                this.getClient(this.value);
+                this.getUser(this.value);
                 window.setTimeout(() => {
-                    this.fetchClients(
-                        this.client ? this.client.name : '',
+                    this.fetchUsers(
+                        this.user ? this.user.name : '',
                         null,
                         this,
                         (id) => id,
@@ -85,8 +86,8 @@
                 }, 0);
             },
             'company'() {
-                this.fetchClients(
-                    this.client ? this.client.name : '',
+                this.fetchUsers(
+                    this.user ? this.user.name : '',
                     null,
                     this,
                     null,
@@ -94,18 +95,17 @@
             },
         },
 		methods: {
-			onSearchClients(search, loading) {
-				console.log(search);
+			onSearch(search, loading) {
 				this.disabledBtn = true;
 				if (search.length) {
 					// this.disabledBtn = true;
 					loading(true);
 					this.changeSearchValue(search, this);
-					this.fetchClients(search, loading, this);
+					this.fetchUsers(search, loading, this);
 				};
 			},
-			fetchClients: _.debounce((search, loading, vm, callback) => {
-				vm.$api.clients.getClients({
+			fetchUsers: _.debounce((search, loading, vm, callback) => {
+				vm.$api.user.getUsers({
                     search,
                     limit: 100,
                     ...(
@@ -114,33 +114,33 @@
                             : {}
                     ),
                 }).then((response) => {
-					vm.clients = response.data.results;
-                    if (vm.clients.length && callback) {
-                        callback(vm.clients[0].id);
+					vm.users = response.data.results;
+                    if (vm.users.length && callback) {
+                        callback(vm.users[0].id);
                     }
 					loading ? loading(false) : null;
 				});
 			}, 500),
-            async getClient(id) {
-                await this.$api.clients.getClient(id).then((response) => {
-					this.client = response.data;
+            async getUser(id) {
+                await this.$api.user.getUser(id).then((response) => {
+					this.user = response.data;
 				});
             },
-			input(client) {
-                // console.log('Client - ', client);
-				this.$emit("input", client);
+			input(user) {
+                // console.log('user - ', user);
+				this.$emit("input", user);
 				this.disabledBtn = true;
 			},
-			changeSearchValue:_.debounce((clientName, vm)  => {
-				vm.newClientName = clientName;
-				vm.checkClient();
+			changeSearchValue:_.debounce((userName, vm)  => {
+				vm.newUserName = userName;
+				vm.checkUser();
 			}, 500),
-			checkClient() {
-				if (this.clients.findIndex(
-						client => client.name 
+			checkUser() {
+				if (this.users.findIndex(
+                    user => user.name 
 							? (
-								this.newClientName 
-									? client.name.toLowerCase() === this.newClientName.toLowerCase()
+								this.newUserName 
+									? user.name.toLowerCase() === this.newUserName.toLowerCase()
 									: null
 								) 
 							: null
@@ -148,13 +148,10 @@
 					this.disabledBtn = false;
 				};
 			},
-			addClient() {
-				this.$emit("createClient", this.newClientName);
-			},
 			
 		},
 		mounted() {
-			this.value ? this.getClient(this.value) : null;
+			this.value ? this.getUser(this.value) : null;
 		}
 	};
 </script>

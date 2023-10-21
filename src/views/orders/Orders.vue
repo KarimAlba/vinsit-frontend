@@ -16,7 +16,6 @@
 	export default {
 		components: {
 			BOverlay,
-
 			FilterOrders,
 			BlockOrders,
 		},

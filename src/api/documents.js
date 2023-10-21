@@ -8,7 +8,7 @@ export default function (instance) {
         getDocument(id) {
             return instance.get(`api/v1/stock_document/${id}/`);
         },
-        updateDocument(id, data) {
+        editDocument(id, data) {
             return instance.patch(`api/v1/stock_document/${id}/`, data);
         },
         createDocument(data) {
@@ -32,6 +32,10 @@ export default function (instance) {
         },
         deleteDocumentType(id) {
             return instance.delete(`api/v1/stock_document_type/${id}/`);
+        },
+        exportCSV(ids) {
+            const params = ids.join('&ids=');
+            return instance.get(`api/v1/stock_document/export_csv/?ids=${params}`);
         },
     };
 }

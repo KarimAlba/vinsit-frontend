@@ -214,7 +214,8 @@ export default {
 	methods: {
 		fetchCompanies: _.debounce((search, loading, vm) => {
             vm.$api.clients
-                .getClients({ search, limit: 100, is_company: true }).then((response) => {
+                // .getClients({ search, limit: 100, is_company: true }).then((response) => {
+                .getClients({ search, limit: 100}).then((response) => {
                     vm.companies = response.data.results;
                     loading ? loading(false) : null;
                 });

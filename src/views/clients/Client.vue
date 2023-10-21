@@ -50,8 +50,8 @@
                                     <td class="pb-1" >Форма<br>собственности</td>
                                     <td>
                                         <v-select
-                                            label="title"
-                                            :reduce="(type) => type"
+                                            label="short_name"
+                                            :reduce="(type) => type.id"
                                             :options="formsOwnership"
                                             :clearable="false"
                                             v-model="client.form_of_ownership"
@@ -599,8 +599,8 @@
                                             <!-- v-model="client.responsible_person.position" -->
                                         </validation-provider>
                                         <v-select
-                                            label="title"
-                                            :reduce="(type) => type"
+                                            label="name"
+                                            :reduce="(type) => type.id"
                                             :options="statusResponsiblePerson"
                                             :clearable="false"
                                             :disabled="readOnly"
@@ -699,16 +699,7 @@ export default {
             client: {},
             message: null,
             initialized: false,
-            formsOwnership: [
-                'ООО',
-                'АО',
-                'ПАО',
-                'ЗАО',
-                'ИП',
-                'ТСЖ',
-                'СХП',
-                'СТ'
-            ],
+            formsOwnership: [],
             statusResponsiblePerson: [
                 'Доверенность',
                 'Договор',
@@ -914,8 +905,18 @@ export default {
                     this.client.contracts.unshift(response.data);
                 })
         },
+        getFormsOwnership() {
+            this.$api.formsOwnership.getFormsOwnership()
+                .then((response) => {
+                    this.formsOwnership = response.data.results;
+                })
+                .catch((error) => {
+                    console.log('lpr - ', error)
+                })
+        },
     },
     mounted() {
+        this.getFormsOwnership();
         this.fetchClient(this.idClient);
     },
 };
