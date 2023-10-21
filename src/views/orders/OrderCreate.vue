@@ -1449,12 +1449,17 @@
 					this.order[name + '_phones'].push({});
 				}
 			},
-			deletePhone(name, id) {
-				// this.order[name + '_phones'].splice(id, 1);
-				if (this.order[name + '_phones'].length !== 0){
-					// this.order[name + '_phones'].unshift({});
-					this.order[name + '_phones'].pop({});
+			deletePhone(name, index) {
+				this.order[name + '_phones'].splice(index, 1);
+				if (this.phones.length === 0){
+					this.phones.unshift({
+						phone_number: ''
+					})
 				}
+				// if (this.order[name + '_phones'].length !== 0){
+					// this.order[name + '_phones'].unshift({});
+				// 	this.order[name + '_phones'].pop({});
+				// }
             },
 			addClient(propName) {
 				this.$api.clients.addNewClient(this.newUser)

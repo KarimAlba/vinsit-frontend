@@ -414,14 +414,14 @@ export default {
             });
         },
         async updatePlace(idPlace, newVal, key, validate) {
-        if (validate) {
-            const { valid } = await validate(newVal);
-            if (valid) {
+            if (validate) {
+                const { valid } = await validate(newVal);
+                if (valid) {
+                    this.fetchUpdatePlace(idPlace, newVal, key);
+                }
+            } else {
                 this.fetchUpdatePlace(idPlace, newVal, key);
             }
-        } else {
-            this.fetchUpdatePlace(idPlace, newVal, key);
-        }
         },
         deletePlace(id) {
         this.$api.places.deletePlace(id).then((response) => {

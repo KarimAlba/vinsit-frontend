@@ -137,12 +137,6 @@ export default {
             perPage: "moduleClients/getCountPerPage",
             curPage: "moduleClients/getCurPage",
             clients: "moduleClients/getClients",
-
-            total_income: "moduleAccountingBank/getTotalIncome",
-            total_outcome: "moduleAccountingBank/getTotalOutcome",
-            perPage: "moduleAccountingBank/getCountPerPage",
-            curPage: "moduleAccountingBank/getCurPage",
-            paymentClient: "moduleAccountingBank/getPaymentClients",
         }),
         showPagination() {
         return Math.ceil(this.count / this.perPage) > 1;

@@ -30,7 +30,7 @@ export default {
             default: false,
         },
         value: {
-            type: String
+            type: Number
         },
     },
     data() {

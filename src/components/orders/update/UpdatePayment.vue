@@ -206,7 +206,7 @@ export default {
     watch: {
         'order.payer_counterparty'() {
             // setTimeout(() => this.changeOrder(this.order.payment_type, 'payment_type'), 0);
-            console.log('tut1');
+            // console.log('tut1');
             // this.changeOrder();
         },
         'order.payment_type'() {
@@ -234,26 +234,25 @@ export default {
         },
         'order.order_services'() {
             setTimeout(() => {
-            // console.log('5');
                 if (this.order.order_services && !this.orderServices.length && !this.initialized) {
-                const results = this.services.map((service) => {
-                    const serviceFromOrder = this.order.order_services.find(orderService =>
-                        orderService.service === service.name
-                    );
-                    const servicePrice = serviceFromOrder && Number(serviceFromOrder.price)
-                        ? Number(serviceFromOrder.price)
-                        : null;
-                    return {
-                        id: service.id,
-                        name: service.name,
-                        price: servicePrice,
-                        included: this.order.order_services.map(elem => elem.service).includes(service.name),
-                    };
-                });
-                // console.log('orderServices - ', results)
-                this.orderServices = results;
-                setTimeout(() => this.initialized = true, 500);
-            }
+                    const results = this.services.map((service) => {
+                        const serviceFromOrder = this.order.order_services.find(orderService =>
+                            orderService.service === service.name
+                        );
+                        const servicePrice = serviceFromOrder && Number(serviceFromOrder.price)
+                            ? Number(serviceFromOrder.price)
+                            : null;
+                        return {
+                            id: service.id,
+                            name: service.name,
+                            price: servicePrice,
+                            included: this.order.order_services.map(elem => elem.service).includes(service.name),
+                        };
+                    });
+                    // console.log('orderServices - ', results)
+                    this.orderServices = results;
+                    setTimeout(() => this.initialized = true, 500);
+                }
             }, 0)
             // if (this.order.order_services && !this.orderServices.length && !this.initialized) {
             //     const results = this.services.map((service) => {
@@ -279,10 +278,11 @@ export default {
             handler() {
                 // console.log('6');
                 if (!this.initialized) return;
-                const body = this.orderServices.filter(orderService => orderService.included).map(orderService => ({
-                    service: orderService.id,
-                    price: Number(orderService.price) || 0,
-                }));
+                const body = this.orderServices.filter(orderService => orderService.included)
+                    .map(orderService => ({
+                        service: orderService.id,
+                        price: Number(orderService.price) || 0,
+                    }));
                 this.changeOrder(body, 'order_services');
             },
             deep: true,
@@ -363,23 +363,19 @@ export default {
                 })
         },
         addServicesList() {
-            // console.log('2');
             this.$api.services.getServices(0, 30)
                 .then(response => {
                     if (response.status > 203) {
                         return;
                     }
-                    // console.log('3');
                     this.services = response.data;
                 })
         },
         checkService(serviceId) {
-            // console.log('7');
             const serviceIndex = this.order?.order_services.findIndex(serv => serv.service === serviceId);
             return serviceIndex !== -1 ? true : false;
         },
         handleOrderService(service) {
-            // console.log('8');
             const serviceIndex = this.order.order_services?.findIndex(item => item.service === service.service);
             if (serviceIndex === -1) {
                 this.order.order_services.push(service);
@@ -391,7 +387,6 @@ export default {
         },
     },
     mounted() {
-        // console.log('1');
         this.addServicesList();
     }
 };
@@ -403,7 +398,6 @@ export default {
 .service {
     border-bottom: 1px solid #E7E9EB;
 
-    
     .form-group {
         margin-top: 1rem;
     }

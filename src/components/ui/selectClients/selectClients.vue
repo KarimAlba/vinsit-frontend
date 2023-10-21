@@ -95,6 +95,7 @@
         },
 		methods: {
 			onSearchClients(search, loading) {
+				console.log(search);
 				this.disabledBtn = true;
 				if (search.length) {
 					// this.disabledBtn = true;
