@@ -201,7 +201,7 @@ export default {
             return this.clientType.find((type) => type.id === clientType)?.short_title;
         },
         handleExportCSVClick() {
-            this.$api.documents.exportCSV([29])
+            this.$api.documents.exportCSV([18])
                 .then(response => console.log(response))
                 .catch(error => console.log(error))
         }

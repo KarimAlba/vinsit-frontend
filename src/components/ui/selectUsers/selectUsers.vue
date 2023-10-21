@@ -30,6 +30,10 @@
 			placeholder: {
 				type: String,
 			},
+			productType: {
+				type: String,
+				default: 'Фулфилмент',
+			},
 			disabled: {
 				type: Boolean,
 				default: false,
