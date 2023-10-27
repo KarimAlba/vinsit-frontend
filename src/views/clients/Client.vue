@@ -10,7 +10,6 @@
                     <b-col>
                         <b-card>
                             <b-card-title>Основная информация</b-card-title>
-
                             <table class="w-100">
                                 <tr>
                                 <td class="pb-1">AMO CRM</td>
