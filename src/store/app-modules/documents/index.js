@@ -123,11 +123,16 @@ export default {
             this._vm.$api.documents.getDocument(idDocument).then((response) => {
                 const document = {
                     ...response.data,
-                    next_destination_office: response.data.next_destination_office.id,
+                    // next_destination_office: response.data.next_destination_office.id,
                     current_office: response.data.current_office.id,
                     provided_by: response.data.provided_by.id,
-                    final_destination_office: response.data.final_destination_office.id,
+                    issued_by: response.data.issued_by.id,
+                    // final_destination_office: response.data.final_destination_office.id,
+                    product_type: response.data.is_fulfillment ? "Фулфилмент" : "Логистика",
+                    clientType: response.data.issued_by ? "Сотрудник" : response.data.issued_by_client ? "Клиент" : null,
+                    seals: response.data.seals[0].id,
                 }
+                console.log(document)
                 commit('setDocument', document)
             })
                 .finally(() => {

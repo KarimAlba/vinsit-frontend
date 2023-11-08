@@ -579,21 +579,25 @@
                                     <td>
                                         <validation-provider #default="{ errors }">
                                             <b-form-input
+                                                v-model="client.client_lpr_contacts[0].full_name"
                                                 :state="errors.length > 0 ? false : null"
                                                 :disabled="readOnly"
                                                 type="text"
                                                 placeholder="ФИО"
                                                 class="mb-1"
+                                                @change="updateClient('name', $event)"
                                             />
                                             <!-- v-model="client.responsible_person.name" -->
                                         </validation-provider>
                                         <validation-provider #default="{ errors }">
                                             <b-form-input
+                                                v-model="client.client_lpr_contacts[0].position"
                                                 :state="errors.length > 0 ? false : null"
                                                 :disabled="readOnly"
                                                 type="text"
                                                 placeholder="Должность"
                                                 class="mb-1"
+                                                @change="updateClient('name', $event)"
                                             />
                                             <!-- v-model="client.responsible_person.position" -->
                                         </validation-provider>
@@ -601,9 +605,12 @@
                                             label="name"
                                             :reduce="(type) => type.id"
                                             :options="statusResponsiblePerson"
+                                            v-model="client.client_lpr_contacts[0].documents"
                                             :clearable="false"
                                             :disabled="readOnly"
+                                            :multiple="true"
                                             placeholder="Основание"
+                                            @change="updateClient('name', $event)"
                                         />
                                         <!-- v-model="client.responsible_person.status" -->
                                     </td>
@@ -699,18 +706,7 @@ export default {
             message: null,
             initialized: false,
             formsOwnership: [],
-            statusResponsiblePerson: [
-                'Доверенность',
-                'Договор',
-                'Лист записи ЕГРИП',
-                'Положение',
-                'Приказ',
-                'Решение',
-                'Свидетельство',
-                'Талон',
-                'Уведомление',
-                'Устав'
-            ]
+            statusResponsiblePerson: [],
         };
     },
     watch: {
@@ -791,6 +787,16 @@ export default {
                         this.changeLoading(false);
                         return;
                     }
+                    if (!response.data.client_lpr_contacts.length) {
+                        response.data.client_lpr_contacts = [
+                            {
+                                id: null,
+                                full_name: null,
+                                position: null,
+                                documents: null,
+                            },
+                        ];
+                    };
                     this.client = response.data;
                     if (!response.data.client_phones || !response.data.client_phones.length) {
                         this.client.client_phones = [{ phone_number: '' }]
@@ -825,13 +831,19 @@ export default {
                 return;
             };
             this.changeLoading(true);
+
+            const changeClient = {
+                ...this.client,
+                client_lpr_contacts: [this.client.client_lpr_contacts[0]],
+            }
             
             this.$api.clients
-                .changeClient(
+                .updateClient(
                     this.idClient,
-                    {
-                        [propName]: value
-                    }
+                    // {
+                    //     [propName]: value
+                    // }
+                    changeClient,
                 )
                 .then((response) => {
                     if (response.status > 203) {
@@ -913,9 +925,18 @@ export default {
                     console.log('lpr - ', error)
                 })
         },
+        getLprDocs() {
+            this.$api.lprDocs.getLprDocs({ page: 1, limit: 100 })
+                .then((response) => {
+                    this.statusResponsiblePerson = response.data.results;
+                })
+                .catch((error) => {
+                })
+        },
     },
     mounted() {
         this.getFormsOwnership();
+        this.getLprDocs();
         this.fetchClient(this.idClient);
     },
 };

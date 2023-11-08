@@ -12,6 +12,9 @@ export default function (instance) {
         changeClient(id, body) {
             return instance.patch(`api/v1/clients/${id}/`, body);
         },
+        updateClient(id, body) {
+            return instance.put(`api/v1/clients/${id}/`, body);
+        },
         deleteClient(id) {
             return instance.delete(`api/v1/clients/${id}/`);
         },
