@@ -1,8 +1,8 @@
 export default [
     {
-        path: '/couriers/journal',
+        path: '/couriers/journal/journal',
         name: 'couriers-journal',
-        component: () => import('@/views/couriers/Journal.vue'),
+        component: () => import('@/views/couriers/Journal/Journal.vue'),
         meta: {
             pageTitle: 'Журнал курьерских карт',
         },

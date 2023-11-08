@@ -1,15 +1,15 @@
 <template>
 	<div style="position: relative;">
 		<v-select
-			label="full_name"
+			label="name"
 			@search="onSearch"
 			@input="input"
-			:options="users"
+			:options="zones"
 			:placeholder="placeholder"
 			:filterable="false"
 			:disabled="disabled"
 			:reduce="reduce => reduce.id"
-			:value="user"
+			:value="zone"
 			:clearSearchOnBlur="() => clearSearchOnBlur"
 			:clearable="clearable"
 		>
@@ -52,25 +52,17 @@
 				type: Boolean,
 				default: false,
 			},
-            company: {
-                type: Number,
-                required: false,
-            },
 			clearable: {
 				type: Boolean,
 				default: true,
 			},
-			role: {
-				type: String,
-				default: '',
-			},
 		},
 		data() {
 			return {
-				users: [],
-				user: null,
+				zones: [],
+				zone: null,
 				disabledBtn: true,
-				newUserName: '',
+				newZoneName: '',
 			};
 		},
 		components: {
@@ -79,24 +71,16 @@
 		},
         watch: {
             'value'() {
-                this.getUser(this.value);
+                this.getZone(this.value);
                 window.setTimeout(() => {
-                    this.fetchUsers(
-                        this.user ? this.user.name : '',
+                    this.fetchZones(
+                        this.zone ? this.zone.name : '',
                         null,
                         this,
                         (id) => id,
                     );
                 }, 0);
-				this.getUser(this.value)
-            },
-            'company'() {
-                this.fetchUsers(
-                    this.user ? this.user.name : '',
-                    null,
-                    this,
-                    null,
-                );
+				this.getZone(this.value)
             },
         },
 		computed: {
@@ -108,47 +92,41 @@
 					// this.disabledBtn = true;
 					loading(true);
 					this.changeSearchValue(search, this);
-					this.fetchUsers(search, loading, this);
+					this.fetchZones(search, loading, this);
 				};
 			},
-			fetchUsers: _.debounce((search, loading, vm, callback) => {
-				vm.$api.user.getUsers({
-					role: vm.role,
+			fetchZones: _.debounce((search, loading, vm, callback) => {
+				vm.$api.couriers.getCourierMacrozones({
                     search,
                     limit: 100,
-                    ...(
-                        vm.company
-                            ? {company: vm.company}
-                            : {}
-                    ),
                 }).then((response) => {
-					vm.users = response.data.results;
-                    if (vm.users.length && callback) {
-                        callback(vm.users[0].id);
+					vm.zones = response.data.results;
+                    if (vm.zones.length && callback) {
+                        callback(vm.zones[0].id);
                     }
 					loading ? loading(false) : null;
 				});
 			}, 500),
-            async getUser(id) {
-                await this.$api.user.getUser(id).then((response) => {
-					this.user = response.data;
+            async getZone(id) {
+                await this.$api.couriers.getCourierMacrozone(id).then((response) => {
+					this.zone = response.data;
 				});
             },
-			input(user) {
-                // console.log('user - ', user);
-				this.$emit("input", user);
+			input(zone) {
+                // console.log('zone - ', zone);
+				this.$emit("input", zone);
 				this.disabledBtn = true;
 			},
-			changeSearchValue:_.debounce((userName, vm)  => {
-				vm.newUserName = userName;
-				vm.checkUser();
+			changeSearchValue:_.debounce((zoneName, vm)  => {
+				vm.newZoneName = zoneName;
+				vm.checkZone();
 			}, 500),
-			checkUser() {
-				if (this.users.findIndex(
-                    user => user.name 
+			checkZone() {
+				if (this.zones.findIndex(
+                    zone => zone.name 
 							? (
-								this.newUserName 
-									? user.name.toLowerCase() === this.newUserName.toLowerCase()
+								this.newZoneName 
+									? zone.name.toLowerCase() === this.newZoneName.toLowerCase()
 									: null
 								) 
 							: null
@@ -159,7 +137,7 @@
 			
 		},
 		mounted() {
-			this.value ? this.getUser(this.value) : null;
+			this.value ? this.getZone(this.value) : this.fetchZones("", null, this);
 		}
 	};
 </script>

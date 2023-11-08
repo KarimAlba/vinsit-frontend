@@ -22,6 +22,7 @@ import addressBasedStorage from './addressBasedStorage';
 import office from "./office";
 import user from "./user";
 import formsOwnership from "./forms-ownership";
+import couriersModule from "./couriers";
 
 export const instance = new Instance().getAxiosIns();
 
@@ -48,4 +49,5 @@ export default {
     office: office(instance),
     user: user(instance),
     formsOwnership: formsOwnership(instance),
+    couriers: couriersModule(instance),
 };
