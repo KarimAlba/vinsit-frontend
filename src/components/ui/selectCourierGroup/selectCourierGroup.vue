@@ -1,15 +1,15 @@
 <template>
 	<div style="position: relative;">
 		<v-select
-			label="full_name"
+			label="name"
 			@search="onSearch"
 			@input="input"
-			:options="users"
+			:options="groups"
 			:placeholder="placeholder"
 			:filterable="false"
 			:disabled="disabled"
 			:reduce="reduce => reduce.id"
-			:value="user"
+			:value="group"
 			:clearSearchOnBlur="() => clearSearchOnBlur"
 			:clearable="clearable"
 		>
@@ -52,25 +52,17 @@
 				type: Boolean,
 				default: false,
 			},
-            company: {
-                type: Number,
-                required: false,
-            },
 			clearable: {
 				type: Boolean,
 				default: true,
 			},
-			role: {
-				type: String,
-				default: '',
-			},
 		},
 		data() {
 			return {
-				users: [],
-				user: null,
+				groups: [],
+				group: null,
 				disabledBtn: true,
-				newUserName: '',
+				newGroupName: '',
 			};
 		},
 		components: {
@@ -79,24 +71,16 @@
 		},
         watch: {
             'value'() {
-                this.getUser(this.value);
+                this.getGroup(this.value);
                 window.setTimeout(() => {
-                    this.fetchUsers(
-                        this.user ? this.user.name : '',
+                    this.fetchGroups(
+                        this.group ? this.group.name : '',
                         null,
                         this,
                         (id) => id,
                     );
                 }, 0);
-				this.getUser(this.value)
-            },
-            'company'() {
-                this.fetchUsers(
-                    this.user ? this.user.name : '',
-                    null,
-                    this,
-                    null,
-                );
+				this.getGroup(this.value)
             },
         },
 		computed: {
@@ -108,47 +92,41 @@
 					// this.disabledBtn = true;
 					loading(true);
 					this.changeSearchValue(search, this);
-					this.fetchUsers(search, loading, this);
+					this.fetchGroups(search, loading, this);
 				};
 			},
-			fetchUsers: _.debounce((search, loading, vm, callback) => {
-				vm.$api.user.getUsers({
-					role: vm.role,
+			fetchGroups: _.debounce((search, loading, vm, callback) => {
+				vm.$api.couriers.getCourierGroups({
                     search,
                     limit: 100,
-                    ...(
-                        vm.company
-                            ? {company: vm.company}
-                            : {}
-                    ),
                 }).then((response) => {
-					vm.users = response.data.results;
-                    if (vm.users.length && callback) {
-                        callback(vm.users[0].id);
+					vm.groups = response.data.results;
+                    if (vm.groups.length && callback) {
+                        callback(vm.groups[0].id);
                     }
 					loading ? loading(false) : null;
 				});
 			}, 500),
-            async getUser(id) {
-                await this.$api.user.getUser(id).then((response) => {
-					this.user = response.data;
+            async getGroup(id) {
+                await this.$api.couriers.getCourierGroup(id).then((response) => {
+					this.group = response.data;
 				});
             },
-			input(user) {
-                // console.log('user - ', user);
-				this.$emit("input", user);
+			input(group) {
+                // console.log('group - ', group);
+				this.$emit("input", group);
 				this.disabledBtn = true;
 			},
-			changeSearchValue:_.debounce((userName, vm)  => {
-				vm.newUserName = userName;
-				vm.checkUser();
+			changeSearchValue:_.debounce((groupName, vm)  => {
+				vm.newGroupName = groupName;
+				vm.checkGroup();
 			}, 500),
-			checkUser() {
-				if (this.users.findIndex(
-                    user => user.name 
+			checkGroup() {
+				if (this.groups.findIndex(
+                    group => group.name 
 							? (
-								this.newUserName 
-									? user.name.toLowerCase() === this.newUserName.toLowerCase()
+								this.newGroupName 
+									? group.name.toLowerCase() === this.newGroupName.toLowerCase()
 									: null
 								) 
 							: null
@@ -159,7 +137,7 @@
 			
 		},
 		mounted() {
-			this.value ? this.getUser(this.value) : null;
+			this.value ? this.getGroup(this.value) : this.fetchGroups("", null, this);
 		}
 	};
 </script>
