@@ -25,10 +25,10 @@
                             />
                         </b-col>
                         <b-col cols="6" align-v="center" style="margin-bottom: 24px;" v-else>
-                            <b-form-input
-                                placeholder="Номер пломбы"
-                                v-model="editDocument.seal_number"
-                                type="number"
+                            <select-seals
+                                :placeholder="'Номер пломбы'"
+                                v-model="editDocument.seals"
+                                :disabled="readOnly"
                             />
                         </b-col>
                         <b-col cols="6" align-v="center" style="margin-bottom: 24px;">
@@ -78,12 +78,40 @@
                                     >
                                     </v-select>
                                 </b-col>
-                                <b-col cols="6" align-v="center" style="margin-bottom: 24px;" v-if="editDocument.product_type === 'Логистика' || this.$route.params.type === 'DC'">
-                                    <label style="opacity: 0">1</label>
-                                    <b-form-input
-                                        v-model="editDocument.client_fullname"
-                                        type="text"
-                                    ></b-form-input>
+                                <b-col cols="6" align-v="center" style="margin-bottom: 24px;" v-if="editDocument.clientType && (editDocument.product_type === 'Логистика' || this.$route.params.type === 'DC')">
+                                    <!-- <div v-if="editDocument.clientType === 'Клиент'">
+                                        <label style="opacity: 0">1</label>
+                                        <b-form-input
+                                            v-model="editDocument.issued_by_client"
+                                            type="text"
+                                        ></b-form-input>
+                                    </div>
+                                    <div v-if="editDocument.clientType === 'Сотрудник'">
+                                        <label style="opacity: 0">1</label>
+                                        <b-form-input
+                                            v-model="editDocument.issued_by"
+                                            type="text"
+                                        ></b-form-input>
+                                    </div> -->
+                                    <div v-if="editDocument.clientType === 'Клиент'">
+                                        <label style="opacity: 0">1</label>
+                                        <select-clients
+                                            :reduce="(client) => client.id"
+                                            v-model="editDocument.issued_by_client"
+                                            :disabledAddBtn="true"
+                                        />
+                                    </div>
+                                    <div v-if="editDocument.clientType === 'Сотрудник'">
+                                        <label style="opacity: 0">1</label>
+                                        <select-users
+                                            :reduce="(counterparty) => counterparty.id"
+                                            v-model="editDocument.issued_by"
+                                            :disabled="false"
+                                            :disabledAddBtn="true"
+                                            :clearSearchOnBlur="false"
+                                            :product_type="editDocument.product_type"
+                                        />
+                                    </div>
                                 </b-col>
                             </b-row>
                         </b-col>
@@ -268,6 +296,7 @@ import store from "@/store/index";
 import AppDatepicker from "@/@core/components/app-datepicker/AppDatepicker";
 import SelectClients from "@/components/ui/selectClients/selectClients.vue";
 import SelectOffices from "@/components/ui/selectOffices/selectOffices.vue";
+import SelectSeals from "@/components/ui/selectSeals/selectSeals.vue";
 import SelectOrders from "@/components/ui/selectOrder/selectOrder.vue";
 import SelectUsers from "@/components/ui/selectUsers/selectUsers.vue";
 
@@ -279,14 +308,14 @@ export default {
             offices: null,
             selectOrder: null,
             documentTemplate: {
-                next_destination_office: 0,
+                // next_destination_office: 0,
                 seal_number: null,
                 // route_display: null,
                 // stock: null,
                 current_office: null,
                 doc_close_datetime: null,
                 provided_by: null,
-                final_destination_office: 0,
+                // final_destination_office: 0,
                 orders: [],
                 // scan: null,
                 note: null,
@@ -318,6 +347,7 @@ export default {
 		BFormDatepicker,
         SelectClients,
         SelectOffices,
+        SelectSeals,
         SelectOrders,
         SelectUsers,
         BImg,
@@ -396,6 +426,8 @@ export default {
         createDocument(newDocument) {
             const payload = {
                 ...newDocument,
+                is_fulfillment: this.editDocument.product_type === "Логистика" ? false : true,
+                seals: [this.editDocument.seals],
                 type:  this.$route.params.type,
                 orders: newDocument.orders.map(it => it.id),
             }
@@ -429,6 +461,8 @@ export default {
         updateDocument() {
             const payload = {
                 ...this.editDocument,
+                is_fulfillment: this.editDocument.product_type === "Логистика" ? false : true,
+                seals: [this.editDocument.seals],
                 type:  this.$route.params.type,
                 orders: this.editDocument.orders.map(it => it.id),
             }

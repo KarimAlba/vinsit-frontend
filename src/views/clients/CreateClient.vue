@@ -560,7 +560,7 @@
                                 <td>
                                     <validation-provider #default="{ errors }">
                                         <b-form-input
-                                            v-model="client.responsible_person.name"
+                                            v-model="client.client_lpr_contacts[0].full_name"
                                             :state="errors.length > 0 ? false : null"
                                             :disabled="readOnly"
                                             type="text"
@@ -570,7 +570,7 @@
                                     </validation-provider>
                                     <validation-provider #default="{ errors }">
                                         <b-form-input
-                                            v-model="client.responsible_person.position"
+                                            v-model="client.client_lpr_contacts[0].position"
                                             :state="errors.length > 0 ? false : null"
                                             :disabled="readOnly"
                                             type="text"
@@ -583,8 +583,9 @@
                                         :reduce="(type) => type.id"
                                         :options="statusResponsiblePerson"
                                         :clearable="false"
-                                        v-model="client.responsible_person.status"
+                                        v-model="client.client_lpr_contacts[0].documents"
                                         :disabled="readOnly"
+                                        :multiple="true"
                                         placeholder="Основание"
                                     />
                                 </td>
@@ -686,6 +687,14 @@ export default {
                         position: '',
                         email: '',
                     }
+                ],
+                client_lpr_contacts: [
+                    {
+                        id: null,
+                        full_name: null,
+                        position: null,
+                        documents: null,
+                    },
                 ],
                 type: null,
                 name: '',
@@ -848,33 +857,33 @@ export default {
         this.changeLoading(true);
 
         // Логику по физ лицу сюда (Проверка на тип контрагента --> ...)
-        if (this.client.type === "I") {
-            this.client.client_phones[0] = {
-                    full_name: this.client.name,
-                    email: this.client.email,
-                    phone_number: this.client.client_phones[0].phone_number,
-                }
-        }
+        // if (this.client.type === "I") {
+        //     this.client.client_phones[0] = {
+        //         full_name: this.client.name,
+        //         email: this.client.email,
+        //         phone_number: this.client.client_phones[0].phone_number,
+        //     }
+        // }
 
-        if (this.client.type === "E") {
-            if (this.client.client_phones.length === 1) {
-                this.client.client_phones[0] = {
-                    full_name: this.client.responsible_person.name,
-                    position: this.client.responsible_person.position,
-                    documents: [this.client.responsible_person.status],
-                    is_lpr: true,
-                    email: this.client.client_phones[0].email,
-                    phone_number: this.client.client_phones[0].phone_number,
-                }
-            } else {
-                this.client.client_phones.push({
-                    full_name: this.client.responsible_person.name,
-                    position: this.client.responsible_person.position,
-                    documents: [this.client.responsible_person.status],
-                    is_lpr: true,
-                });
-            }
-        }
+        // if (this.client.type === "E") {
+        //     if (this.client.client_phones.length === 1) {
+        //         this.client.client_phones[0] = {
+        //             full_name: this.client.responsible_person.name,
+        //             position: this.client.responsible_person.position,
+        //             documents: [this.client.responsible_person.status],
+        //             is_lpr: true,
+        //             email: this.client.client_phones[0].email,
+        //             phone_number: this.client.client_phones[0].phone_number,
+        //         }
+        //     } else {
+        //         this.client.client_phones.push({
+        //             full_name: this.client.responsible_person.name,
+        //             position: this.client.responsible_person.position,
+        //             documents: [this.client.responsible_person.status],
+        //             is_lpr: true,
+        //         });
+        //     }
+        // }
         // 
 
         console.log(this.client);
@@ -952,13 +961,11 @@ export default {
             this.contracts.push({ value: '' });
         },
         getLprDocs() {
-            this.$api.lprDocs.getLprDocs()
+            this.$api.lprDocs.getLprDocs({ page: 1, limit: 100 })
                 .then((response) => {
-                    // console.log('lpr - ', response)
                     this.statusResponsiblePerson = response.data.results;
                 })
                 .catch((error) => {
-                    console.log('lpr - ', error)
                 })
         },
         getFormsOwnership() {
