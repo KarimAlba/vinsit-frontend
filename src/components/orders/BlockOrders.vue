@@ -1,17 +1,13 @@
 <template>
     <div class="block-orders">
         <div class="mb-4 d-flex align-items-center justify-content-between">
-            <span
-                >Найдено: <b>{{ count }}</b></span
-            >
-
+            <span>Найдено: <b>{{ count }}</b></span>
             <div>
                 <b-button variant="primary" :to="{ name: 'order-create' }" v-if="!readOnly" :disabled="readOnly">
                     Создать
                 </b-button>
             </div>
         </div>
-
         <b-card>
             <b-table
                 :items="orders"
@@ -223,21 +219,35 @@
                 align="right"
             ></b-pagination>
         </b-card>
+
+        <!-- <b-card>
+            <table-global-state
+                :data="orders"
+                :fields="fields"
+                :actions="actions"
+                :count="count"
+                :per-page="perPage"
+                :cur-page="curPage"
+                @fetchData="fetchOrders"
+                @changePage="changeCurPage"
+                @changeOrdering="changeOrdering"
+                @resetPagination="resetPagination"
+            />
+        </b-card> -->
     </div>
 </template>
 
 <script>
 import { mapGetters, mapActions, mapMutations } from "vuex";
+import TableGlobalState from "../../components/ui/TableTree/TableGlobalState.vue";
 
 import {
     BRow,
     BCol,
     BCard,
-    BTable,
     BButton,
     BBadge,
     BFormCheckbox,
-    BPagination,
 } from "bootstrap-vue";
 
 import { RoleConstants } from '@/utils/role';
@@ -247,45 +257,47 @@ export default {
     data() {
         return {
             fields: [
-                { key: "show_details", label: "" },
-                { key: "id", label: "Номер заказа", sortable: true },
+                // { key: "show_details", label: "Детали" },
+                {
+                    key: "id",
+                    label: "Номер заказа",
+                    sortable: true,
+                    component: 'router-link', 
+                    componentProps: {
+                        routerName: "order",
+                    },
+                },
                 { key: "date_created", label: "Дата заказа", sortable: true },
                 { key: "status", label: "Статус заказа", sortable: true },
                 { key: "location", label: "Местонахождение", sortable: true },
                 { key: "mode", label: "Режим заказа", sortable: true },
                 { key: "pay_on_order", label: "Наложенный платеж", sortable: true },
-                { key: "places_amount", label: "Количество мест", sortable: false },
+                { key: "places_amount", label: "Количество мест"},
                 { key: "sender_full_name", label: "Отправитель", sortable: false },
                 { key: "sender_city.name", label: "Город отправителя", sortable: false },
                 { key: "recipient_full_name", label: "Получатель", sortable: false },
                 { key: "recipient_city.name", label: "Город получателя", sortable: false },
                 { key: "payer_counterparty.name", label: "Плательщик", sortable: false },
                 { key: "contract.contract", label: "Договор", sortable: false },
+                // { key: "actions", label: "Действие", sortable: false },
             ],
             orderStatus: [],
-
-            sortBy: 'date_created',
-            sortDesc: false,
+            
+            actions: {
+                delete: true,
+            },
         };
     },
     components: {
         BRow,
         BCol,
         BCard,
-        BTable,
         BButton,
         BBadge,
         BFormCheckbox,
-        BPagination,
+        TableGlobalState,
     },
     watch: {
-        'sortBy'(newValue) {
-            if (!newValue) return;
-            this.sortTable();
-        },
-        'sortDesc'(newValue) {
-            this.sortTable();
-        }
     },
     computed: {
         ...mapGetters({
@@ -295,7 +307,6 @@ export default {
             perPage: "moduleOrders/getCountPerPage",
             curPage: "moduleOrders/getCurPage",
             orders: "moduleOrders/getOrders",
-
             orderMode: "moduleOrders/getOrderMode",
             clientType: "moduleClients/getClientType",
         }),
@@ -304,7 +315,7 @@ export default {
         },
         readOnly() {
             return store.state.app.user.role !== RoleConstants.AD && store.state.app.user.role !== RoleConstants.LG;
-        }
+        },
     },
     methods: {
         ...mapActions({
@@ -323,38 +334,14 @@ export default {
         formatDate(date) {
             return this.dayjs(date).format("DD.MM.YYYY");
         },
-        changePage(page) {
-            this.changeCurPage(page);
-            this.fetchOrders();
-        },
         getClientType(clientType) {
             return this.clientType.find((type) => type.id === clientType)?.short_title;
         },
-        checkSortName() {
-            switch(this.sortBy) {
-                case 'places_amount':
-                    return 'PVZ';
-                default:
-                    return this.sortBy;
-            };
-        },
-        sortTable() {
-            let ordering = this.checkSortName();
-            if (this.sortDesc) {
-                this.changeOrdering(ordering);
-            } else {
-                this.changeOrdering(`-${ordering}`);
-            };
-
-            this.resetPagination();
-            setTimeout(() => {
-                this.fetchOrders();
-            }, 0);
+        fieldClick(id) {
+            console.log(id)
         },
     },
     mounted() {
-        this.resetPagination();
-        this.fetchOrders();
     },
 };
 </script>
