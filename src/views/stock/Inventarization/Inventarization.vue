@@ -209,6 +209,8 @@
 </template>
 
 <script>
+import InventorizationChannel from '../../../api/inventorizationChannel.js'
+
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { debounce } from "lodash";
 import SelectOffices from "@/components/ui/selectOffices/selectOffices.vue";
@@ -265,6 +267,10 @@ export default {
 			],
 			sortBy: 'number',
 			sortDesc: false,
+
+			logs: [],
+            stockObjectNumber: null,
+            inventarizationChannel: new InventorizationChannel(1),
 		};
 	},
 	components: {
@@ -295,8 +301,15 @@ export default {
 		}
 	},
 	computed: {
+		showPagination() {
+            // return Math.ceil(this.count / this.perPage) > 1;
+        },
 	},
 	methods: {
+		getInventarizationList() {
+		},
+		exportInventarizationList() {
+		},
 		resetFilters() {
 			this.visible = false;
 			this.filters = {
@@ -346,9 +359,13 @@ export default {
 		},
 	},
 	mounted() {
+        this.inventarizationChannel.startConnection();
 		this.fetchOffices();
 		this.resetFilters();
 	},
+    beforeDestroy() {
+        this.inventarizationChannel.closeConnection();
+    }
 };
 </script>
 

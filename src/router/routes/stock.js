@@ -57,13 +57,13 @@ export default [
     },
     {
         path: '/stock/inventarization',
-        name: 'inventarization',
+        name: 'stock-inventarization',
         component: () => import('@/views/stock/Inventarization/Inventarization.vue'),
         meta: {
             pageTitle: 'Инвентаризация',
             disabledRoles: [
-                // RoleConstants.CR,
-            ]
+                RoleConstants.CR,
+            ],
         },
     },
     // {
