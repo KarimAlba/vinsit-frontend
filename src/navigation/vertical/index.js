@@ -35,6 +35,11 @@ export default [
                 icon: 'ChevronRightIcon',
                 route: 'stock-storage',
             },
+            {
+                title: 'Инвентаризация',
+                icon: 'ChevronRightIcon',
+                route: 'inventarization',
+            },
 		],
 	},
 	{
