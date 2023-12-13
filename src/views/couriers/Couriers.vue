@@ -1,5 +1,5 @@
 <template>
-    <div class="couriers">
+	<div class="couriers">
         <b-card>
             <b-row>
                 <b-col class="mb-1" cols="12" md="4">
@@ -42,13 +42,13 @@
 
         <b-button
             variant="primary"
-			v-b-modal.modal-create-courier 
             class="mb-2"
+            @click.prevent="showModal = true"
         >
             Добавить курьера
         </b-button>
 
-        <b-card>
+        <!-- <b-card>
             <b-table
                 :items="couriers"
                 :fields="fields"
@@ -58,14 +58,12 @@
             >
                 <template #cell(full_name)="data">
                     <span
-			            v-b-modal.modal-create-courier 
                         @click="handleEditCourier(data.item.id)"
                         style="color: blue; text-decoration: underline; cursor: pointer;"
                     >
                         {{ data.item.full_name }}
                     </span>
                 </template>
-
                 <template #cell(phone_number)="data">
                     {{ data.item.phone_number }}
                 </template>
@@ -82,8 +80,16 @@
                 :value="curPage"
                 align="right"
             />
+        </b-card> -->
+        <b-card>
+            <table-local-state
+                :fields="fields"
+                :fetchData="$api.user.getUsers"
+                :per-page="10"
+            />
         </b-card>
         <b-modal
+            v-model="showModal"
             id="modal-create-courier"
             ref="modal"
             title="Новый курьер"
@@ -137,6 +143,7 @@
 
 <script>
 	import { mapGetters, mapActions } from "vuex";
+    import TableLocalState from "@/components/ui/TableTree/TableLocalState.vue";
 
 	import {
 		BRow,
@@ -160,6 +167,7 @@
 	export default {
 		data() {
 			return {
+                showModal: false,
                 curPage: 1,
                 perPage: 1,
                 count: 1,
@@ -169,7 +177,12 @@
                     office: null,
                 },
                 fields: [
-                    { key: "full_name", label: "ФИО" },
+                    {
+                        key: "full_name",
+                        label: "ФИО",
+                        event: (item) => this.handleEditCourier(item.id),
+                        style: { color: "blue", userSelect: "none", cursor: "pointer", borderBottom: "1px solid blue"},
+                    },
                     { key: "phone_number", label: "Телефон" },
                     { key: "transport", label: "Транспорт" },
                 ],
@@ -201,6 +214,7 @@
 			SelectOffices,
 			SelectUsers,
 			SelectCities,
+            TableLocalState,
 		},
 		directives: {
 			"b-toggle": VBToggle,
@@ -256,6 +270,7 @@
                 this.$api.user.getUser(id).then(response => {
                     this.newCourier = response.data;
                 })
+                this.showModal = true;
             },
             handleSaveCourier() {
                 if (this.isEditCourier) {

@@ -165,8 +165,8 @@ export default {
             state.curPage = 1;
         },
         resetData(state) {
-            state.orders = []
-            state.count = 0
+            state.orders = [];
+            state.count = 0;
         },
         changeLoading(state, payload) {
             state.loading = payload
@@ -178,7 +178,6 @@ export default {
     actions: {
         fetchOrders({ commit, state }) {
             commit('changeLoading', true);
-            commit('resetData');
 
             this._vm.$api.orders.getOrders({
                 ...state.filters,
@@ -229,6 +228,7 @@ export default {
         },
         resetOrdering({ commit, state }) {
             commit('resetOrdering')
-        }
+        },
+
     },
 }
