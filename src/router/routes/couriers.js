@@ -8,9 +8,9 @@ export default [
         },
     },
     {
-        path: '/couriers/routes',
+        path: '/couriers/routes/:idMap?',
         name: 'couriers-routes',
-        component: () => import('@/views/couriers/Routes.vue'),
+        component: () => import('@/views/couriers/RoutesSheet/RoutesSheet.vue'),
         meta: {
             pageTitle: 'Маршрутный лист',
         },
