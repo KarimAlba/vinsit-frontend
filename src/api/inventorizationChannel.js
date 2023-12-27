@@ -13,29 +13,31 @@ class InventorizationChannel {
     startConnection(doSth = () => null) {
         this.buildConnection();
         this.initOpenEventHandler(doSth);
-        this.initCloseEventHandler();
-        this.initOnErrorHandler();
+        this.initCloseEventHandler(doSth);
+        this.initOnErrorHandler(doSth);
     }
 
     closeConnection(doSth = () => null) {
         this.ws.close();
-        doSth();
+		doSth('Процесс инвентаризации завершен!');
     }
 
     checkConnectionStatus() {
         this.ws.send({ action: 'ping' });
     }
 
-    registerChannelEvents() {
+    registerChannelEvents(doSth) {
         this.ws.onmessage = (event) => {
             console.log(event);
             const data = JSON.parse(event.data)
             if ('message' in data) {
                 switch (data.message) {
                     case 'pong':
+						doSth('Connection is ok!');
                         console.log('Connection is ok!');
                         break;
                     default:
+						doSth(data.message);
                         console.log(data.message);
                         break;
                 }
@@ -43,7 +45,7 @@ class InventorizationChannel {
             }
             if ('log_message' in data) {
                 if (data.log_message === 'Процесс инвентаризации завершен!' && (this.ws.readyState !== this.ws.CLOSING && this.ws.readyState !== this.ws.CLOSED)) {
-                    this.closeConnection();
+                    this.closeConnection(doSth);
                 } else {
                     // need to return data (with event-bus component or vuex store or RxJs)
                 }
@@ -56,12 +58,12 @@ class InventorizationChannel {
             console.log("[open] Connected!");
             console.log("Check connection every 12 seconds");
             this.connectionCheckingInterval = window.setInterval(this.checkConnectionStatus.bind(this), 12 * 1000);
-            this.registerChannelEvents();
-            doSth();
+            this.registerChannelEvents(doSth);
+			doSth('Процесс инвентаризации запущен!');
         }
     }
 
-    initCloseEventHandler() {
+    initCloseEventHandler(doSth) {
         this.ws.onclose = (event) => {
             if (event.wasClean) {
                 console.log(`[close] Connection closed, code=${event.code} reason=${event.reason}`);
@@ -71,12 +73,14 @@ class InventorizationChannel {
                 console.log('[close] Connection failed');
             }
             clearInterval(this.connectionCheckingInterval);
+			doSth('Процесс инвентаризации завершен!');
         }
     }
 
     initOnErrorHandler() {
         this.ws.onerror = (error) => {
             console.log(error);
+			doSth(error);
         };
     }
 }
