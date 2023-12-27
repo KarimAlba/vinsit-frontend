@@ -59,7 +59,8 @@
                         />
                         <b-icon
                             icon="trash"
-                            @click=""
+                            @click="handleDeleteMap(data.item.id)"
+                            v-b-modal.modal-delete-map 
                         />
                     </div>
                 </template>
@@ -126,6 +127,18 @@
                 />
             </b-col>
         </b-modal>
+        <b-modal
+            id="modal-delete-map"
+            ref="modal"
+            title="Удаление"
+            @ok="deleteMap"
+            @close="clearDeleteMap"
+            @cancel="clearDeleteMap"
+        >
+            <b-col cols="12">
+                <span>Удалить курьерскую карту {{ this.deletedMapId }} ?</span>
+            </b-col>
+        </b-modal>
     </div>
 </template>
 
@@ -180,6 +193,7 @@ export default {
                 group: null,
             },
             isEditMap: false,
+            deletedMapId: null,
         };
     },
     components: {
@@ -267,6 +281,7 @@ export default {
         createMap() {
             this.$api.couriers.createCourierMap(this.newMap).then(resp => {
                 if (resp.status <= 203) {
+                    this.fetchCourierMaps();
                     this.$toast({
                         component: ToastificationContent,
                         props: {
@@ -303,18 +318,50 @@ export default {
                         },
                     });
                 } else {
-                this.$toast({
-                    component: ToastificationContent,
-                    props: {
-                        title: "Ошибка",
-                        text: "Не удалось изменить данные.",
-                        icon: "XIcon",
-                        variant: "danger",
-                    },
-                });
+                    this.$toast({
+                        component: ToastificationContent,
+                        props: {
+                            title: "Ошибка",
+                            text: "Не удалось изменить данные.",
+                            icon: "XIcon",
+                            variant: "danger",
+                        },
+                    });
                 }
             })
             this.isEditMap = false;
+        },
+        handleDeleteMap(id) {
+            this.deletedMapId = id;
+        },
+        deleteMap() {
+            this.$api.couriers.deleteCourierMap(this.deletedMapId).then(response => {
+                if (response.status <= 203) {
+                    this.fetchCourierMaps();
+                    this.$toast({
+                        component: ToastificationContent,
+                        props: {
+                            title: "",
+                            text: "Курьерская карта удалена",
+                            icon: "TrashIcon",
+                            variant: "success",
+                        },
+                    });
+                } else {
+                    this.$toast({
+                        component: ToastificationContent,
+                        props: {
+                            title: "Ошибка",
+                            text: "Не удалось удалить карту",
+                            icon: "XIcon",
+                            variant: "danger",
+                        },
+                    });
+                }
+            })
+        },
+        clearDeleteMap() {
+            this.deletedMapId = null;
         },
     },
     mounted() {

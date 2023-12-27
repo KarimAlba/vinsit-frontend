@@ -20,6 +20,7 @@ import moduleSenders from './app-modules/senders';
 import moduleCargoRegistration from './app-modules/addressBasedStorage/cargoRegistration';
 import moduleWarehouseTopology from './app-modules/addressBasedStorage/warehouseTopology';
 import moduleCouriers from './app-modules/couriers'
+import moduleRoutesSheet from './app-modules/routesSeet'
 
 Vue.use(Vuex);
 
@@ -43,6 +44,7 @@ export default new Vuex.Store({
 		moduleCargoRegistration,
 		moduleWarehouseTopology,
 		moduleCouriers,
+		moduleRoutesSheet,
   	},
   	strict: process.env.DEV,
 });
