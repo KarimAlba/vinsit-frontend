@@ -12,14 +12,6 @@
 					</b-form-group>
 				</b-col>
 				<b-col class="mb-1" cols="12" md="3">
-					<b-form-group label="Адрес хранения">
-						<b-form-input 
-							placeholder="Зона, стеллаж, полка"
-							v-model="filters.storage_address"
-						/>
-					</b-form-group>
-				</b-col>
-				<b-col class="mb-1" cols="12" md="3">
 					<b-form-group label="Офис склада">
 						<select-offices
 							:placeholder="'Офис склада'"
@@ -29,13 +21,67 @@
 					</b-form-group>
 				</b-col>
 				<b-col class="mb-1" cols="12" md="3">
+					<b-form-group label="Зона">
+						<v-select
+							label="name"
+							@search="onSearchZone"
+							:reduce="(item) => item.id"
+							:options="zones"
+							placeholder="Зона"
+							:filterable="false"
+							v-model="filters.zone"
+							:disabled="filters.current_office ? false : true"
+						>
+							<template #no-options="{ search }">
+								{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
+							</template>
+						</v-select>
+					</b-form-group>
+				</b-col>
+				<b-col class="mb-1" cols="12" md="3">
+					<b-form-group label="Стеллаж">
+						<v-select
+							label="name"
+							@search="onSearchRack"
+							:reduce="(item) => item.id"
+							:options="racks"
+							placeholder="Стеллаж"
+							:filterable="false"
+							v-model="filters.rack"
+							:disabled="filters.zone || filters.rack ? false : true"
+						>
+							<template #no-options="{ search }">
+								{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
+							</template>
+						</v-select>
+					</b-form-group>
+				</b-col>
+				<b-col class="mb-1" cols="12" md="3">
+					<b-form-group label="Полка">
+						<v-select
+							label="name"
+							@search="onSearchShelf"
+							:reduce="(item) => item.id"
+							:options="shelves"
+							placeholder="Полка"
+							:filterable="false"
+							v-model="filters.shelf"
+							:disabled="filters.rack || filters.shelf ? false : true"
+						>
+							<template #no-options="{ search }">
+								{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
+							</template>
+						</v-select>
+					</b-form-group>
+				</b-col>
+				<b-col class="mb-1" cols="12" md="3">
 					<b-form-group label="Состояние">
 						<v-select
 							label="name"
 							@search="onSearchState"
 							:reduce="(state) => state.id"
 							v-model="filters.state"
-							:options="states"
+							:options="stateList"
 							:placeholder="'Состояние'"
 							:filterable="false"
 						/>
@@ -48,7 +94,7 @@
 					variant="outline-success"
 					class="btn-tour-skip mb-1 mr-1"
 					style="height: 40px; width: 140px"
-					@click="clearLog"
+					@click="getInventarizationList"
 				>
 					<span>Найти</span>
 				</b-button>
@@ -92,7 +138,7 @@
 		</b-card>
 		<b-card>
 			<b-row>
-				<b-col class="mb-1" cols="8">
+				<b-col cols="8">
 					<b-row>
 						<b-col cols="6" xl="3">
 							<b-button
@@ -148,33 +194,98 @@
 								variant="outline-info"
 								class="btn-tour-skip  mb-1"
 								style="height: 40px; width: 100%"
-								@click="handleExportCSVClick"
+								@click="exportInventarizationList"
 							>
 								<span>Экспорт в CSV</span>
 							</b-button>
 						</b-col>
 					</b-row>
-					<b-table
+					<b-table-simple
 						:items="inventarizationList"
 						:fields="fields"
 						striped
 						responsive
+						sticky-header
 
 						:sort-by.sync="sortBy"
 						:sort-desc.sync="sortDesc"
 						:no-local-sorting="true"
+						class="inventarizationTable"
 					>
-						<template #cell(number)="data">
-							<router-link
-								style="border-bottom: 1px dotted blue"
-								:to="{ name: 'order', params: { id: data.item.id }  }"
+						<b-thead>
+							<b-tr style="height: 30px">
+								<b-th
+									v-for="titleColumn in fields"
+									:class="titleColumn.key === sortBy ? 'curSortByTh' : null"
+									@click.prevent="sorting(titleColumn.key)"
+								>
+										<div style="position: relative;">
+											<span class="disabledTitle">{{ titleColumn.label }}</span>
+											<feather-icon
+												v-if="titleColumn.key === sortBy"
+												:icon="sortDesc ? 'ChevronUpIcon' : 'ChevronDownIcon'"
+												size="12"
+												@click.stop="sorting(titleColumn.key)"
+												style="position: absolute; padding-top: 1px;"
+											/>
+										</div>
+								</b-th>
+							</b-tr>
+						</b-thead>
+						<b-tbody>
+							<b-tr
+								v-for="item in inventarizationList"
+								class="inventarizationTableNode"
+								:style="item.shortage
+									? 'background-color: rgba(255, 220, 220, 0.7) !important'
+									: item.surplus
+										? 'background-color: rgba(239, 255, 173, 0.7) !important'
+										: null
+								"
 							>
-								{{ data.item.number}}
-							</router-link>
-						</template>
-					</b-table>
+								<b-th class="inventarizationTableCell">{{ item.number }}</b-th>
+								<b-th>{{ item.SK }}</b-th>
+								<b-th>{{ item.shelf }}</b-th>
+								<b-th>{{ item.date_created }}</b-th>
+								<b-th>{{ item.docs_created }}</b-th>
+								<b-th>{{ item.user_created }}</b-th>
+								<b-th>{{ item.date_last_operation }}</b-th>
+								<b-th>{{ item.docs_last_operation }}</b-th>
+								<b-th>{{ item.user_last_operation }}</b-th>
+								<b-th>{{ item.status }}</b-th>
+								<b-th>{{ item.OZD }}</b-th>
+								<b-th>
+									<div style="display: flex; justify-content: center; align-items: center">
+										<feather-icon
+											icon="CheckIcon"
+											size="24"
+											v-if="item.shortage"
+										/>
+									</div>
+								</b-th>
+								<b-th>
+									<div style="display: flex; justify-content: center; align-items: center">
+										<feather-icon
+											icon="CheckIcon"
+											size="24"
+											v-if="item.scanned"
+										/>
+									</div>
+								</b-th>
+								<b-th>
+									<div style="display: flex; justify-content: center; align-items: center">
+										<feather-icon
+											icon="CheckIcon"
+											size="24"
+											v-if="item.surplus"
+										/>
+									</div>
+								</b-th>
+							</b-tr>
+						</b-tbody>
+					</b-table-simple>
 				</b-col>
-				<b-col class="mb-1" cols="4">
+				<b-col cols="4">
 					<b-row class="ml-1 mb-1" style="justify-content: flex-start">
 						<span class="orders_counter" style="color: #000000">
 							{{ scanned_orders ? scanned_orders.length : 0 }} Отсканировано
@@ -188,8 +299,13 @@
 					</b-row>
 					<b-row class="mb-1">
 						<b-col cols="9">
-							<b-form-group label="Номер объекта складской обработки" style="color: red">
-								<b-form-input v-model="numberLog" />
+							<b-form-group label="Номер объекта складской обработки">
+								<!-- <b-form-input v-model="numberLog" /> -->
+								<select-orders
+                                    :placeholder="'Номер заказа'"
+                                    :value="numberLog"
+                                    @input="chooseOrder($event)"
+                                />
 							</b-form-group>
 						</b-col>
 					</b-row>
@@ -202,6 +318,19 @@
 					>
 						<span>Очистить лог</span>
 					</b-button>
+					<b-row>
+						<b-card class="inventarizationLogs">
+							<div style="padding-bottom: 10px">
+								<p
+									v-for="(log, log_index) in logs"
+									:key="log_index"
+									class="suggestion-group-title"
+								>
+									<span>{{ log }}</span>
+								</p>
+							</div>
+						</b-card>
+					</b-row>
 				</b-col>
 			</b-row>
 		</b-card>
@@ -214,6 +343,7 @@ import InventorizationChannel from '../../../api/inventorizationChannel.js'
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { debounce } from "lodash";
 import SelectOffices from "@/components/ui/selectOffices/selectOffices.vue";
+import SelectOrders from "@/components/ui/selectOrder/selectOrder.vue";
 
 import {
 	BRow,
@@ -224,7 +354,13 @@ import {
 	BFormCheckbox,
 	BCollapse,
 	BButton,
-	BTable,
+	BTableSimple,
+	BThead,
+	BTbody,
+	BTfoot,
+	BTh,
+	BTd,
+	BTr,
 	VBToggle,
 	BFormDatepicker,
 } from "bootstrap-vue";
@@ -237,19 +373,278 @@ export default {
 			isInventarization: false,
 			filters: {
 				date_last_operation: null,
-				storage_address: null,
 				warehouse_office: null,
+				zone: null,
+				rack: null,
+				shelf: null,
 				state: null,
 			},
 			numberLog: null,
+			zones: [],
+			racks: [],
+			shelves: [],
             offices: [],
-			states: [],
 			scanned_orders: [],
 			shortage: [],
 			surplus: [],
-			inventarizationList: [],
+			inventarizationList: [
+				{
+					number: 1,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: true,
+					scanned: false,
+					surplus: false,
+				},
+				{
+					number: 2,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: false,
+					scanned: true,
+					surplus: true,
+				},
+				{
+					number: 3,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: false,
+					scanned: true,
+					surplus: false,
+				},
+				{
+					number: 1,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: true,
+					scanned: false,
+					surplus: false,
+				},
+				{
+					number: 2,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: false,
+					scanned: true,
+					surplus: true,
+				},
+				{
+					number: 3,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: false,
+					scanned: true,
+					surplus: false,
+				},
+				{
+					number: 1,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: true,
+					scanned: false,
+					surplus: false,
+				},
+				{
+					number: 2,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: false,
+					scanned: true,
+					surplus: true,
+				},
+				{
+					number: 3,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: false,
+					scanned: true,
+					surplus: false,
+				},
+				{
+					number: 1,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: true,
+					scanned: false,
+					surplus: false,
+				},
+				{
+					number: 2,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: false,
+					scanned: true,
+					surplus: true,
+				},
+				{
+					number: 3,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: false,
+					scanned: true,
+					surplus: false,
+				},
+				{
+					number: 1,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: true,
+					scanned: false,
+					surplus: false,
+				},
+				{
+					number: 2,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: false,
+					scanned: true,
+					surplus: true,
+				},
+				{
+					number: 3,
+					SK: 'SHSHSHSHHSHS',
+					shelf: 1,
+					date_created: '11-11-2011',
+					docs_created: 'Test',
+					user_created: 'Tester',
+					date_last_operation: '11-11-2011',
+					docs_last_operation: 'Test',
+					user_last_operation: 'Tester',
+					status: 'Win',
+					OZD: 'hui znaet',
+					shortage: false,
+					scanned: true,
+					surplus: false,
+				},
+			],
+			stateList: [
+				{
+					name: 'Отсканировано',
+					id: '1',
+				},
+				{
+					name: 'Недостача',
+					id: '2',
+				},
+				{
+					name: 'Излишки',
+					id: '3',
+				},
+			],
 			fields: [
-				{ key: "show_details", label: "" },
+				// { key: "show_details", label: "" },
 				{ key: "number", label: "Номер заказа", sortable: true},
 				{ key: "SK", label: "ШК ГМ", sortable: false},
 				{ key: "shelf", label: "Полка", sortable: true},
@@ -282,11 +677,18 @@ export default {
 		BFormCheckbox,
 		BCollapse,
 		BButton,
-		BTable,
+		BTableSimple,
+		BThead,
+		BTbody,
+		BTfoot,
+		BTh,
+		BTd,
+		BTr,
 		VBToggle,
 		vSelect,
 		BFormDatepicker,
 		SelectOffices,
+		SelectOrders,
 	},
 	directives: {
 		"b-toggle": VBToggle,
@@ -298,7 +700,16 @@ export default {
 		},
 		'sortDesc'(newValue) {
 			this.sortTable();
-		}
+		},
+		'filters.current_office'(newValue) {
+			this.fetchZone(newValue, null, this);
+		},
+		'filters.zone'(newValue) {
+			this.fetchRack(newValue, null, this);
+		},
+		'filters.rack'(newValue) {
+			this.fetchShelf(newValue, null, this);
+		},
 	},
 	computed: {
 		showPagination() {
@@ -306,6 +717,15 @@ export default {
         },
 	},
 	methods: {
+		sorting(key) {
+			if (this.fields.filter(item => item.sortable === true).findIndex(item => item.key === key) === -1) return;
+			if (this.sortBy === key) {
+				this.sortDesc = !this.sortDesc;
+				return;
+			}
+			this.sortBy = key;
+			this.sortDesc = false;
+		},
 		getInventarizationList() {
 		},
 		exportInventarizationList() {
@@ -314,8 +734,11 @@ export default {
 			this.visible = false;
 			this.filters = {
 				date_last_operation: null,
-				storage_address: null,
 				warehouse_office: null,
+				zone: null,
+				rack: null,
+				shelf: null,
+				state: null,
 			};
 		},
         fetchOffices() {
@@ -328,18 +751,16 @@ export default {
 		consumptionInventarization() {
 		},
 		startInventarization() {
+			if (!this.inventarizationList.length) this.getInventarizationList();
 			this.isInventarization = true;
+			this.inventarizationChannel.startConnection(this.addLogs);
 		},
 		endInventarization() {
 			this.isInventarization = false;
+			this.inventarizationChannel.closeConnection();
 		},
 		updateStatistics() {
 		},
-        handleExportCSVClick() {
-            this.$api.documents.exportCSV([18])
-                .then(response => console.log(response))
-                .catch(error => console.log(error))
-        },
 		sortTable() {
 			// let ordering = this.checkSortName();
 
@@ -354,23 +775,102 @@ export default {
 			// 	this.fetchPaymentOrders();
 			// }, 0);
 		},
+		addLogs(newLog) {
+			this.logs.push(newLog);
+		},
 		clearLog() {
 			this.numberLog = null;
 		},
+        chooseOrder(id) {
+			// console.log(id);
+			this.numberLog = id;
+            this.$api.orders.getOrder(id).then((response) => {
+                // this.editDocument.orders.push(response.data);
+            });
+        },
+		onSearchZone(search, loading) {
+			if (search.length) {
+				loading(true);
+				this.fetchZone(search, loading, this);
+			}
+		},
+		fetchZone: _.debounce((search, loading, vm) => {
+			vm.$api.addressBasedStorage.getZones({ search, limit: 100 })
+				.then((response) => {
+					vm.zones = [...response.data.results];
+					loading(false);
+				});
+		}, 500),
+		onSearchRack(search, loading) {
+			if (search.length) {
+				loading(true);
+				this.fetchRack(search, loading, this);
+			}
+		},
+		fetchRack: _.debounce((search, loading, vm) => {
+			vm.$api.addressBasedStorage.getRacks({ search, limit: 100, zone: vm.filters.zone })
+				.then((response) => {
+					vm.racks = [...response.data.results];
+					loading(false);
+				});
+		}, 500),
+		onSearchShelf(search, loading) {
+			if (search.length) {
+				loading(true);
+				this.fetchShelf(search, loading, this);
+			}
+		},
+		fetchShelf: _.debounce((search, loading, vm) => {
+			vm.$api.addressBasedStorage.getShelves({ search, limit: 100, rack: vm.filters.rack })
+				.then((response) => {
+					vm.shelves = [...response.data.results];
+					loading(false);
+				});
+		}, 500),
 	},
 	mounted() {
-        this.inventarizationChannel.startConnection();
 		this.fetchOffices();
 		this.resetFilters();
 	},
-    beforeDestroy() {
-        this.inventarizationChannel.closeConnection();
-    }
 };
 </script>
 
 <style lang="scss" scoped>
+.inventarizationTable {
+	max-height: 575px;
+}
+
+.inventarizationTableNode {
+}
+
+.inventarizationTableCell {
+}
+
 .orders_counter {
 	margin-right: 5px;
+}
+
+.disabledTitle {
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+
+.inventarizationLogs {
+	width: 100%;
+	height: 500px;
+	overflow: auto;
+	background-color: #000000;
+}
+
+.table.b-table th {
+	padding: 3px !important;
+	align-items: center;
+	text-align: center;
+	border-bottom: 0;
+	height: 10px;
 }
 </style>
