@@ -18,11 +18,12 @@
                 @row-clicked="(item) => $set(item, '_showDetails', !item._showDetails)"
             >
                 <template #cell(id)="data">
-                    <span
-                        style="color: blue; text-decoration: underline; cursor: pointer;"
+                    <router-link
+                        style="border-bottom: 1px dotted blue"
+                        :to="{ name: 'couriers-routes', params: { idMap: data.item.id } }"
                     >
                         {{ data.item.id }}
-                    </span
+                    </router-link
                     >
                 </template>
 

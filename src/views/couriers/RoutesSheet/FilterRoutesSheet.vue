@@ -24,6 +24,15 @@
                     />
                 </b-form-group>
             </b-col>
+			<b-col cols="12" md="4">
+                <b-form-group lable="Курьерская карта">
+                    <select-map
+                        :placeholder="'Курьерская карта'"
+                        v-model="filters.courierMap"
+						@input="handleSelectMap"
+                    />
+                </b-form-group>
+            </b-col>
         </b-row>
 		<template #footer>
 			<a 
@@ -60,6 +69,7 @@
 	import AppDatepicker from "@/@core/components/app-datepicker/AppDatepicker";
 	import SelectOffices from "@/components/ui/selectOffices/selectOffices.vue";
 	import SelectCities from "@/components/ui/selectCities/selectCities.vue";
+	import SelectMap from "@/components/ui/selectCourierMaps/selectCourierMaps.vue";
 
 	export default {
 		data() {
@@ -82,6 +92,7 @@
 			vSelect,
 			SelectOffices,
             SelectCities,
+			SelectMap,
 		},
 		directives: {
 			"b-toggle": VBToggle,
@@ -90,26 +101,39 @@
 			filters: {
 				handler(val) {
 					this.resetPagination();
-					// this.fetchCourierMaps();
+					// this.fetchMapOrders();
 				},
 				deep: true,
+			},
+			idMap(newVal) {
+				this.fetchCourierMap(newVal)
 			},
 		},
 		computed: {
 			...mapGetters({
 				filters: "moduleRoutesSheet/getFilters",
 			}),
+			idMap() {
+				return this.$route.params.idMap || null;
+			}
 		},
 		methods: {
 			...mapActions({
+            	fetchCourierMap: "moduleRoutesSheet/fetchMap",
 				resetPagination: "moduleRoutesSheet/resetPagination",
 				resetFilters: "moduleRoutesSheet/resetFilters",
 			}),
 			handleSearchField: _.debounce((value, vm) => {
 				vm.filters.search = value;
 			}, 500),
+			handleSelectMap(idMap) {
+				this.$router.push({ name: 'couriers-routes', params: { idMap: idMap }})
+			}
 		},
 		mounted() {
+			// if (this.$route.params.idMap) {
+			// 	this.filters.courierMap = this.$route.params.idMap;
+			// }
 			this.resetFilters();
 			this.resetPagination();
 		},
