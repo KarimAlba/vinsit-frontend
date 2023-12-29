@@ -61,11 +61,11 @@ export default [
                 icon: 'ChevronRightIcon',
                 route: 'couriers',
             },
-            {
-                title: 'Полнота выдачи',
-                icon: 'ChevronRightIcon',
-                route: 'couriers-completeness',
-            },
+            // {
+            //     title: 'Полнота выдачи',
+            //     icon: 'ChevronRightIcon',
+            //     route: 'couriers-completeness',
+            // },
 		],
 	},
 	{

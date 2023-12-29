@@ -7,12 +7,15 @@
                         <select-orders
                             :placeholder="'Номера заказов'"
                             v-model="selectOrder"
-                            @input="handleAddOrder($event)"
                         />
                     </b-form-group>
                 </b-col>
                 <div>
-                    <b-button variant="primary" :disabled="!selectOrder">
+                    <b-button  
+                        variant="primary" 
+                        :disabled="!selectOrder"
+                        @click="handleAddOrder"
+                    >
                         Добавить заказ
                     </b-button>
                 </div>
@@ -20,13 +23,13 @@
         </b-card>
         <b-card>
             <b-table
-                :items="tasks"
+                :items="mapOrders"
                 :fields="fields"
                 striped
                 responsive
                 @row-clicked="(item) => $set(item, '_showDetails', !item._showDetails)"
             >
-                <template #cell(order)="data">
+                <!-- <template #cell(order)="data">
                     <div>
                         <feather-icon
                             icon="ChevronUpIcon" 
@@ -39,10 +42,9 @@
                             v-b-modal.modal-delete-map 
                         />
                     </div>
-                </template>
+                </template> -->
                 <template #cell(id)="data">
                     <span
-                        style="color: blue; text-decoration: underline; cursor: pointer;"
                     >
                         {{ data.item.id }}
                     </span
@@ -91,73 +93,19 @@ export default {
     data() {
         return {
             fields: [
-                { key: "order", label: ""},
                 { key: "id", label: "Номер" },
                 { key: "city", label: "Город" },
-                { key: "time", label: "Время доставки" },
-                { key: "client", label: "Клиент" },
+                { key: "delivery_date", label: "Время доставки" },
+                { key: "recipient_full_name", label: "Клиент" },
                 { key: "status", label: "Статус" },
                 { key: "type", label: "Тип" },
                 { key: "macrozone", label: "Макрозона" },
                 { key: "weight", label: "Действия" },
                 { key: "dimensions", label: "Габариты" },
-                { key: "summ", label: "сумма" },
+                { key: "total_price", label: "сумма" },
                 { key: "comment", label: "Примечание" },
             ],
-            tasks: [
-                {
-                    id: 1,
-                    city: "City",
-                    time: null,
-                    client: "Alena",
-                    status: "ok",
-                    type: null,
-                    macrozone: null,
-                    weight: '1,34',
-                    dimensions: null,
-                    summ: 0,
-                    comment: "comment"
-                },
-                {
-                    id: 2,
-                    city: "City",
-                    time: null,
-                    client: "Alena",
-                    status: "ok",
-                    type: null,
-                    macrozone: null,
-                    weight: '1,34',
-                    dimensions: null,
-                    summ: 0,
-                    comment: "comment"
-                },
-                {
-                    id: 3,
-                    city: "City",
-                    time: null,
-                    client: "Alena",
-                    status: "ok",
-                    type: null,
-                    macrozone: null,
-                    weight: '1,34',
-                    dimensions: null,
-                    summ: 0,
-                    comment: "comment"
-                },
-                {
-                    id: 4,
-                    city: "City",
-                    time: null,
-                    client: "Alena",
-                    status: "ok",
-                    type: null,
-                    macrozone: null,
-                    weight: '1,34',
-                    dimensions: null,
-                    summ: 0,
-                    comment: "comment"
-                }
-            ],
+            tasks: [],
             selectOrder: null,
         };
     },
@@ -181,11 +129,11 @@ export default {
     },
     computed: {
         ...mapGetters({
-            loading: "moduleCouriers/getLoading",
-            count: "moduleCouriers/getCount",
-            perPage: "moduleCouriers/getCountPerPage",
-            curPage: "moduleCouriers/getCurPage",
-            maps: "moduleCouriers/getMaps",
+            loading: "moduleRoutesSheet/getLoading",
+            count: "moduleRoutesSheet/getCount",
+            perPage: "moduleRoutesSheet/getCountPerPage",
+            curPage: "moduleRoutesSheet/getCurPage",
+            mapOrders: "moduleRoutesSheet/getMapOrders",
         }),
         showPagination() {
             return Math.ceil(this.count / this.perPage) > 1;
@@ -196,14 +144,38 @@ export default {
     },
     methods: {
         ...mapActions({
-            fetchCourierMaps: "moduleCouriers/fetchMaps",
-            resetPagination: "moduleCouriers/resetPagination",
+            fetchCourierMap: "moduleRoutesSheet/fetchMap",
+            resetPagination: "moduleRoutesSheet/resetPagination",
         }),
         ...mapMutations({
-            changeCurPage: "moduleCouriers/changePage",
+            changeCurPage: "moduleRoutesSheet/changePage",
         }),
         handleAddOrder() {
-
+            this.$api.couriers.editCourierMap(this.$route.params.idMap, {orders: [this.selectOrder, ...this.mapOrders.map(it => it.id)]}).then(response => {
+                if (response.status <= 203) {
+                    this.fetchCourierMap(this.$route.params.idMap);
+                    this.$toast({
+                        component: ToastificationContent,
+                        props: {
+                            title: "Успешно",
+                            text: "Заказ добавлен",
+                            icon: "CheckCircleIcon",
+                            variant: "success",
+                        },
+                    });
+                } else {
+                    this.$toast({
+                        component: ToastificationContent,
+                        props: {
+                            title: "Ошибка",
+                            text: "Не удалось добавить заказ",
+                            icon: "XIcon",
+                            variant: "danger",
+                        },
+                    });
+                }
+                this.selectOrder = null;
+            })
         },
         formatDate(date) {
             return this.dayjs(date).format("DD.MM.YYYY");
@@ -224,9 +196,12 @@ export default {
             [this.tasks[index], this.tasks[index + 1]] = [this.tasks[index + 1], this.tasks[index]]
             this.tasks = [...this.tasks];
         },
+
     },
     mounted() {
-        this.resetPagination();
+        if (this.$route.params.idMap) {
+            this.fetchCourierMap(this.$route.params.idMap);
+        }
     },
 };
 </script>
