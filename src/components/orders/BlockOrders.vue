@@ -248,6 +248,7 @@ import {
     BButton,
     BBadge,
     BFormCheckbox,
+	BTable,
 } from "bootstrap-vue";
 
 import { RoleConstants } from '@/utils/role';
@@ -286,6 +287,9 @@ export default {
             actions: {
                 delete: true,
             },
+
+			sortBy: 'date_created',
+			sortDesc: false,
         };
     },
     components: {
@@ -296,8 +300,18 @@ export default {
         BBadge,
         BFormCheckbox,
         TableGlobalState,
+		BTable,
     },
     watch: {
+		'sortBy'(newValue) {
+			if (!newValue) return;
+			console.log('newValue - ', newValue);
+			this.sortTable();
+		},
+		'sortDesc'(newValue) {
+			console.log('newValue - ', newValue);
+			this.sortTable();
+		}
     },
     computed: {
         ...mapGetters({
@@ -325,7 +339,27 @@ export default {
         ...mapMutations({
             changeCurPage: "moduleOrders/changePage",
             changeOrdering: "moduleOrders/changeOrdering",
-        }),
+        }), 
+		checkSortName() {
+            switch(this.sortBy) {
+                default:
+                    return this.sortBy;
+            };
+        },
+		sortTable() {
+			let ordering = this.checkSortName();
+
+			if (this.sortDesc) {
+				this.changeOrdering(ordering);
+			} else {
+				this.changeOrdering(`-${ordering}`);
+			}
+
+			this.resetPagination();
+			setTimeout(() => {
+				this.fetchOrders();
+			}, 0);
+		},
         getColorStatus(status) {
             return (
                 this.orderStatus.find((x) => x.title === status)?.color || "secondary"

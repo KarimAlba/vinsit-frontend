@@ -6,7 +6,7 @@
 					<b-form-group label="Дата последней операции">
 						<b-form-datepicker
 							label="Дата последней операции"
-							v-model="filters.date_last_operation"
+							v-model="filters.date_updated"
 							placeholder="Дата"
 						/>
 					</b-form-group>
@@ -15,8 +15,9 @@
 					<b-form-group label="Офис склада">
 						<select-offices
 							:placeholder="'Офис склада'"
-							v-model="filters.current_office"
+							v-model="filters.office"
 							:allOfices="offices"
+							:style="checkFilter ? 'border: 1px solid red' : null"
 						/>
 					</b-form-group>
 				</b-col>
@@ -30,7 +31,7 @@
 							placeholder="Зона"
 							:filterable="false"
 							v-model="filters.zone"
-							:disabled="filters.current_office ? false : true"
+							:disabled="filters.office ? false : true"
 						>
 							<template #no-options="{ search }">
 								{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
@@ -79,8 +80,8 @@
 						<v-select
 							label="name"
 							@search="onSearchState"
-							:reduce="(state) => state.id"
-							v-model="filters.state"
+							:reduce="(status) => status.key"
+							v-model="filters.status"
 							:options="stateList"
 							:placeholder="'Состояние'"
 							:filterable="false"
@@ -94,7 +95,7 @@
 					variant="outline-success"
 					class="btn-tour-skip mb-1 mr-1"
 					style="height: 40px; width: 140px"
-					@click="getInventarizationList"
+					@click="getAllInventarizationItems"
 				>
 					<span>Найти</span>
 				</b-button>
@@ -201,7 +202,7 @@
 						</b-col>
 					</b-row>
 					<b-table-simple
-						:items="inventarizationList"
+						:items="inventarizationItems"
 						:fields="fields"
 						striped
 						responsive
@@ -234,32 +235,32 @@
 						</b-thead>
 						<b-tbody>
 							<b-tr
-								v-for="item in inventarizationList"
+								v-for="item in inventarizationItems"
 								class="inventarizationTableNode"
-								:style="item.shortage
+								:style="item.status === 'MISSED'
 									? 'background-color: rgba(255, 220, 220, 0.7) !important'
-									: item.surplus
+									: item.status === 'EXTRA'
 										? 'background-color: rgba(239, 255, 173, 0.7) !important'
 										: null
 								"
 							>
-								<b-th class="inventarizationTableCell">{{ item.number }}</b-th>
+								<b-th class="inventarizationTableCell">{{ item.order ? item.order.id : null }}</b-th>
 								<b-th>{{ item.SK }}</b-th>
-								<b-th>{{ item.shelf }}</b-th>
+								<b-th>{{ item.shelf ? item.shelf.name : null }}</b-th>
 								<b-th>{{ item.date_created }}</b-th>
 								<b-th>{{ item.docs_created }}</b-th>
 								<b-th>{{ item.user_created }}</b-th>
-								<b-th>{{ item.date_last_operation }}</b-th>
+								<b-th>{{ item.date_updated }}</b-th>
 								<b-th>{{ item.docs_last_operation }}</b-th>
 								<b-th>{{ item.user_last_operation }}</b-th>
-								<b-th>{{ item.status }}</b-th>
+								<b-th>{{ item.order_status ? item.order_status.name : null }}</b-th>
 								<b-th>{{ item.OZD }}</b-th>
 								<b-th>
 									<div style="display: flex; justify-content: center; align-items: center">
 										<feather-icon
 											icon="CheckIcon"
 											size="24"
-											v-if="item.shortage"
+											v-if="item.status === 'MISSED'"
 										/>
 									</div>
 								</b-th>
@@ -268,7 +269,7 @@
 										<feather-icon
 											icon="CheckIcon"
 											size="24"
-											v-if="item.scanned"
+											v-if="item.status === 'SCANNED' || item.status === 'EXTRA'"
 										/>
 									</div>
 								</b-th>
@@ -277,7 +278,7 @@
 										<feather-icon
 											icon="CheckIcon"
 											size="24"
-											v-if="item.surplus"
+											v-if="item.status === 'EXTRA'"
 										/>
 									</div>
 								</b-th>
@@ -288,24 +289,38 @@
 				<b-col cols="4">
 					<b-row class="ml-1 mb-1" style="justify-content: flex-start">
 						<span class="orders_counter" style="color: #000000">
-							{{ scanned_orders ? scanned_orders.length : 0 }} Отсканировано
+							{{ statistic ? statistic.scanned : null }} Отсканировано
 						</span>
 						<span class="orders_counter" style="color: red">
-							{{ shortage ? shortage.length : 0 }} Недостача
+							{{ statistic ? statistic.missed : null }} Недостача
 						</span>
 						<span class="orders_counter" style="color: #c0b818">
-							{{ surplus ? surplus.length : 0 }} Излишки
+							{{ statistic ? statistic.extra : null }} Излишки
 						</span>
 					</b-row>
 					<b-row class="mb-1">
 						<b-col cols="9">
 							<b-form-group label="Номер объекта складской обработки">
 								<!-- <b-form-input v-model="numberLog" /> -->
-								<select-orders
+								<!-- <select-orders
                                     :placeholder="'Номер заказа'"
                                     :value="numberLog"
                                     @input="chooseOrder($event)"
-                                />
+                                /> -->
+								<v-select
+									label="id"
+									@search="(event) => searchOrder(event, null, this)"
+									@input="chooseOrder"
+									:options="inventarizationItemsOrders"
+									:placeholder="'Номер заказа'"
+									:filterable="false"
+									:reduce="(c) => c.id"
+									:value="numberLog"
+								>
+									<template #no-options="{ search }">
+										{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
+									</template>
+								</v-select>
 							</b-form-group>
 						</b-col>
 					</b-row>
@@ -326,7 +341,15 @@
 									:key="log_index"
 									class="suggestion-group-title"
 								>
-									<span>{{ log }}</span>
+									<span
+										:style="log.type === 'success'
+											? 'color: green'
+											: log.type === 'error'
+												? 'color: red'
+												: null"
+										>
+											{{ log.log }}
+										</span>
 								</p>
 							</div>
 						</b-card>
@@ -338,12 +361,15 @@
 </template>
 
 <script>
-import InventorizationChannel from '../../../api/inventorizationChannel.js'
+import InventorizationChannel from '../../../api/inventorizationChannel.js';
+import ToastificationContent from "@core/components/toastification/ToastificationContent.vue";
 
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { debounce } from "lodash";
 import SelectOffices from "@/components/ui/selectOffices/selectOffices.vue";
 import SelectOrders from "@/components/ui/selectOrder/selectOrder.vue";
+import moment from "moment";
+import downloadPdf from '../../../utils/downloadPdf';
 
 import {
 	BRow,
@@ -369,278 +395,47 @@ import vSelect from "vue-select";
 export default {
 	data() {
 		return {
+			checkFilter: false,
 			visible: false,
 			isInventarization: false,
 			filters: {
-				date_last_operation: null,
-				warehouse_office: null,
+				date_updated: null,
+				office: null,
 				zone: null,
 				rack: null,
 				shelf: null,
-				state: null,
+				status: null,
 			},
 			numberLog: null,
 			zones: [],
 			racks: [],
 			shelves: [],
             offices: [],
-			scanned_orders: [],
-			shortage: [],
-			surplus: [],
-			inventarizationList: [
-				{
-					number: 1,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: true,
-					scanned: false,
-					surplus: false,
-				},
-				{
-					number: 2,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: false,
-					scanned: true,
-					surplus: true,
-				},
-				{
-					number: 3,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: false,
-					scanned: true,
-					surplus: false,
-				},
-				{
-					number: 1,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: true,
-					scanned: false,
-					surplus: false,
-				},
-				{
-					number: 2,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: false,
-					scanned: true,
-					surplus: true,
-				},
-				{
-					number: 3,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: false,
-					scanned: true,
-					surplus: false,
-				},
-				{
-					number: 1,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: true,
-					scanned: false,
-					surplus: false,
-				},
-				{
-					number: 2,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: false,
-					scanned: true,
-					surplus: true,
-				},
-				{
-					number: 3,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: false,
-					scanned: true,
-					surplus: false,
-				},
-				{
-					number: 1,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: true,
-					scanned: false,
-					surplus: false,
-				},
-				{
-					number: 2,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: false,
-					scanned: true,
-					surplus: true,
-				},
-				{
-					number: 3,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: false,
-					scanned: true,
-					surplus: false,
-				},
-				{
-					number: 1,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: true,
-					scanned: false,
-					surplus: false,
-				},
-				{
-					number: 2,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: false,
-					scanned: true,
-					surplus: true,
-				},
-				{
-					number: 3,
-					SK: 'SHSHSHSHHSHS',
-					shelf: 1,
-					date_created: '11-11-2011',
-					docs_created: 'Test',
-					user_created: 'Tester',
-					date_last_operation: '11-11-2011',
-					docs_last_operation: 'Test',
-					user_last_operation: 'Tester',
-					status: 'Win',
-					OZD: 'hui znaet',
-					shortage: false,
-					scanned: true,
-					surplus: false,
-				},
-			],
+			statistic: {
+				total: 0,
+				extra: 0,
+				missed: 0,
+				scanned: 0,
+			},
+			// scanned_orders: [],
+			// shortage: [],
+			// surplus: [],
+			inventarizationId: null,
+			inventarizationList: [],
+			inventarizationItems: [],
+			inventarizationItemsOrders: [],
 			stateList: [
 				{
 					name: 'Отсканировано',
-					id: '1',
+					key: 'SCANNED',
 				},
 				{
 					name: 'Недостача',
-					id: '2',
+					key: 'MISSED',
 				},
 				{
 					name: 'Излишки',
-					id: '3',
+					key: 'EXTRA',
 				},
 			],
 			fields: [
@@ -651,7 +446,7 @@ export default {
 				{ key: "date_created", label: "Дата и время создания", sortable: true},
 				{ key: "docs_created", label: "Документ создания", sortable: true},
 				{ key: "user_created", label: "Пользователь создания", sortable: true},
-				{ key: "date_last_operation", label: "Дата и время последней операции", sortable: true},
+				{ key: "date_updated", label: "Дата и время последней операции", sortable: true},
 				{ key: "docs_last_operation", label: "Документ последней операции", sortable: true},
 				{ key: "user_last_operation", label: "Пользователь последней операции", sortable: true},
 				{ key: "status", label: "Статус", sortable: true},
@@ -701,7 +496,7 @@ export default {
 		'sortDesc'(newValue) {
 			this.sortTable();
 		},
-		'filters.current_office'(newValue) {
+		'filters.office'(newValue) {
 			this.fetchZone(newValue, null, this);
 		},
 		'filters.zone'(newValue) {
@@ -715,6 +510,9 @@ export default {
 		showPagination() {
             // return Math.ceil(this.count / this.perPage) > 1;
         },
+		moment() {
+			return moment;
+		},
 	},
 	methods: {
 		sorting(key) {
@@ -726,19 +524,74 @@ export default {
 			this.sortBy = key;
 			this.sortDesc = false;
 		},
-		getInventarizationList() {
+		checkStatus(status) {
+			if (status === 'SCANNED') return 'Отсканировано';
+			if (status === 'EXTRA') return 'Излишки';
+			if (status === 'MISSED') return 'Недостача';
+		},
+		async getInventarizationList() {
+			const data = {
+				limit: 100,
+				offset: 1,
+				...this.filters,
+			}
+			await this.$api.inventorization.getInventorizations(data).then((response) => {
+				console.log('response - ', response.data.results);
+                this.inventarizationList = response.data.results;
+            });
+		},
+		async getAllInventarizationItems() {
+			const data = {
+				limit: 1000,
+				offset: 1,
+				...this.filters,
+			}
+			await this.$api.inventorization.getInventorizationItems(data).then((response) => {
+				response.data.results = response.data.results.map(item => ({
+					...item,
+					date_created: moment(item.date_created).format("YYYY-MM-DD"),
+					date_updated: moment(item.date_updated).format("YYYY-MM-DD"),
+				}))
+				console.log('response.data.results - ', response.data.results)
+                this.inventarizationItems = response.data.results;
+            });
+		},
+		async getInventarizationItems(id) {
+			const data = {
+				inventorization: id,
+			};
+			await this.$api.inventorization.getInventorizationItems(data).then((response) => {
+				console.log('getInventarizationItems - ', response.data.results);
+				response.data.results = response.data.results.map(item => ({
+					...item,
+					date_created: moment(item.date_created).format("YYYY-MM-DD"),
+					date_updated: moment(item.date_updated).format("YYYY-MM-DD"),
+				}))
+                this.inventarizationItems = response.data.results;
+            });
+			this.getOrdersId();
+		},
+		getOrdersId() {
+			this.inventarizationItemsOrders = this.inventarizationItems.map(item => item.order);
+		},
+		checkInventorizationItems() {
 		},
 		exportInventarizationList() {
+			if (!this.inventarizationId) return;
+			downloadPdf(
+				`http://45.9.43.181:8001/api/v1/inventorization/${this.inventarizationId}/export_csv/`,
+				`inventorization_${moment(Date.now()).format("YYYY-MM-DD")}_${this.inventarizationId}`
+			);
 		},
 		resetFilters() {
 			this.visible = false;
 			this.filters = {
-				date_last_operation: null,
-				warehouse_office: null,
+				date_updated: null,
+				office: null,
 				zone: null,
 				rack: null,
 				shelf: null,
-				state: null,
+				status: null,
 			};
 		},
         fetchOffices() {
@@ -750,16 +603,52 @@ export default {
 		},
 		consumptionInventarization() {
 		},
+		async createInventarization() {
+			if (!this.filters.office) {
+				this.checkFilter = true;
+				this.$toast({
+					component: ToastificationContent,
+					props: {
+						title: "Ошибка",
+						text: "Выберите офис",
+						icon: "XIcon",
+						variant: "danger",
+					},
+				});
+				return;
+			};
+			const data = {
+				...this.filters,
+				is_fulfillment: false,
+			};
+			await this.$api.inventorization.addNewInventorization(data).then((response) => {
+				console.log('createInventarization - ', response);
+                this.inventarizationId = response.data.id;
+            });
+			// this.getInventarizationbyId();
+			this.getInventarizationItems(this.inventarizationId);
+		},
+		// getInventarizationbyId() {
+		// 	this.$api.inventorization.getInventorizationById(this.inventarizationId).then((response) => {
+        //         this.inventarizationItems = response.data.items;
+        //     });
+		// },
 		startInventarization() {
-			if (!this.inventarizationList.length) this.getInventarizationList();
+			this.checkFilter = false;
+			this.inventarizationList = [];
+			this.inventarizationItems = [];
+			this.createInventarization();
+			if (this.checkFilter) return;
 			this.isInventarization = true;
-			this.inventarizationChannel.startConnection(this.addLogs);
+			this.inventarizationChannel.startConnection(this.addLogs, this.checkStatistic);
 		},
 		endInventarization() {
 			this.isInventarization = false;
+			this.inventarizationId = null;
 			this.inventarizationChannel.closeConnection();
 		},
 		updateStatistics() {
+			this.getInventarizationItems(this.inventarizationId);
 		},
 		sortTable() {
 			// let ordering = this.checkSortName();
@@ -775,19 +664,36 @@ export default {
 			// 	this.fetchPaymentOrders();
 			// }, 0);
 		},
+		checkStatistic(newStatistic) {
+			console.log('statistic - ', newStatistic);
+			this.statistic = newStatistic;
+		},
 		addLogs(newLog) {
+			if (newLog.log === 'Процесс инвентаризации завершен!') {
+				this.logs.push({ log: `${moment(Date.now()).format("HH:mm:ss")}: ${newLog.log}`, type: newLog.type });
+				return;
+			}
 			this.logs.push(newLog);
 		},
 		clearLog() {
-			this.numberLog = null;
+			this.logs = [];
 		},
-        chooseOrder(id) {
-			// console.log(id);
+        async chooseOrder(id) {
 			this.numberLog = id;
-            this.$api.orders.getOrder(id).then((response) => {
-                // this.editDocument.orders.push(response.data);
+			// console.log(id);
+			const data = {
+				order_id: id,
+			};
+            await this.$api.inventorization.updateInventorizationStatus(this.inventarizationId, data).then((response) => {
+				console.log('response - ', response);
+                // this.inventarizationList = response.data.results;
             });
         },
+		searchOrder: _.debounce((search, loading, vm) => {
+			if (!search) return;
+			if (!vm.inventarizationId) return;
+            vm.chooseOrder(search);
+        }, 200),
 		onSearchZone(search, loading) {
 			if (search.length) {
 				loading(true);
