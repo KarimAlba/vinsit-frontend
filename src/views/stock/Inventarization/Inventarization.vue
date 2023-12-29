@@ -164,6 +164,7 @@
 								class="btn-tour-skip  mb-1"
 								style="height: 40px; width: 100%"
 								@click="consumptionInventarization"
+								disabled
 							>
 								<span>Расход по инвентаризации</span>
 							</b-button>
@@ -212,6 +213,7 @@
 								class="btn-tour-skip  mb-1"
 								style="height: 40px; width: 100%"
 								@click="exportInventarizationList"
+								:disabled="inventarizationId ? false : true"
 							>
 								<span>Экспорт в CSV</span>
 							</b-button>
