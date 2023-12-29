@@ -24,6 +24,7 @@ import user from "./user";
 import seal from "./seal";
 import formsOwnership from "./forms-ownership";
 import couriersModule from "./couriers";
+import inventorizationModule from "./inventorization";
 
 export const instance = new Instance().getAxiosIns();
 
@@ -52,4 +53,5 @@ export default {
     seal: seal(instance),
     formsOwnership: formsOwnership(instance),
     couriers: couriersModule(instance),
+    inventorization: inventorizationModule(instance),
 };
