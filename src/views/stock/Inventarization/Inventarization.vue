@@ -644,7 +644,6 @@ export default {
 		},
 		endInventarization() {
 			this.isInventarization = false;
-			this.inventarizationId = null;
 			this.inventarizationChannel.closeConnection();
 		},
 		updateStatistics() {
