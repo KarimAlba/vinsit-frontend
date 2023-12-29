@@ -11,6 +11,22 @@
 						/>
 					</b-form-group>
 				</b-col>
+				<b-col>
+					<b-form-group label="Номер инвентаризации">
+						<v-select
+							label="id"
+							:reduce="(item) => item.id"
+							:options="inventarizationList"
+							placeholder="Номер инвентаризации"
+							:filterable="false"
+							v-model="inventarizationId"
+						>
+							<template #no-options="{ search }">
+								{{ search.length ? "Ничего не найдено" : "Введите запрос" }}
+							</template>
+						</v-select>
+					</b-form-group>
+				</b-col>
 				<b-col class="mb-1" cols="12" md="3">
 					<b-form-group label="Офис склада">
 						<select-offices
@@ -95,7 +111,7 @@
 					variant="outline-success"
 					class="btn-tour-skip mb-1 mr-1"
 					style="height: 40px; width: 140px"
-					@click="getAllInventarizationItems"
+					@click="getInventarizationListAndItems"
 				>
 					<span>Найти</span>
 				</b-button>
@@ -420,6 +436,7 @@ export default {
 			// scanned_orders: [],
 			// shortage: [],
 			// surplus: [],
+			inventarizationNumber: null,
 			inventarizationId: null,
 			inventarizationList: [],
 			inventarizationItems: [],
@@ -505,6 +522,9 @@ export default {
 		'filters.rack'(newValue) {
 			this.fetchShelf(newValue, null, this);
 		},
+		'inventarizationId'(newValue) {
+			this.getInventarizationItems(newValue);
+		},
 	},
 	computed: {
 		showPagination() {
@@ -539,6 +559,10 @@ export default {
 				console.log('response - ', response.data.results);
                 this.inventarizationList = response.data.results;
             });
+		},
+		getInventarizationListAndItems() {
+			this.getInventarizationList();
+			this.getAllInventarizationItems();
 		},
 		async getAllInventarizationItems() {
 			const data = {
