@@ -553,7 +553,7 @@ export default {
 		},
 		async getInventarizationList() {
 			const data = {
-				limit: 100,
+				limit: 1000,
 				offset: 1,
 				...this.filters,
 			}
@@ -761,6 +761,7 @@ export default {
 	},
 	mounted() {
 		this.fetchOffices();
+		this.getInventarizationList();
 		this.resetFilters();
 	},
 };
