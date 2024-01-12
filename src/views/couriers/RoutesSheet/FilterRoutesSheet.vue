@@ -1,29 +1,6 @@
 <template>
 	<b-card>
         <b-row>
-            <b-col class="mb-1" md="4">
-                <b-form-group lable="Дата">
-                    <b-form-datepicker
-                        label="date"
-                        v-model="filters.date"
-                        placeholder="Дата"
-                    />
-                </b-form-group>
-            </b-col>
-            <b-col class="mb-1" md="4">
-                <select-cities
-                    v-model="filters.city"
-                    :placeholder="'Город'"
-                />
-            </b-col>
-            <b-col cols="12" md="4">
-                <b-form-group lable="Офис">
-                    <select-offices
-                        :placeholder="'Офис'"
-                        v-model="filters.office"
-                    />
-                </b-form-group>
-            </b-col>
 			<b-col cols="12" md="4">
                 <b-form-group lable="Курьерская карта">
                     <select-map
@@ -33,13 +10,38 @@
                     />
                 </b-form-group>
             </b-col>
+            <b-col class="mb-1" md="4">
+                <b-form-group lable="Дата">
+                    <b-form-datepicker
+                        label="date"
+                        v-model="filters.date"
+                        placeholder="Дата"
+						:disabled="!filters.courierMap"
+                    />
+                </b-form-group>
+            </b-col>
+            <b-col class="mb-1" md="4">
+                <select-cities
+                    v-model="filters.city"
+                    :placeholder="'Город'"
+					:disabled="!filters.courierMap"
+                />
+            </b-col>
+            <!-- <b-col cols="12" md="4">
+                <b-form-group lable="Офис">
+                    <select-offices
+                        :placeholder="'Офис'"
+                        v-model="filters.office"
+						:disabled="!filters.courierMap"
+                    />
+                </b-form-group>
+            </b-col> -->
         </b-row>
 		<template #footer>
 			<a 
 				class="filter-orders__btn" 
 				@click="() => {
-					resetFilters(), 
-					fetchDocuments()
+					handleResetFilters()
 				}"
 			>
 				<feather-icon icon="XCircleIcon" size="12" />
@@ -50,7 +52,7 @@
 </template>
 
 <script>
-	import { mapGetters, mapActions } from "vuex";
+	import { mapGetters, mapActions, mapMutations } from "vuex";
 
 	import {
 		BRow,
@@ -62,7 +64,8 @@
 		BCollapse,
         BButton,
 		VBToggle,
-		BFormDatepicker
+		BFormDatepicker,
+BIconTriangleHalf
 	} from "bootstrap-vue";
 	import vSelect from "vue-select";
 	import { debounce } from "lodash";
@@ -100,13 +103,14 @@
 		watch: {
 			filters: {
 				handler(val) {
-					this.resetPagination();
-					// this.fetchMapOrders();
+					if (this.filters.courierMap) {
+						this.fetchCourierMap(this.filters.courierMap);
+					}
 				},
 				deep: true,
 			},
 			idMap(newVal) {
-				this.fetchCourierMap(newVal)
+				newVal ? this.fetchCourierMap(newVal) : null;
 			},
 		},
 		computed: {
@@ -123,19 +127,27 @@
 				resetPagination: "moduleRoutesSheet/resetPagination",
 				resetFilters: "moduleRoutesSheet/resetFilters",
 			}),
+			...mapMutations({
+				setMapOrders: "moduleRoutesSheet/setMapOrders",
+			}),
 			handleSearchField: _.debounce((value, vm) => {
 				vm.filters.search = value;
 			}, 500),
 			handleSelectMap(idMap) {
 				this.$router.push({ name: 'couriers-routes', params: { idMap: idMap }})
-			}
+			},
+			handleResetFilters() {
+				this.resetFilters();
+				this.setMapOrders([]);
+				this.$router.push({ name: 'couriers-routes'})
+			},
 		},
 		mounted() {
 			// if (this.$route.params.idMap) {
 			// 	this.filters.courierMap = this.$route.params.idMap;
 			// }
-			this.resetFilters();
-			this.resetPagination();
+			setTimeout(() => this.resetFilters(), 200)
+			// this.resetPagination();
 		},
 	};
 </script>

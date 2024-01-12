@@ -15,6 +15,7 @@
                         <select-users
                             v-model="filters.courier"
                             placeholder="ФИО"
+                            role="CR"
                         />
                     </b-form-group>
                 </b-col>
@@ -48,7 +49,7 @@
             Добавить курьера
         </b-button>
 
-        <!-- <b-card>
+        <b-card>
             <b-table
                 :items="couriers"
                 :fields="fields"
@@ -80,14 +81,14 @@
                 :value="curPage"
                 align="right"
             />
-        </b-card> -->
-        <b-card>
+        </b-card>
+        <!-- <b-card>
             <table-local-state
                 :fields="fields"
                 :fetchData="$api.user.getUsers"
                 :per-page="10"
             />
-        </b-card>
+        </b-card> -->
         <b-modal
             v-model="showModal"
             id="modal-create-courier"
@@ -125,7 +126,7 @@
                 <b-form-group  label="Офис">
                     <select-offices
                         :placeholder="'Офис'"
-                        v-model="filters.office"
+                        v-model="newCourier.office"
                     />
                 </b-form-group>
             </b-col>

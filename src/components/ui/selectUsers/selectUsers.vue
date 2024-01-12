@@ -79,6 +79,10 @@
 		},
         watch: {
             'value'() {
+				if (!this.value) {
+					this.user = null;
+					return;
+				}
                 this.getUser(this.value);
                 window.setTimeout(() => {
                     this.fetchUsers(

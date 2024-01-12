@@ -71,6 +71,10 @@
 		},
         watch: {
             'value'() {
+				if (!this.value) {
+					this.map = null;
+					return;
+				}
                 this.getMap(this.value);
                 window.setTimeout(() => {
                     this.fetchMaps(

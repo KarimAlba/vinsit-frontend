@@ -71,6 +71,10 @@
 		},
         watch: {
             'value'() {
+				if (!this.value) {
+					this.group = null;
+					return;
+				}
                 this.getGroup(this.value);
                 window.setTimeout(() => {
                     this.fetchGroups(

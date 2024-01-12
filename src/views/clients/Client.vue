@@ -957,6 +957,7 @@ export default {
     // text-align: center;
     // font-size: 30px;
     color: #3d78b4;
+    cursor: pointer;
 }
 .delete-phone-btn {
     position: absolute;
