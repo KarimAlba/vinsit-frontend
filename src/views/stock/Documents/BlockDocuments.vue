@@ -68,15 +68,15 @@
                 </template>
 
                 <template #cell(provided_by)="data">
-                    {{ data.item.issued_by ? data.item.provided_by : '-' }}
+                    {{ data.item.provided_by ? data.item.provided_by.full_name : '-' }}
                 </template>
 
                 <template #cell(current_office)="data">
-                    {{ data.item.current_office ? data.item.current_office : '-' }}
+                    {{ data.item.current_office ? data.item.current_office.name : '-' }}
                 </template>
 
                 <template #cell(office)="data">
-                    {{ data.item.office ? data.item.office : '-' }}
+                    {{ data.item.office ? data.item.office.name : '-' }}
                 </template>
 
                 <template #cell(next_destination_office)="data">
@@ -109,6 +109,8 @@
 
 <script>
 import { mapGetters, mapActions, mapMutations } from "vuex";
+import downloadPdf from '../../../utils/downloadPdf';
+import moment from "moment";
 
 import {
     BRow,
@@ -175,7 +177,10 @@ export default {
         },
         readOnly() {
             return store.state.app.user.role !== RoleConstants.AD && store.state.app.user.role !== RoleConstants.LG;
-        }
+        },
+		moment() {
+			return moment;
+		},
     },
     methods: {
         ...mapActions({
@@ -201,9 +206,14 @@ export default {
             return this.clientType.find((type) => type.id === clientType)?.short_title;
         },
         handleExportCSVClick() {
-            this.$api.documents.exportCSV([18])
-                .then(response => console.log(response))
-                .catch(error => console.log(error))
+			const documentIds = this.documents.map(item => item.id)
+			downloadPdf(
+				`http://45.9.43.181:8001/api/v1/stock_document/export_csv/?ids=${[documentIds]}`,
+				`documents_${moment(Date.now()).format("YYYY-MM-DD")}`
+			);
+            // this.$api.documents.exportCSV([18])
+            //     .then(response => console.log(response))
+            //     .catch(error => console.log(error))
         }
     },
     mounted() {
