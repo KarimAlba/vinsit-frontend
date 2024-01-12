@@ -157,7 +157,7 @@
 			<b-row>
 				<b-col cols="8">
 					<b-row>
-						<b-col cols="6" xl="3">
+						<b-col cols="6" xl="4">
 							<b-button
 								size="sm"
 								:variant="true ? 'outline-secondary' :'secondary'"
@@ -169,7 +169,7 @@
 								<span>Расход по инвентаризации</span>
 							</b-button>
 						</b-col>
-						<b-col cols="6" xl="3">
+						<b-col cols="6" xl="4">
 							<b-button
 								size="sm"
 								:variant="isInventarization ? 'outline-primary' :'primary'"
@@ -181,7 +181,7 @@
 								<span>Начать инвентаризацию</span>
 							</b-button>
 						</b-col>
-						<b-col cols="6" xl="3">
+						<b-col cols="6" xl="4">
 							<b-button
 								size="sm"
 								:variant="!isInventarization ? 'outline-danger' :'danger'"
@@ -193,7 +193,7 @@
 								<span>Закончить инвентаризацию</span>
 							</b-button>
 						</b-col>
-						<b-col cols="6" xl="3">
+						<b-col cols="6" xl="4">
 							<b-button
 								size="sm"
 								:variant="true ? 'success' :'success'"
@@ -204,9 +204,7 @@
 								<span>Обновить статистику</span>
 							</b-button>
 						</b-col>
-					</b-row>
-					<b-row>
-						<b-col cols="4" xl="2">
+						<b-col cols="6" xl="4">
 							<b-button
 								size="sm"
 								variant="outline-info"

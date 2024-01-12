@@ -79,8 +79,8 @@
                     {{ data.item.office ? data.item.office.name : '-' }}
                 </template>
 
-                <template #cell(next_destination_office)="data">
-                    {{ data.item.next_destination_office ? data.item.next_destination_office : '-' }}
+                <template #cell(final_destination_office)="data">
+                    {{ data.item.final_destination_office ? data.item.final_destination_office.name : '-' }}
                 </template>
 
                 <template #cell(places_amount)="data">
