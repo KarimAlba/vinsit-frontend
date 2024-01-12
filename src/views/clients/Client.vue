@@ -585,7 +585,7 @@
                                                 type="text"
                                                 placeholder="ФИО"
                                                 class="mb-1"
-                                                @change="updateClient('name', $event)"
+                                                @change="updateClient('client_lpr_contacts', $event)"
                                             />
                                             <!-- v-model="client.responsible_person.name" -->
                                         </validation-provider>
@@ -597,7 +597,7 @@
                                                 type="text"
                                                 placeholder="Должность"
                                                 class="mb-1"
-                                                @change="updateClient('name', $event)"
+                                                @change="updateClient('client_lpr_contacts', $event)"
                                             />
                                             <!-- v-model="client.responsible_person.position" -->
                                         </validation-provider>
@@ -606,11 +606,10 @@
                                             :reduce="(type) => type.id"
                                             :options="statusResponsiblePerson"
                                             v-model="client.client_lpr_contacts[0].documents"
-                                            :clearable="false"
                                             :disabled="readOnly"
                                             :multiple="true"
                                             placeholder="Основание"
-                                            @change="updateClient('name', $event)"
+                                            @input="updateClient('client_lpr_contacts', $event)"
                                         />
                                         <!-- v-model="client.responsible_person.status" -->
                                     </td>
@@ -744,6 +743,26 @@ export default {
         readOnly() {
             return store.state.app.user.role !== RoleConstants.AD && store.state.app.user.role !== RoleConstants.LG;
         },
+		checkClientPhones() {
+			let test = true;
+			this.client.client_phones.map(item => {
+				if (!item.email || !item.full_name || !item.phone_number || !item.position) {
+					test = false;
+				}
+			})
+			if (!test) {
+				this.$toast({
+					component: ToastificationContent,
+					props: {
+						title: "Ошибка",
+						text: "Проверьте поле \"Сотрудники\"",
+						icon: "XIcon",
+						variant: "danger",
+					},
+				});
+			}
+			return test;
+		},
     },
     methods: {
         ...mapMutations({
@@ -787,7 +806,7 @@ export default {
                         this.changeLoading(false);
                         return;
                     }
-                    if (!response.data.client_lpr_contacts.length) {
+                    if (response.data.type === "E" && !response.data.client_lpr_contacts.length) {
                         response.data.client_lpr_contacts = [
                             {
                                 id: null,
@@ -799,7 +818,7 @@ export default {
                     };
                     this.client = response.data;
                     if (!response.data.client_phones || !response.data.client_phones.length) {
-                        this.client.client_phones = [{ phone_number: '' }]
+                        this.client.client_phones = [{ phone_number: '', position: '', full_name: '', email: '' }]
                     }
                     this.changeLoading(false);
                     setTimeout(() => this.initialized = true, 500);
@@ -830,6 +849,24 @@ export default {
                 });
                 return;
             };
+
+			if (this.client.type === 'E') {
+				if (!this.client.client_lpr_contacts[0].full_name || !this.client.client_lpr_contacts[0].position || !this.client.client_lpr_contacts[0].documents.length) {
+					this.$toast({
+						component: ToastificationContent,
+						props: {
+							title: "Ошибка",
+							text: "Заполните поле \"ЛПР\"",
+							icon: "XIcon",
+							variant: "danger",
+						},
+					});
+					return;
+				};
+			}
+
+			if (!this.checkClientPhones) return;
+
             this.changeLoading(true);
 
             const changeClient = {
@@ -886,7 +923,14 @@ export default {
             });
         },
         updatePhone: _.debounce((vm) => {
-            vm.updateClient('client_phones', vm.client.client_phones.filter(p => p.phone_number));
+			// console.log(vm.client.client_phones);
+			// const newClientPhones = [];
+			// vm.client.client_phones.map(item => {
+			// 	if (!item.email || !item.full_name || !item.phone_number || !item.position) return;
+			// 	newClientPhones.push(item);
+			// })
+			// console.log(newClientPhones);
+            vm.updateClient('client_phones', vm.client.client_phones);
         }, 1500),
         addPhoneNumber() {
             if (this.readOnly) {
@@ -929,6 +973,7 @@ export default {
             this.$api.lprDocs.getLprDocs({ page: 1, limit: 100 })
                 .then((response) => {
                     this.statusResponsiblePerson = response.data.results;
+					// console.log(this.statusResponsiblePerson);
                 })
                 .catch((error) => {
                 })

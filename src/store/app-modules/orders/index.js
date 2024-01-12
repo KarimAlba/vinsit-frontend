@@ -138,26 +138,25 @@ export default {
         },
         resetFilters(state) {
             state.filters = {
-                date_created_after: null,
-                date_created_before: null,
-                status: null,
-
-                sender_city: null,
-                recipient_city: null,
-
-				// sender client phone?
-                sender_counterparty_client_phones_phone_number: null,
-                status_changed_date_after: null,
-                status_changed_date_before: null,
-                recipient_has_passport: null,
-                sender_has_passport: null,
-                from_amo_crm: null,
-                is_overdue: null,
-                mode: null,
-                search: null,
-
-				counterparty: null,
+				date_created_after: null,
+				date_created_before: null,
+				status: null,
+	
+				sender_city: null,
+				recipient_city: null,
+	
+				sender__counterparty__client_phones__phone_number: null,
+				status_changed_date_after: null,
+				status_changed_date_before: null,
+				recipient_has_passport: null,
+				sender_has_passport: null,
+				from_amo_crm: null,
+				is_overdue: null,
+				mode: null,
+				search: null,
+	
 				// contract: null,
+				counterparty: null,
 				search_fields: [],
             }
         },
