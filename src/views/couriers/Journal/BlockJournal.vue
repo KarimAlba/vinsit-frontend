@@ -258,6 +258,7 @@ export default {
                 courier: editMap.courier?.id,
                 macrozone: editMap.macrozone?.id,
                 group: editMap.group?.id,
+                office: editMap.office?.id,
             };
         },
         handleSaveMap() {
@@ -337,7 +338,7 @@ export default {
         },
         deleteMap() {
             this.$api.couriers.deleteCourierMap(this.deletedMapId).then(response => {
-                if (response.status <= 203) {
+                if (response.status <= 204) {
                     this.fetchCourierMaps();
                     this.$toast({
                         component: ToastificationContent,

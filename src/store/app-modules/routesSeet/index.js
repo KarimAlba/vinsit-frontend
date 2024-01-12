@@ -84,10 +84,19 @@ export default {
         // },
         fetchMap({ commit, state }, idMap) {
             commit('changeLoading', true);
-
+            
             this._vm.$api.couriers.getCourierMap(idMap).then((response) => {
                 commit('setCourierMap', response.data);
-                commit('setMapOrders', response.data.orders);
+
+                let filteredOrders = response.data.orders;
+
+                if (state.filters.date) {
+                    filteredOrders = filteredOrders.filter(item => (item.delivery_date == state.filters.date))
+                }
+                if (state.filters.city) {
+                    filteredOrders = filteredOrders.filter(item => (item.recipient_city.id == state.filters.city))
+                }
+                commit('setMapOrders', filteredOrders);
             }).finally(() => {
 				commit('changeLoading', false)
 			});

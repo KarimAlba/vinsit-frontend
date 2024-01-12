@@ -5,7 +5,7 @@
                 <b-form-group lable="Дата">
                     <b-form-datepicker
                         label="date"
-                        v-model="filters.date_created"
+                        v-model="filters.date_created_after"
                         placeholder="Дата"
                     />
                 </b-form-group>
@@ -14,7 +14,7 @@
                 <b-form-group lable="Номер карты">
                     <b-form-input 
                         placeholder="Номер карты"
-                        v-model="filters.id"
+                        v-model="filters.search"
                     />
                 </b-form-group>
             </b-col>
@@ -58,8 +58,7 @@
 			<a 
 				class="filter-orders__btn" 
 				@click="() => {
-					resetFilters(), 
-					fetchDocuments()
+					resetFilters()
 				}"
 			>
 				<feather-icon icon="XCircleIcon" size="12" />

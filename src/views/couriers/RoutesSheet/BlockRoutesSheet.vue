@@ -51,6 +51,14 @@
                     >
                 </template>
 
+                <template #cell(recipient_city)="data">
+                    <span
+                    >
+                        {{ data.item.recipient_city.name }}
+                    </span
+                    >
+                </template>
+
             </b-table>
             <b-pagination
                 v-if="showPagination"
@@ -94,7 +102,7 @@ export default {
         return {
             fields: [
                 { key: "id", label: "Номер" },
-                { key: "city", label: "Город" },
+                { key: "recipient_city", label: "Город" },
                 { key: "delivery_date", label: "Время доставки" },
                 { key: "recipient_full_name", label: "Клиент" },
                 { key: "status", label: "Статус" },
@@ -149,6 +157,7 @@ export default {
         }),
         ...mapMutations({
             changeCurPage: "moduleRoutesSheet/changePage",
+            setMapOrders: "moduleRoutesSheet/setMapOrders",
         }),
         handleAddOrder() {
             this.$api.couriers.editCourierMap(this.$route.params.idMap, {orders: [this.selectOrder, ...this.mapOrders.map(it => it.id)]}).then(response => {
@@ -201,6 +210,8 @@ export default {
     mounted() {
         if (this.$route.params.idMap) {
             this.fetchCourierMap(this.$route.params.idMap);
+        } else {
+            this.setMapOrders([]);
         }
     },
 };

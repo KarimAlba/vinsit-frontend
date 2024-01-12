@@ -8,12 +8,13 @@ export default {
         count: 0,
         loading: false,
         filters: {
-            id: null,
-            date_created: "",
+            date_created_after: "",
             office: null,
             courier: null,
             group: null,
             macrozone: null,
+            search_fields: 'id',
+            search: null,
         },
         curPage: 1,
         countPerPage: 10,
@@ -57,11 +58,12 @@ export default {
         resetFilters(state) {
             state.filters = {
                 id: null,
-                date_created: "",
+                date_created_after: "",
                 office: null,
                 courier: null,
                 group: null,
                 macrozone: null,
+                search_fields: 'id',
             }
         },
         resetPagination(state) {
@@ -80,6 +82,7 @@ export default {
             commit('changeLoading', true);
             commit('resetData');
 
+            console.log(state.filters)
             this._vm.$api.couriers.getCourierMaps({
                 ...state.filters,
                 offset: ((state.curPage - 1) * state.countPerPage),
