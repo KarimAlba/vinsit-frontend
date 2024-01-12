@@ -53,10 +53,10 @@
 					<v-select
 						label="name"
 						@search="onSearchCities"
-						@close="resetCities"
-						@input="(item) => filters.sender_city = item ? item.id : null"
+						:reduce="(type) => type.id"
 						:options="cities"
 						placeholder="Город отправителя"
+						v-model="filters.sender_city"
 						:filterable="false"
 					>
 						<template #no-options="{ search }">
@@ -68,9 +68,9 @@
 					<v-select
 						label="name"
 						@search="onSearchCities"
-						@close="resetCities"
-						@input="(item) => filters.recipient_city = item ? item.id : null"
+						:reduce="(type) => type.id"
 						:options="cities"
+						v-model="filters.recipient_city"
 						placeholder="Город получателя"
 						:filterable="false"
 					>
@@ -100,7 +100,14 @@
 					<app-datepicker
 						placeholder="Дата проставления статуса"
 						@selectedDates="changeDatesStatus"
+						:startDate="filters.status_changed_date_after"
+						:endDate="filters.status_changed_date_before"
 					/>
+					<!-- <b-form-datepicker
+						placeholder="Дата проставления статуса"
+                        label="date"
+                        v-model="filters.date_created_after"
+                    /> -->
 					<!-- <v-select
 						label="title"
 						:reduce="(mode) => mode.id"
@@ -124,6 +131,8 @@
 					<app-datepicker
 						placeholder="Период заказа"
 						@selectedDates="changeDatesCreated"
+						:startDate="filters.date_created_after"
+						:endDate="filters.date_created_before"
 					/>
 					<!-- <b-form-checkbox
 						value="true"
@@ -217,6 +226,7 @@
 		BFormCheckbox,
 		BCollapse,
 		VBToggle,
+		BFormDatepicker,
 	} from "bootstrap-vue";
 	import vSelect from "vue-select";
 	import { debounce } from "lodash";
@@ -261,6 +271,7 @@
 			vSelect,
 			SelectAllContracts,
 			SelectClients,
+			BFormDatepicker,
 		},
 		directives: {
 			"b-toggle": VBToggle,

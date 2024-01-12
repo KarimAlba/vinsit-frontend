@@ -65,6 +65,11 @@ export default {
         resetFilters(state) {
             state.filters = {
                 search: null,
+				date_created_after: null,
+				date_created_before: null,
+				number: null,
+				counterparty: null,
+				type: null,
             }
         },
         resetData(state) {
@@ -104,6 +109,9 @@ export default {
         },
         resetOrdering({ commit, state }) {
             commit('resetOrdering')
+        },
+		resetFilters({ commit, state }) {
+            commit('resetFilters')
         }
     },
 }

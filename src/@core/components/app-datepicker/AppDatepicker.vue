@@ -3,7 +3,6 @@
     class="vin-datepicker"
     ref="litepicker"
     :placeholder="placeholder"
-    readonly
   ></b-form-input>
 </template>
 
@@ -17,6 +16,12 @@ export default {
     placeholder: {
       type: String,
     },
+    startDate: {
+      type: String,
+    },
+    endDate: {
+      type: String,
+    },
   },
   components: {
     BFormInput,
@@ -24,13 +29,23 @@ export default {
 	BIcon,
   },
   data() {
-    return {};
+    return {
+		picker: null,
+	};
+  },
+  watch: {
+	'startDate' (newValue, oldValue) {
+		if (!newValue) {
+			this.picker.clearSelection();
+			this.picker.gotoDate(new Date());
+		}
+	},
   },
   methods: {
     initLitePicker() {
       let litepicker = this.$refs.litepicker;
 
-      new Litepicker({
+      this.picker = new Litepicker({
         element: litepicker.$el,
         singleMode: false,
         allowRepick: true,
@@ -38,6 +53,8 @@ export default {
         numberOfColumns: 2,
         showTooltip: false,
         format: "DD.MM.YYYY",
+		// startDate: this.startDate,
+		// endDate: this.endDate,
 
         lang: "ru-RU",
         setup: (picker) => {

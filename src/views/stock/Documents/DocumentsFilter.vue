@@ -177,7 +177,7 @@
 					{name: 'Конечный офис', search: 'final_destination_office'},
 					{name: 'Примечание', search: 'note'},
 					{name: 'ФИО предоставившего', search: 'provided_by'},
-					{name: 'Номер заказа', search: 'orders'},
+					// {name: 'Номер заказа', search: 'orders'},
 					{name: 'Следующий офис', search: 'next_destination_office'},
 					{name: 'Номер пломбы', search: 'seal_number'},
 				],
